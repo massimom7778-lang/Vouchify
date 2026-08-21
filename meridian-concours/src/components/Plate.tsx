@@ -14,7 +14,7 @@ const READINGS = [
 ];
 
 const POSTER_ALT =
-  "A detailer in a dark bay works along the flank of a wet dark saloon under overhead lamps.";
+  "The flank of a dark saloon under foam in a detailing bay, lit from above.";
 
 export default function Plate() {
   const reduced = useReducedMotion() ?? false;
@@ -69,6 +69,12 @@ export default function Plate() {
             background:
               "linear-gradient(100deg, rgba(14,13,11,.94) 0%, rgba(14,13,11,.72) 38%, rgba(14,13,11,.30) 68%, rgba(14,13,11,.55) 100%)",
           }}
+        />
+        {/* Top scrim: the fixed nav sits over whatever the footage is doing here. */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 -z-10 h-36"
+          style={{ background: "linear-gradient(to bottom, rgba(14,13,11,.82), transparent)" }}
         />
         <div
           aria-hidden
