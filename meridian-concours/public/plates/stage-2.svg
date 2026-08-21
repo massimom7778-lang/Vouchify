@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img">
+  <rect width="800" height="560" fill="#E7E2D7"/>
+  <rect x="24" y="24" width="752" height="472" fill="#DAD3C4"/>
+  <g stroke="#B9B1A0" stroke-width="1" fill="none">
+    <path d="M24 260h752M400 24v472"/>
+    <path d="M120 120h180v120H120zM500 300h180v120H500z"/>
+  </g>
+  <g fill="#5C564C" font-family="Georgia, serif" font-size="19">
+    <text x="24" y="536">PLATE 2 — PHOTOGRAPHY TO BE SUPPLIED</text>
+  </g>
+  <g fill="#7A2E22"><rect x="700" y="512" width="76" height="4"/></g>
+</svg>

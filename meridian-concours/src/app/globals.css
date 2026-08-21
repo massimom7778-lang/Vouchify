@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Tokens. Single source: design-system/meridian-concours/MASTER.md ─── */
+:root {
+  --color-background: #F2EFE9;
+  --color-surface: #FBFAF7;
+  --color-sunken: #E7E2D7;
+  --color-foreground: #14120F;
+  --color-muted-foreground: #5C564C;
+  --color-border: #D8D2C5;
+  --color-border-strong: #B9B1A0;
+  --color-accent: #7A2E22;
+  --color-accent-hover: #66251C;
+  --color-on-accent: #FBFAF7;
+  --color-ink-inverse: #0E0D0B;
+  --color-on-inverse: #EFEAE0;
+  --color-ring: #7A2E22;
+
+  /* Bay scene — hero illustration only. See MASTER.md § Bay Scene. */
+  --color-bay-floor: #0A0A0B;
+  --color-bay-wall: #16140F;
+  --color-car-shell: #E9E3D7;
+  --color-car-shade: #B9B0A0;
+  --color-car-glass: #1C1A16;
+  --color-tyre: #100F0E;
+  --color-rim: #9A9285;
+  --color-light: #FFF6E4;
+
+  --type-display: clamp(2.75rem, 7vw, 5.5rem);
+  --type-h1: clamp(2rem, 4.5vw, 3.25rem);
+  --type-h2: clamp(1.5rem, 2.5vw, 2rem);
+
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 450ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans), system-ui, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3 { font-family: var(--font-display), Georgia, serif; font-weight: 400; text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  /* ─── Browser surfaces: themed, never left at defaults ─── */
+  ::selection { background: var(--color-accent); color: var(--color-on-accent); }
+  html { caret-color: var(--color-accent); scrollbar-color: var(--color-border-strong) var(--color-background); }
+
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: var(--color-background); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border: 3px solid var(--color-background);
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-muted-foreground); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  a { text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  button, a, summary, [role="button"] { cursor: pointer; }
+
+  /* Measurements align in columns everywhere */
+  table, .tnum { font-variant-numeric: tabular-nums; }
+}
+
+@layer components {
+  /* Hairline rule used as the page's structural grammar */
+  .rule-t { border-top: 1px solid var(--color-border); }
+  .rule-b { border-bottom: 1px solid var(--color-border); }
+
+  .label {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.8125rem 1.5rem;
+    border-radius: 2px;
+    font-size: 0.9375rem; font-weight: 500; letter-spacing: 0.01em;
+    transition: background-color var(--dur-base) var(--ease-out),
+                color var(--dur-base) var(--ease-out),
+                border-color var(--dur-base) var(--ease-out);
+  }
+  .btn-primary { background: var(--color-accent); color: var(--color-on-accent); }
+  .btn-primary:hover { background: var(--color-accent-hover); }
+  .btn-secondary { border: 1px solid var(--color-border-strong); color: var(--color-foreground); }
+  .btn-secondary:hover { border-color: var(--color-foreground); background: var(--color-surface); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+/* Honour the OS setting globally, including anything Framer Motion drives */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
