@@ -17,6 +17,7 @@
   --color-ink-inverse: #0E0D0B;
   --color-on-inverse: #EFEAE0;
   --color-ring: #7A2E22;
+  --color-accent-inverse: #C9705C; /* accent, lightened for dark grounds — 5.5:1 on ink */
 
   /* Bay scene — hero illustration only. See MASTER.md § Bay Scene. */
   --color-bay-floor: #0A0A0B;

@@ -48,6 +48,7 @@ Specific to the practice, not to the category.
 | Ink Inverse | `#0E0D0B` | `--color-ink-inverse` | Full-bleed plate ground |
 | On Inverse | `#EFEAE0` | `--color-on-inverse` | Text on plate |
 | Ring | `#7A2E22` | `--color-ring` | Focus ring, 2px + 2px offset |
+| Accent (inverse) | `#C9705C` | `--color-accent-inverse` | Accent on dark grounds, 5.5:1 on ink |
 
 **Contrast verified:** foreground/bg 16.9:1 · muted/bg 6.3:1 · accent/bg 8.2:1 ·
 on-accent/accent 9.4:1 · on-inverse/ink-inverse 13.1:1. All exceed WCAG AA.

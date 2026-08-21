@@ -22,13 +22,15 @@ export default function Nav() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-colors duration-[240ms] ease-out ${
-        stuck ? "border-b border-rule bg-background/92 backdrop-blur-[2px]" : "border-b border-transparent"
+      className={`fixed inset-x-0 top-0 z-40 transition-colors duration-[240ms] ease-out ${
+        stuck
+          ? "border-b border-rule bg-background/92 text-foreground backdrop-blur-[2px]"
+          : "border-b border-transparent text-on-inverse"
       }`}
     >
-      <nav aria-label="Primary" className="mx-auto flex max-w-[84rem] items-center justify-between px-md py-sm md:px-xl">
+      <nav aria-label="Primary" className="mx-auto flex max-w-[84rem] items-center justify-between px-md py-md md:px-xl">
         <a href="#main" className="font-display text-[1.0625rem] tracking-[-0.01em]">
-          Meridian&nbsp;<span className="text-accent">Concours</span>
+          Meridian&nbsp;<span className={stuck ? "text-accent" : "text-accent-inverse"}>Concours</span>
         </a>
 
         <ul className="hidden items-center gap-xl md:flex">
@@ -36,7 +38,7 @@ export default function Nav() {
             <li key={l.href}>
               <a
                 href={l.href}
-                className="text-small text-muted transition-colors duration-[160ms] ease-out hover:text-foreground"
+                className={`text-small transition-colors duration-[160ms] ease-out ${stuck ? "text-muted hover:text-foreground" : "text-on-inverse/78 hover:text-on-inverse"}`}
               >
                 {l.label}
               </a>
@@ -65,7 +67,7 @@ export default function Nav() {
 
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div id="mobile-nav" className="overflow-hidden border-t border-rule md:hidden" {...disclosure(reduced)}>
+          <motion.div id="mobile-nav" className="overflow-hidden border-t border-rule bg-background text-foreground md:hidden" {...disclosure(reduced)}>
             <ul className="flex flex-col px-md py-md">
               {LINKS.map((l) => (
                 <li key={l.href} className="border-b border-rule last:border-0">

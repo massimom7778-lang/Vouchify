@@ -15,6 +15,7 @@ const config: Config = {
         "rule-strong": "var(--color-border-strong)",
         accent: "var(--color-accent)",
         "on-accent": "var(--color-on-accent)",
+        "accent-inverse": "var(--color-accent-inverse)",
         "ink-inverse": "var(--color-ink-inverse)",
         "on-inverse": "var(--color-on-inverse)",
       },
