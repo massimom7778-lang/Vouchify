@@ -4,8 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button, ButtonLink, Eyebrow, Grid, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { formatMoney, pluralize } from '@/lib/format';
-import { resolveLines, shippingState, useCart, useCartReady } from '@/lib/cart';
+import { formatMoney } from '@/lib/format';
+import {
+  describeLine,
+  hasPerUnitLinks,
+  resolveLines,
+  shippingState,
+  useCart,
+  useCartReady,
+} from '@/lib/cart';
 import { coreProduct, getAddOn, orderBump } from '@/data/products';
 import { site } from '@/data/site';
 
@@ -46,6 +53,7 @@ export function CheckoutForm() {
     );
   }
 
+  const perUnitLinks = hasPerUnitLinks(lines);
   const itemsTotal = resolved.reduce((sum, line) => sum + line.totalCents, 0);
   const withBump = itemsTotal + (bump ? bumpPrice : 0);
   const shipping = shippingState(
@@ -91,11 +99,8 @@ export function CheckoutForm() {
               <span className="min-w-0">
                 <span className="block text-sm font-semibold">{item.name}</span>
                 <span className="block text-xs text-warm-600">
-                  {line.color ? `${line.color === 'black' ? 'Black' : 'White'} · ` : ''}
                   {line.qty > 1 ? `${line.qty} × ` : ''}
-                  {item.kind === 'stand-tier'
-                    ? `${item.qty} ${pluralize(item.qty, 'stand')} per pack`
-                    : item.shortLine}
+                  {describeLine(line, item)}
                 </span>
               </span>
               <Price cents={totalCents} size="sm" display={false} />
@@ -121,9 +126,13 @@ export function CheckoutForm() {
           </label>
 
           <label className="block">
-            <span className="block text-sm font-semibold">Your Google review link</span>
+            <span className="block text-sm font-semibold">
+              {perUnitLinks ? 'Your main Google review link' : 'Your Google review link'}
+            </span>
             <span className="mt-0.5 block text-xs text-warm-600">
-              Leave it blank and we will email you for it before programming.
+              {perUnitLinks
+                ? 'You picked a separate link per stand — we will email you for the rest, then label each box.'
+                : 'Leave it blank and we will email you for it before programming.'}
             </span>
             <input
               type="url"

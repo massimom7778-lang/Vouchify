@@ -84,6 +84,54 @@ export default async function ProductPage({
         <PhotoBlock photo={coreProduct.photos.counter} square className="border-0" />
       </div>
 
+      <Section bordered>
+        <Grid className="gap-y-12">
+          <div className="col-span-4 md:col-span-6">
+            <Eyebrow>In the box</Eyebrow>
+            <h2 className="mt-3 text-2xl md:text-2xl">What actually arrives.</h2>
+            <p className="mt-4 max-w-prose text-base text-warm-700">
+              Nothing to activate, no account to create before the stands work. They are encoded and
+              tested here, so the first customer of the day can use one.
+            </p>
+            <ul className="mt-8 divide-y divide-warm-300 border-y border-warm-300">
+              {coreProduct.inTheBox.map((entry) => (
+                <li key={entry} className="flex gap-4 py-4">
+                  <span
+                    aria-hidden="true"
+                    className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-signal"
+                  />
+                  <span className="text-base text-warm-700">{entry}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="col-span-4 md:col-span-5 md:col-start-8">
+            <Eyebrow>What you pay</Eyebrow>
+            <h2 className="mt-3 text-2xl md:text-2xl">Once. That is the whole model.</h2>
+            <p className="mt-4 text-base text-warm-700">
+              A stand is a thing you buy, not a seat you rent. There is no plan behind it that we can
+              put up later.
+            </p>
+            <dl className="mt-8 divide-y divide-warm-300 border-y border-warm-300">
+              {coreProduct.ownership.map((term) => (
+                <div key={term.label} className="flex flex-wrap items-baseline gap-x-6 gap-y-1 py-4">
+                  <dt className="w-28 shrink-0 text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                    {term.label}
+                  </dt>
+                  <dd className="flex-1 text-sm font-medium">{term.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-4 text-xs text-warm-600">
+              The one thing we run for you is the forwarder that lets you change where the stands
+              point. If we ever stopped running it, we would publish a way to reprogram your chips to
+              point straight at your review page.
+            </p>
+          </div>
+        </Grid>
+      </Section>
+
       <Section tone="warm">
         <Grid className="gap-y-10">
           <div className="col-span-4 md:col-span-3">

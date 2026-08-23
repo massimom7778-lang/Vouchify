@@ -3,6 +3,7 @@ import {
   orderBump,
   getAddOn,
   type CatalogItem,
+  type LinkMode,
 } from '@/data/products';
 import { site } from '@/data/site';
 import type { CheckoutRequest } from '@/lib/schemas';
@@ -11,6 +12,7 @@ export interface PricedLine {
   readonly item: CatalogItem;
   readonly qty: number;
   readonly color?: 'black' | 'white';
+  readonly linkMode?: LinkMode;
   readonly unitCents: number;
   readonly totalCents: number;
   readonly label: string;
@@ -22,6 +24,8 @@ export interface PricedOrder {
   readonly shippingCents: number;
   readonly totalCents: number;
   readonly standCount: number;
+  /** True when any pack in the order needs a link encoded per stand. */
+  readonly needsPerUnitLinks: boolean;
 }
 
 /**
@@ -32,6 +36,7 @@ export interface PricedOrder {
 export function priceOrder(request: CheckoutRequest): PricedOrder {
   const lines: PricedLine[] = [];
   let standCount = 0;
+  let needsPerUnitLinks = false;
 
   for (const requested of request.lines) {
     const item = getCatalogItem(requested.sku);
@@ -39,18 +44,23 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     const perOrder = item.kind === 'add-on' && item.perOrder;
     const qty = perOrder ? 1 : requested.qty;
     const color = item.kind === 'stand-tier' ? requested.color : undefined;
+    const linkMode = item.kind === 'stand-tier' ? requested.linkMode : undefined;
 
     if (item.kind === 'stand-tier') standCount += item.qty * qty;
+    if (linkMode === 'per-unit') needsPerUnitLinks = true;
 
     lines.push({
       item,
       qty,
       color,
+      linkMode,
       unitCents: item.priceCents,
       totalCents: item.priceCents * qty,
       label:
         item.kind === 'stand-tier'
-          ? `${item.name}${color ? `, ${color}` : ''}`
+          ? `${item.name}${color ? `, ${color}` : ''}${
+              linkMode === 'per-unit' ? ', separate link per stand' : ''
+            }`
           : item.name,
     });
   }
@@ -79,5 +89,6 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     shippingCents: shipping,
     totalCents: subtotal + shipping,
     standCount,
+    needsPerUnitLinks,
   };
 }

@@ -21,19 +21,21 @@ export default function MultiLocationPage() {
               More than one address changes the order.
             </h1>
             <p className="mt-6 text-base text-warm-700">
-              Each location has its own Google review page, so each location needs its own
-              programming. Sending one box of identical stands to head office does not work — someone
-              has to sort them, and someone always gets it wrong.
+              Any pack can already be encoded with a separate link per stand — that is a checkbox in
+              the buy box, not a conversation. What changes past{' '}
+              {site.multiLocationMinUnits} stands is everything around the chips: which box goes to
+              which address, who signs for it, what the whole group should cost, and what happens
+              when you open number seven.
             </p>
             <p className="mt-4 text-base text-warm-700">
-              So above {site.multiLocationMinUnits} stands we quote instead of listing a price. You
-              tell us the addresses and how many stands each one needs; we program, label and price
-              the group.
+              So above {site.multiLocationMinUnits} we quote instead of listing a price. You tell us
+              the addresses and how many stands each one needs; we program, label, price and keep it
+              on file.
             </p>
 
             <dl className="mt-8 divide-y divide-warm-300 border-y border-warm-300">
               {[
-                ['Per-location links', 'Each shop’s stands point at that shop’s review page.'],
+                ['Per-location links', 'Each shop’s stands point at that shop’s review page. Included, not an upgrade.'],
                 ['Labelled boxes', 'One box per address, named, so staff put out the right ones.'],
                 ['Group pricing', 'Written down and valid for 30 days.'],
                 ['One setup charge', 'Logo printing covers the whole order, not each location.'],

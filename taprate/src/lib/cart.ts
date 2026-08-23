@@ -8,6 +8,7 @@ import {
   getCatalogItem,
   type AddOn,
   type CatalogItem,
+  type LinkMode,
   type Sku,
 } from '@/data/products';
 import { site } from '@/data/site';
@@ -23,10 +24,13 @@ export interface CartLine {
   readonly sku: Sku;
   readonly qty: number;
   readonly color?: StandColor;
+  /** Stand packs only: one review link for the pack, or one per stand. */
+  readonly linkMode?: LinkMode;
 }
 
-export function lineKey(line: Pick<CartLine, 'sku' | 'color'>): string {
-  return `${line.sku}:${line.color ?? '-'}`;
+/** Two packs of the same size differ if their colour or link plan differs. */
+export function lineKey(line: Pick<CartLine, 'sku' | 'color' | 'linkMode'>): string {
+  return `${line.sku}:${line.color ?? '-'}:${line.linkMode ?? '-'}`;
 }
 
 interface CartState {
@@ -34,7 +38,7 @@ interface CartState {
   /** The customer's Google review page. Collected once, used to program every chip. */
   reviewLink: string;
   drawerOpen: boolean;
-  add: (sku: Sku, qty?: number, color?: StandColor) => void;
+  add: (sku: Sku, qty?: number, options?: { color?: StandColor; linkMode?: LinkMode }) => void;
   setQty: (key: string, qty: number) => void;
   remove: (key: string) => void;
   clear: () => void;
@@ -50,13 +54,15 @@ export const useCart = create<CartState>()(
       reviewLink: '',
       drawerOpen: false,
 
-      add: (sku, qty = 1, color) =>
+      add: (sku, qty = 1, options) =>
         set((state) => {
           const item = getCatalogItem(sku);
           if (!item) return state;
           // Per-order services are charged once however many times they are added.
           const perOrder = item.kind === 'add-on' && item.perOrder;
-          const key = lineKey({ sku, color });
+          const color = options?.color;
+          const linkMode = options?.linkMode;
+          const key = lineKey({ sku, color, linkMode });
           const existing = state.lines.find((line) => lineKey(line) === key);
           if (existing) {
             if (perOrder) return { ...state, drawerOpen: true };
@@ -71,7 +77,7 @@ export const useCart = create<CartState>()(
           return {
             ...state,
             drawerOpen: true,
-            lines: [...state.lines, { sku, qty: perOrder ? 1 : qty, color }],
+            lines: [...state.lines, { sku, qty: perOrder ? 1 : qty, color, linkMode }],
           };
         }),
 
@@ -142,6 +148,26 @@ export function resolveLines(lines: readonly CartLine[]): ResolvedLine[] {
     });
   }
   return resolved;
+}
+
+/** One sentence describing what a cart line actually is. Shared by the drawer,
+ *  the cart page and the checkout summary so they cannot describe it differently. */
+export function describeLine(line: CartLine, item: CatalogItem): string {
+  const parts: string[] = [];
+  if (line.color) parts.push(line.color === 'black' ? 'Black' : 'White');
+  if (item.kind === 'stand-tier') {
+    parts.push(`${item.qty} stand${item.qty === 1 ? '' : 's'} per pack`);
+    if (line.linkMode === 'per-unit') parts.push('separate link per stand');
+    else if (item.qty > 1) parts.push('one shared link');
+  } else {
+    parts.push(item.shortLine);
+  }
+  return parts.join(' · ');
+}
+
+/** True when any pack in the cart needs a different link encoded per stand. */
+export function hasPerUnitLinks(lines: readonly CartLine[]): boolean {
+  return lines.some((line) => line.linkMode === 'per-unit');
 }
 
 export function subtotalCents(lines: readonly CartLine[]): number {

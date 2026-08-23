@@ -94,6 +94,21 @@ export const coreProduct = {
     { label: 'Power', value: 'None. Passive chip, no battery, no wifi' },
     { label: 'Link changes', value: 'Free, unlimited, from your dashboard' },
   ],
+  /** Concrete, countable, and the first thing a cautious buyer looks for. */
+  inTheBox: [
+    'The stands, programmed to your review link and tested on both an iPhone and an Android handset',
+    'A placement card showing where the first three go, in order',
+    'Non-marking adhesive pads, one per stand, if you want them fixed down',
+    'A card with your dashboard link for changing where the stands point',
+  ],
+  /** The commercial promise, stated as facts rather than as a slogan. */
+  ownership: [
+    { label: 'Price', value: 'Paid once' },
+    { label: 'Monthly', value: '$0. There is no subscription and no plan to add one' },
+    { label: 'Taps', value: 'Unlimited, for as long as you own the stand' },
+    { label: 'Link changes', value: 'Free and unlimited' },
+    { label: 'Per review', value: 'Nothing. We do not charge on results' },
+  ],
   photos: {
     hero: {
       id: 'core-hero',
@@ -374,6 +389,45 @@ export const addOns: readonly AddOn[] = [
     },
   },
 ];
+
+/* -------------------------------------------------------------------------- */
+/* Link assignment                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Every chip is encoded individually before it ships, so a pack does not have to
+ * point at one place. A three-pack can cover one counter three times over, or
+ * three businesses that share an owner.
+ *
+ * This is why the choice belongs in the buy box rather than in a quote form: it
+ * costs nothing extra and it decides what the customer is actually buying.
+ */
+export type LinkMode = 'shared' | 'per-unit';
+
+export interface LinkModeOption {
+  readonly id: LinkMode;
+  readonly label: string;
+  readonly blurb: string;
+  /** Shown once the mode is selected, in the buy box. */
+  readonly note: string;
+}
+
+export const linkModes: readonly LinkModeOption[] = [
+  {
+    id: 'shared',
+    label: 'One link',
+    blurb: 'Every stand opens the same review page.',
+    note: 'All of them point at one review page. This is what a single shop wants.',
+  },
+  {
+    id: 'per-unit',
+    label: 'A link per stand',
+    blurb: 'Each stand can point somewhere different.',
+    note: 'Send one link per stand after checkout and we encode them separately, then label each box so the right stand reaches the right counter. No extra charge.',
+  },
+];
+
+export const DEFAULT_LINK_MODE: LinkMode = 'shared';
 
 /* -------------------------------------------------------------------------- */
 /* Placements — the order stands should go out in                              */

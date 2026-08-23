@@ -13,6 +13,7 @@ export const cartLineSchema = z.object({
   sku: z.enum(skuIds),
   qty: z.number().int().min(1).max(99),
   color: z.enum(['black', 'white']).optional(),
+  linkMode: z.enum(['shared', 'per-unit']).optional(),
 });
 
 export const checkoutRequestSchema = z.object({

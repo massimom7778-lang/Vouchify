@@ -11,8 +11,6 @@ export interface FaqEntry {
   readonly question: string;
   readonly answer: readonly string[];
   readonly topics: readonly FaqTopic[];
-  /** Shown in the six-question homepage accordion. */
-  readonly onHomepage?: boolean;
   /** Shown on the product page. */
   readonly onProduct?: boolean;
 }
@@ -26,7 +24,6 @@ export const faqs: readonly FaqEntry[] = [
       'iPhone 7 through X can read it too, but the screen has to be awake and unlocked first. Anything older uses the QR code printed on the same face.',
     ],
     topics: ['phones'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -37,7 +34,6 @@ export const faqs: readonly FaqEntry[] = [
       'If nothing happens, NFC is switched off in settings — or the phone is one of the budget models that ships without it, in which case the QR code covers it.',
     ],
     topics: ['phones'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -48,7 +44,6 @@ export const faqs: readonly FaqEntry[] = [
       'In practice a busy counter uses both: regulars tap, and anyone whose phone does not cooperate scans instead.',
     ],
     topics: ['phones'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -59,7 +54,6 @@ export const faqs: readonly FaqEntry[] = [
       'The stand works during a power cut and works in a basement. The customer’s phone needs a connection to load the review page, but the stand itself never does.',
     ],
     topics: ['setup', 'product'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -70,7 +64,26 @@ export const faqs: readonly FaqEntry[] = [
       'That matters if you move, rebrand, or want to send taps somewhere else for a week.',
     ],
     topics: ['setup'],
-    onHomepage: true,
+    onProduct: true,
+  },
+  {
+    id: 'separate-links',
+    question: 'Can each stand in a pack point somewhere different?',
+    answer: [
+      'Yes. Every chip is encoded individually before it ships, so a pack does not have to point at one place. Pick “a link per stand” in the buy box, send us the links after checkout, and we label each box so the right stand reaches the right counter.',
+      'That means a 3-pack can cover one shop three times over, or three shops that share an owner. There is no extra charge either way.',
+    ],
+    topics: ['setup'],
+    onProduct: true,
+  },
+  {
+    id: 'subscription',
+    question: 'Is there a monthly fee?',
+    answer: [
+      'No. You pay once for the stands. There is no subscription, no per-review charge, and no paid tier holding back a feature.',
+      'Link changes and tap counts are included for as long as you own the stand. The only thing we run on your behalf is the forwarder that makes changing the link possible — if we ever stopped running it, we would publish a way to reprogram your chips to point straight at your review page.',
+    ],
+    topics: ['policy', 'setup'],
     onProduct: true,
   },
   {
@@ -81,7 +94,6 @@ export const faqs: readonly FaqEntry[] = [
       'Rush processing moves your order to the front of the programming queue for $12, so it leaves the next business day. It does not change carrier transit time.',
     ],
     topics: ['shipping'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -103,7 +115,6 @@ export const faqs: readonly FaqEntry[] = [
       'That is a deliberate product decision, and it is why the stand is a piece of acrylic rather than a funnel.',
     ],
     topics: ['policy'],
-    onHomepage: true,
     onProduct: true,
   },
   {
@@ -136,5 +147,22 @@ export const faqs: readonly FaqEntry[] = [
   },
 ];
 
-export const homepageFaqs = faqs.filter((f) => f.onHomepage).slice(0, 6);
+/**
+ * The homepage six, curated rather than sliced: one about the customer's phone,
+ * one about the phones that will not tap, one about what the shop needs to
+ * provide, one about the catch, one about delivery, and the one about whether
+ * this is allowed at all. Order matters — it is the order people worry in.
+ */
+const HOMEPAGE_FAQ_IDS = [
+  'iphone',
+  'no-nfc',
+  'power',
+  'subscription',
+  'shipping-time',
+  'google-policy',
+] as const;
+
+export const homepageFaqs = HOMEPAGE_FAQ_IDS.map(
+  (id) => faqs.find((entry) => entry.id === id)!,
+).filter(Boolean);
 export const productFaqs = faqs.filter((f) => f.onProduct);

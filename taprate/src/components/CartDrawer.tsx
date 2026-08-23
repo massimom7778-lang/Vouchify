@@ -6,6 +6,8 @@ import { Button, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import {
+  describeLine,
+  hasPerUnitLinks,
   resolveLines,
   shippingState,
   standCount,
@@ -117,6 +119,7 @@ export function CartDrawer() {
   const stands = ready ? standCount(lines) : 0;
   const shipping = shippingState(ready ? lines : []);
   const empty = resolved.length === 0;
+  const perUnitLinks = ready && hasPerUnitLinks(lines);
 
   return (
     <div
@@ -242,12 +245,7 @@ export function CartDrawer() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold">{item.name}</p>
-                          <p className="text-xs text-warm-600">
-                            {line.color ? `${line.color === 'black' ? 'Black' : 'White'} · ` : ''}
-                            {item.kind === 'stand-tier'
-                              ? `${item.qty} ${pluralize(item.qty, 'stand')} per pack`
-                              : item.shortLine}
-                          </p>
+                          <p className="text-xs text-warm-600">{describeLine(line, item)}</p>
                         </div>
                         <Price cents={totalCents} size="sm" display={false} />
                       </div>
@@ -282,9 +280,13 @@ export function CartDrawer() {
         {!empty ? (
           <div className="border-t border-warm-300 px-5 py-4">
             <label className="block">
-              <span className="block text-xs font-semibold">Your Google review link</span>
+              <span className="block text-xs font-semibold">
+                {perUnitLinks ? 'Your main Google review link' : 'Your Google review link'}
+              </span>
               <span className="mt-0.5 block text-2xs text-warm-600">
-                We program every chip to this before shipping. You can add it after checkout instead.
+                {perUnitLinks
+                  ? 'You picked a separate link per stand — we will email you for the rest before programming.'
+                  : 'We program every chip to this before shipping. You can add it after checkout instead.'}
               </span>
               <input
                 type="url"

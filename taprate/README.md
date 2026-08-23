@@ -141,6 +141,14 @@ shot description. `PhotoBlock` renders it as a warm-grey block with that
 description printed on it. Replace each with `next/image` per slot as the real
 photographs arrive.
 
+**A pack does not have to point at one place.** Every chip is encoded
+individually before shipping, so `linkMode` on a cart line is either `'shared'`
+(all stands open the same review page) or `'per-unit'` (one link each, boxes
+labelled). It costs nothing extra, it rides through the cart into Stripe session
+metadata as `linkPlan`, and it is what lets a 3-pack serve three businesses that
+share an owner. The review-link field in the cart, on `/cart` and at checkout
+changes its wording when a per-stand pack is present — see `hasPerUnitLinks()`.
+
 **The shop plan is the argument.** `placements` in `products.ts` is a single
 ordered list of ten positions. The drawing, the legend, the tier `coverage`
 strings and the homepage placement list all read from it, so the picture and the

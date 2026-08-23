@@ -244,10 +244,19 @@ export default function HomePage() {
             <Eyebrow>Pricing</Eyebrow>
             <h2 className="mt-3 text-2xl md:text-3xl">Per stand, it gets cheaper.</h2>
             <p className="mt-5 max-w-prose text-base text-warm-700">
-              One price, no subscription, no per-review fee. The chip is yours and the link stays
-              yours.
+              A stand is a thing you buy, not a seat you rent.
             </p>
-            <p className="mt-4 text-sm text-warm-600">
+            <dl className="mt-6 divide-y divide-warm-300 border-y border-warm-300">
+              {coreProduct.ownership.map((term) => (
+                <div key={term.label} className="flex flex-wrap items-baseline gap-x-5 gap-y-1 py-3">
+                  <dt className="w-24 shrink-0 text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                    {term.label}
+                  </dt>
+                  <dd className="flex-1 text-sm font-medium">{term.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-5 text-sm text-warm-600">
               Buying for more than one address?{' '}
               <Link href="/multi-location" className="font-semibold text-signal-deep underline underline-offset-4">
                 Ask for a multi-location quote

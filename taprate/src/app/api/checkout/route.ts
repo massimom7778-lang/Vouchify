@@ -83,6 +83,7 @@ export async function POST(request: Request) {
       metadata: {
         reviewLink: parsed.data.reviewLink ?? '',
         standCount: String(order.standCount),
+        linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',
         orderBump: parsed.data.bump ? 'keychain' : '',
       },
       success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,

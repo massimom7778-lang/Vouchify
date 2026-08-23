@@ -7,14 +7,17 @@ import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import { useCart, type StandColor } from '@/lib/cart';
 import {
+  DEFAULT_LINK_MODE,
   DEFAULT_TIER_ID,
   buyBoxAddOns,
   coreProduct,
+  linkModes,
   orderOptions,
   standTiers,
   tierEconomics,
   type AddOn,
   type AddOnId,
+  type LinkMode,
   type StandTier,
   type StandTierId,
 } from '@/data/products';
@@ -155,6 +158,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
 
   const [tierId, setTierId] = useState<StandTierId>(startingTier);
   const [color, setColor] = useState<StandColor>('black');
+  const [linkMode, setLinkMode] = useState<LinkMode>(DEFAULT_LINK_MODE);
   const [picked, setPicked] = useState<Set<AddOnId>>(() => new Set());
   const [barVisible, setBarVisible] = useState(false);
 
@@ -195,7 +199,8 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
   }
 
   function addToCart() {
-    add(tier.id, 1, color);
+    // A single stand cannot have more than one link, so the choice is dropped.
+    add(tier.id, 1, { color, linkMode: tier.qty > 1 ? linkMode : undefined });
     for (const addOn of selectedAddOns) add(addOn.id, 1);
   }
 
@@ -303,6 +308,58 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
               <p className="mt-3 text-xs text-warm-600">{tier.rationale}</p>
             </fieldset>
 
+            {/* Link plan. Every chip is encoded separately before it ships, so a
+                pack does not have to point at one place — and the buyer should
+                be told that here, not discover it in a FAQ. */}
+            {tier.qty > 1 ? (
+              <fieldset className="mt-6 border-0 p-0">
+                <legend className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                  Where these {tier.qty} stands point
+                </legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {linkModes.map((option) => {
+                    const active = option.id === linkMode;
+                    return (
+                      <label
+                        key={option.id}
+                        className={cn(
+                          'cursor-pointer rounded-sm border p-3',
+                          active
+                            ? 'border-ink bg-paper'
+                            : 'border-warm-300 bg-paper hover:border-warm-500',
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="link-mode"
+                          value={option.id}
+                          checked={active}
+                          onChange={() => setLinkMode(option.id)}
+                          className="sr-only"
+                        />
+                        <span className="flex items-center gap-2">
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              'grid h-4 w-4 shrink-0 place-items-center rounded-full border',
+                              active ? 'border-ink bg-ink' : 'border-warm-400 bg-paper',
+                            )}
+                          >
+                            {active ? <span className="h-1 w-1 rounded-full bg-signal" /> : null}
+                          </span>
+                          <span className="text-sm font-semibold">{option.label}</span>
+                        </span>
+                        <span className="mt-1 block text-xs text-warm-600">{option.blurb}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-xs text-warm-700">
+                  {linkModes.find((option) => option.id === linkMode)?.note}
+                </p>
+              </fieldset>
+            ) : null}
+
             {/* Add-ons */}
             <fieldset className="mt-6 border-0 p-0">
               <legend className="mb-1 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
@@ -366,6 +423,11 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
               Placements are numbered in the order they earn their keep. Position 1 catches everyone
               who pays. By position 5 you are catching the people who never walk past the counter at
               all — the ones sitting in a chair, or paying at the table.
+            </p>
+            <p className="mt-4 text-base text-warm-700">
+              Each stand counts its own taps, so after a fortnight you can see which placement is
+              doing the work and move the quiet one. The count is per stand and nothing else — no
+              cookie on the customer’s phone, nothing that identifies them.
             </p>
             <p className="mt-4 text-sm text-warm-600">
               Change the quantity above and the plan follows.

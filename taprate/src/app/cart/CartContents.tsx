@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { Button, ButtonLink, Eyebrow, Grid, Price } from '@/components/ui';
-import { formatMoney, pluralize } from '@/lib/format';
+import { formatMoney } from '@/lib/format';
 import {
+  describeLine,
+  hasPerUnitLinks,
   resolveLines,
   shippingCents,
   shippingState,
@@ -36,6 +38,7 @@ export function CartContents() {
   const subtotal = subtotalCents(lines);
   const shipping = shippingState(lines);
   const stands = standCount(lines);
+  const perUnitLinks = hasPerUnitLinks(lines);
 
   if (resolved.length === 0) {
     return (
@@ -72,12 +75,7 @@ export function CartContents() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <p className="font-display text-lg font-bold tracking-tight">{item.name}</p>
-                      <p className="mt-1 text-sm text-warm-700">
-                        {line.color ? `${line.color === 'black' ? 'Black' : 'White'} · ` : ''}
-                        {item.kind === 'stand-tier'
-                          ? `${item.qty} ${pluralize(item.qty, 'stand')} per pack`
-                          : item.shortLine}
-                      </p>
+                      <p className="mt-1 text-sm text-warm-700">{describeLine(line, item)}</p>
                     </div>
                     <Price cents={totalCents} size="md" />
                   </div>
@@ -126,10 +124,13 @@ export function CartContents() {
 
         <div className="mt-8">
           <label className="block max-w-prose">
-            <span className="block text-sm font-semibold">Your Google review link</span>
+            <span className="block text-sm font-semibold">
+              {perUnitLinks ? 'Your main Google review link' : 'Your Google review link'}
+            </span>
             <span className="mt-0.5 block text-xs text-warm-600">
-              We program every chip to this before shipping. Leave it blank and we will email you for
-              it after checkout.
+              {perUnitLinks
+                ? 'You picked a separate link per stand — we will email you for the rest before programming.'
+                : 'We program every chip to this before shipping. Leave it blank and we will email you for it after checkout.'}
             </span>
             <input
               type="url"
