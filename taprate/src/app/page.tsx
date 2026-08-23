@@ -7,7 +7,7 @@ import { site } from '@/data/site';
  */
 export default function HomePage() {
   return (
-    <main id="main" className="flex min-h-dvh items-center bg-ink text-paper">
+    <main id="main" className="flex min-h-[60vh] items-center bg-ink py-20 text-paper">
       <Container>
         <Eyebrow tone="onDark">{site.name} — in build</Eyebrow>
         <h1 className="mt-5 max-w-[16ch] text-2xl md:text-3xl lg:text-4xl">

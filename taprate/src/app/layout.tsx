@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Footer } from '@/components/Footer';
+import { Header } from '@/components/Header';
 import { bricolage, inter } from '@/lib/fonts';
 import { site } from '@/data/site';
 import './globals.css';
@@ -30,7 +32,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );

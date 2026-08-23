@@ -376,6 +376,43 @@ export const addOns: readonly AddOn[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
+/* Placements — the order stands should go out in                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Where each additional stand goes, in the order an owner should place them.
+ * This is a real priority sequence, not decoration: position 1 catches the most
+ * people, position 10 the fewest. The shop plan and every "why more" argument
+ * on the site read from this list, so the reasoning and the drawing can never
+ * drift apart.
+ */
+export interface Placement {
+  readonly n: number;
+  readonly label: string;
+  readonly note: string;
+  /** Which of the two plans this position belongs to. */
+  readonly location: 1 | 2;
+  /** Centre of the dot in the 300 x 260 plan drawing. */
+  readonly x: number;
+  readonly y: number;
+}
+
+export const placements: readonly Placement[] = [
+  { n: 1, label: 'Checkout counter', note: 'Everyone stops here. It is the one placement no shop should skip.', location: 1, x: 100, y: 53 },
+  { n: 2, label: 'Pay terminal', note: 'Catches them while the card is still in their hand.', location: 1, x: 191, y: 53 },
+  { n: 3, label: 'Waiting area', note: 'People sitting with nothing to do are the easiest ask of the day.', location: 1, x: 215, y: 207 },
+  { n: 4, label: 'First chair or bay', note: 'The ask lands best while the work is still in front of them.', location: 1, x: 255, y: 100 },
+  { n: 5, label: 'Second chair or bay', note: 'One per station means no customer has to walk to find it.', location: 1, x: 255, y: 150 },
+  { n: 6, label: 'Second location counter', note: 'Programmed to that location\u2019s own review page.', location: 2, x: 100, y: 53 },
+  { n: 7, label: 'Second location terminal', note: 'Same two-ask pattern that works at the first shop.', location: 2, x: 191, y: 53 },
+  { n: 8, label: 'Second location waiting', note: 'Covers the room where people sit the longest.', location: 2, x: 215, y: 207 },
+  { n: 9, label: 'Second location chair', note: 'Station coverage, second floor plan.', location: 2, x: 255, y: 100 },
+  { n: 10, label: 'Spare', note: 'One in the drawer for the stand that gets knocked off a counter.', location: 2, x: 255, y: 150 },
+];
+
+export const PLACEMENTS_PER_LOCATION = 5;
+
+/* -------------------------------------------------------------------------- */
 /* Offers driven by the catalog                                                */
 /* -------------------------------------------------------------------------- */
 
