@@ -1,23 +1,10 @@
 /**
- * Brand + commerce configuration.
+ * Brand + commerce configuration. Policy copy lives in ./legal.ts.
  *
  * Everything here is copy or policy, never layout. Swapping this file for a
  * headless CMS payload later means matching this shape and nothing else —
  * no component reads a hardcoded brand string.
  */
-
-export interface PolicySection {
-  readonly heading: string;
-  readonly body: readonly string[];
-}
-
-export interface LegalPage {
-  readonly slug: 'shipping' | 'returns' | 'privacy' | 'terms';
-  readonly title: string;
-  readonly summary: string;
-  readonly updated: string;
-  readonly sections: readonly PolicySection[];
-}
 
 export interface NavLink {
   readonly href: string;

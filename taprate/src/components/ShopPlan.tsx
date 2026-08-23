@@ -63,6 +63,42 @@ function PlacementDot({ placement, filled }: { placement: Placement; filled: boo
   );
 }
 
+/** Just the drawing. Used on its own in the bundle comparison row. */
+export function PlanDrawing({
+  location,
+  count,
+  title,
+  className,
+}: {
+  location: 1 | 2;
+  count: number;
+  /** Used for the accessible name only. */
+  title: string;
+  className?: string;
+}) {
+  const forLocation = placements.filter((p) => p.location === location);
+  const active = forLocation.filter((p) => p.n <= count);
+  const dormant = active.length === 0;
+
+  return (
+    <svg
+      viewBox="0 0 300 260"
+      className={cn('w-full rounded-md border border-warm-300 bg-paper', dormant && 'opacity-55', className)}
+      role="img"
+      aria-label={
+        active.length === 0
+          ? `${title}: no stands placed.`
+          : `${title}: ${active.map((p) => p.label.toLowerCase()).join(', ')}.`
+      }
+    >
+      <PlanOutline />
+      {forLocation.map((placement) => (
+        <PlacementDot key={placement.n} placement={placement} filled={placement.n <= count} />
+      ))}
+    </svg>
+  );
+}
+
 function Plan({
   location,
   count,
@@ -74,7 +110,6 @@ function Plan({
 }) {
   const forLocation = placements.filter((p) => p.location === location);
   const active = forLocation.filter((p) => p.n <= count);
-  const dormant = active.length === 0;
 
   // Only the drawing dims when a location has no stands — dimming the labels
   // too would drop them below AA.
@@ -88,21 +123,7 @@ function Plan({
           {active.length}/{PLACEMENTS_PER_LOCATION} covered
         </span>
       </div>
-      <svg
-        viewBox="0 0 300 260"
-        className={cn('w-full rounded-md border border-warm-300 bg-paper', dormant && 'opacity-55')}
-        role="img"
-        aria-label={
-          active.length === 0
-            ? `${title}: no stands placed.`
-            : `${title}: ${active.map((p) => p.label.toLowerCase()).join(', ')}.`
-        }
-      >
-        <PlanOutline />
-        {forLocation.map((placement) => (
-          <PlacementDot key={placement.n} placement={placement} filled={placement.n <= count} />
-        ))}
-      </svg>
+      <PlanDrawing location={location} count={count} title={title} />
     </div>
   );
 }
@@ -111,13 +132,24 @@ export function ShopPlan({
   count,
   className,
   showLegend = true,
+  locations = 'auto',
 }: {
   /** How many stands are being bought. */
   count: number;
   className?: string;
   showLegend?: boolean;
+  /** 'auto' shows the second plan alongside; 1 draws a single shop, larger. */
+  locations?: 'auto' | 1;
 }) {
   const secondLocationActive = count > PLACEMENTS_PER_LOCATION;
+
+  if (locations === 1) {
+    return (
+      <div className={className}>
+        <Plan location={1} count={count} title="Your shop" />
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
