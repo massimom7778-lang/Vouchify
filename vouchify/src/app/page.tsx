@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { FaqList } from '@/components/FaqList';
+import { ProductLineup } from '@/components/ProductLineup';
 import { ShopPlan } from '@/components/ShopPlan';
 import { StandElevation } from '@/components/StandElevation';
 import { TierTable } from '@/components/TierTable';
 import {
   ButtonLink,
   Container,
+  Eyebrow,
   Grid,
   Reveal,
   Section,
@@ -30,7 +32,7 @@ const industries = [
 ];
 
 const heroSpecs = [
-  { label: 'Footprint', value: coreProduct.dimensions },
+  { label: 'Catalogue', value: 'Black stand, blue plate' },
   { label: 'Power', value: 'None. Passive chip' },
   { label: 'Reads', value: 'iPhone and Android' },
   { label: 'Link changes', value: 'Free, forever' },
@@ -54,7 +56,7 @@ export default function HomePage() {
           <Grid className="items-center gap-y-10 md:gap-y-14">
             <div className="order-2 col-span-4 md:order-1 md:col-span-6">
               <p className="font-sans text-2xs font-semibold uppercase tracking-[0.2em] text-gold">
-                NFC review stands
+                Black stands, blue review plates
               </p>
               <h1 className="mt-6 text-2xl md:text-3xl lg:text-4xl">
                 Three stands
@@ -62,7 +64,8 @@ export default function HomePage() {
                 cover a shop.
               </h1>
               <p className="mt-6 max-w-[46ch] text-base text-warm-300 md:mt-7 md:text-lg">
-                One on the counter, one at the pay terminal, one in the waiting area.
+                One on the counter, one at the pay terminal, one in the waiting area,
+                plus a square plate on the window for the spots a stand will not sit.
                 Customers tap their phone, your Google review page opens, and nobody
                 has to remember to ask.
               </p>
@@ -160,6 +163,41 @@ export default function HomePage() {
           </ul>
         </Container>
       </div>
+
+      {/* ---------------------------------------------------------------
+          CATALOGUE. Second thing on the page, because there are only two
+          things for sale and a buyer should not have to hunt for them. Both
+          products drawn to the same scale so the sizes are comparable.
+      ---------------------------------------------------------------- */}
+      <Section bordered>
+        {/* DOM order is heading, goods, then the explanation, so a phone gets to
+            the two drawings without scrolling a paragraph first. On lg the
+            heading and the explanation stack back into the left column via
+            explicit row placement, no duplicated markup. */}
+        <Grid className="gap-y-8">
+          <div className="col-span-4 md:col-span-12 lg:col-span-4 lg:row-start-1">
+            <Eyebrow>The whole catalogue</Eyebrow>
+            <h2 className="mt-4 text-2xl md:text-3xl">Two things. That is all we make.</h2>
+          </div>
+
+          {/* Full width until lg. In a half-width well at 768 the drawings
+              shrink far enough that their annotation stops being readable. */}
+          <div className="col-span-4 md:col-span-12 lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
+            <ProductLineup />
+          </div>
+
+          <div className="col-span-4 md:col-span-12 lg:col-span-4 lg:col-start-1 lg:row-start-2 lg:self-end lg:pb-2">
+            <p className="max-w-prose text-base text-warm-700">
+              A black acrylic stand for the counter, and a blue and white square plate for
+              the window and the places a stand will not sit. Both hold the same chip, both
+              carry a printed QR code, and both point at the one link you control.
+            </p>
+            <p className="mt-4 max-w-prose text-sm text-warm-600">
+              Drawn to the same scale, so the two sizes are honest against each other.
+            </p>
+          </div>
+        </Grid>
+      </Section>
 
       {/* ---------------------------------------------------------------
           PROBLEM. Offset editorial. Deliberately not heading left, body right.

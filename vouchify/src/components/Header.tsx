@@ -48,7 +48,7 @@ export function Header() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="-ml-1 grid h-11 w-11 cursor-pointer place-items-center rounded-sm border border-warm-300 md:hidden"
+            className="-ml-1 grid h-11 w-11 cursor-pointer place-items-center rounded-sm border border-warm-300 lg:hidden"
           >
             <span className="sr-only">{menuOpen ? 'Close menu' : 'Open menu'}</span>
             <svg viewBox="0 0 18 18" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -64,7 +64,7 @@ export function Header() {
             <Wordmark />
           </Link>
 
-          <nav aria-label="Primary" className="ml-6 hidden md:block">
+          <nav aria-label="Primary" className="ml-6 hidden lg:block">
             <ul className="flex items-center gap-6">
               {primaryNav.map((link) => {
                 const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
@@ -108,7 +108,7 @@ export function Header() {
         </Container>
 
         {menuOpen ? (
-          <div id="mobile-nav" className="border-t border-warm-300 bg-paper md:hidden">
+          <div id="mobile-nav" className="border-t border-warm-300 bg-paper lg:hidden">
             <Container>
               <ul className="divide-y divide-warm-300">
                 {primaryNav.map((link) => (

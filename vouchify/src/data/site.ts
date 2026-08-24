@@ -43,6 +43,7 @@ export const site = {
 
 export const primaryNav: readonly NavLink[] = [
   { href: '/products/nfc-review-stand', label: 'The Stand' },
+  { href: '/products/sticker', label: 'Review plate' },
   { href: '/bundles', label: 'Bundles' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/faq', label: 'FAQ' },
@@ -55,7 +56,7 @@ export const footerNav: readonly { heading: string; links: readonly NavLink[] }[
     links: [
       { href: '/products/nfc-review-stand', label: 'The Stand' },
       { href: '/bundles', label: 'Bundles' },
-      { href: '/products/sticker', label: 'Review sticker' },
+      { href: '/products/sticker', label: 'Review plate' },
     ],
   },
   {

@@ -169,14 +169,14 @@ export default async function ThankYouPage({
                 <p className="mt-3 text-base text-warm-700">
                   {order?.upsellRedeemed || upsell === 'done'
                     ? 'They are going in the same box, programmed to the same link.'
-                    : 'Review stickers carry the same link as your stands, useful for the window and the places a stand will not sit.'}
+                    : 'Review plates carry the same link as your stands, useful for the window and the places a stand will not sit.'}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
                     The Stand
                   </ButtonLink>
                   <ButtonLink href="/products/sticker" variant="outline" size="md">
-                    Review stickers
+                    Review plates
                   </ButtonLink>
                 </div>
               </div>
