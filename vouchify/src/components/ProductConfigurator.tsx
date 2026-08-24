@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ShopPlan } from '@/components/ShopPlan';
-import { AnimatedTotal, Badge, Button, Eyebrow, Grid, PhotoBlock, Price } from '@/components/ui';
+import { AnimatedTotal, Button, Coverage, Eyebrow, Grid, PhotoBlock, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import { useCart, type StandColor } from '@/lib/cart';
 import {
   DEFAULT_LINK_MODE,
   DEFAULT_TIER_ID,
+  coveredPositions,
   buyBoxAddOns,
   coreProduct,
   linkModes,
@@ -78,11 +79,7 @@ function TierRow({
       </span>
 
       <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 pl-8">
-        {tier.badge ? (
-          <Badge tone={tier.badge.tone === 'popular' ? 'popular' : tier.badge.tone === 'value' ? 'value' : 'scale'}>
-            {tier.badge.label}
-          </Badge>
-        ) : null}
+        <Coverage {...coveredPositions(tier)} />
         <span className="min-w-0 text-xs text-warm-700">{tier.coverage}</span>
         {economics.savingsCents > 0 ? (
           <span data-numeric className="basis-full text-xs font-semibold text-gold-deep">
@@ -446,7 +443,10 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
           barVisible ? 'block' : 'hidden',
         )}
       >
-        <div className="flex items-center gap-3 px-4 py-3">
+        <div
+          className="flex items-center gap-3 px-4 py-3"
+          style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+        >
           <div className="min-w-0 flex-1">
             <p className="truncate text-2xs uppercase tracking-wide text-warm-600">
               {tier.qty} {pluralize(tier.qty, 'stand')}

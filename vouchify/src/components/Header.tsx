@@ -7,7 +7,6 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { Wordmark } from '@/components/Wordmark';
 import { Container } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { formatMoney } from '@/lib/format';
 import { standCount, useCart, useCartReady } from '@/lib/cart';
 import { primaryNav, site } from '@/data/site';
 
@@ -26,16 +25,19 @@ export function Header() {
 
   return (
     <>
-      {/* Two facts, both true. No countdown, no scarcity. */}
+      {/* The differentiator, not stock store chrome. Free shipping lives in the
+          cart drawer and the footer, where a threshold actually belongs. */}
       <div className="bg-ink text-paper">
-        <Container className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 py-2 text-2xs font-semibold uppercase tracking-wide">
-          <span data-numeric>
-            Free shipping over {formatMoney(site.freeShippingThresholdCents, { compact: true })}
+        <Container className="flex items-center justify-center gap-x-3 py-2 text-2xs font-semibold uppercase tracking-[0.14em]">
+          <span className="text-center">
+            Encoded to your review link before dispatch
           </span>
-          <span aria-hidden="true" className="text-warm-500">
+          <span aria-hidden="true" className="hidden text-warm-500 sm:inline">
             /
           </span>
-          <span>Programmed to your link before it ships</span>
+          <span data-numeric className="hidden whitespace-nowrap sm:inline">
+            Ships in {site.shipping.processing}
+          </span>
         </Container>
       </div>
 
@@ -46,7 +48,7 @@ export function Header() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="-ml-1 grid h-10 w-10 cursor-pointer place-items-center rounded-sm border border-warm-300 md:hidden"
+            className="-ml-1 grid h-11 w-11 cursor-pointer place-items-center rounded-sm border border-warm-300 md:hidden"
           >
             <span className="sr-only">{menuOpen ? 'Close menu' : 'Open menu'}</span>
             <svg viewBox="0 0 18 18" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -54,7 +56,11 @@ export function Header() {
             </svg>
           </button>
 
-          <Link href="/" className="shrink-0" aria-label={`${site.name} home`}>
+          <Link
+            href="/"
+            className="-my-2 flex shrink-0 items-center py-2"
+            aria-label={`${site.name} home`}
+          >
             <Wordmark />
           </Link>
 
@@ -83,7 +89,7 @@ export function Header() {
           <button
             type="button"
             onClick={openDrawer}
-            className="ml-auto inline-flex h-10 cursor-pointer items-center gap-2 rounded-sm border border-ink px-3 text-sm font-semibold hover:bg-ink hover:text-paper"
+            className="ml-auto inline-flex h-11 min-w-11 cursor-pointer items-center gap-2 rounded-sm border border-ink px-3 text-sm font-semibold hover:bg-ink hover:text-paper"
           >
             Cart
             <span
@@ -107,7 +113,7 @@ export function Header() {
               <ul className="divide-y divide-warm-300">
                 {primaryNav.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="block py-4 font-display text-lg font-bold tracking-tight">
+                    <Link href={link.href} className="block py-4 font-display text-lg font-bold tracking-tight min-h-11">
                       {link.label}
                     </Link>
                   </li>

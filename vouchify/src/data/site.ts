@@ -55,9 +55,7 @@ export const footerNav: readonly { heading: string; links: readonly NavLink[] }[
     links: [
       { href: '/products/nfc-review-stand', label: 'The Stand' },
       { href: '/bundles', label: 'Bundles' },
-      { href: '/products/keychain', label: 'Review keychain' },
-      { href: '/products/wallet-card', label: 'Review cards' },
-      { href: '/products/sticker', label: 'Window sticker' },
+      { href: '/products/sticker', label: 'Review sticker' },
     ],
   },
   {

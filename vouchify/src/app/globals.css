@@ -115,6 +115,21 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* iOS paints a grey box over every tapped control by default. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  [role='button'],
+  a {
+    -webkit-touch-callout: none;
+  }
+
+  /* Safari needs this or a focused input under 16px zooms the whole page. */
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
   }
 
   body {

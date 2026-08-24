@@ -9,15 +9,9 @@
  */
 
 export type StandTierId = 'stand-1' | 'stand-2' | 'stand-3' | 'stand-5' | 'stand-10';
-export type AddOnId = 'keychain' | 'wallet-card' | 'sticker' | 'custom-print' | 'rush';
+export type AddOnId = 'sticker' | 'custom-print' | 'rush';
 export type Sku = StandTierId | AddOnId;
 
-export type BadgeTone = 'popular' | 'value' | 'scale';
-
-export interface TierBadge {
-  readonly label: string;
-  readonly tone: BadgeTone;
-}
 
 /**
  * An image slot.
@@ -51,7 +45,6 @@ export interface StandTier extends CatalogItemBase {
   readonly kind: 'stand-tier';
   readonly id: StandTierId;
   readonly qty: number;
-  readonly badge?: TierBadge;
   /** The reason a real owner would take this tier instead of the one below it. */
   readonly rationale: string;
   /** Where the extra units actually go. Shown in the tier comparison. */
@@ -70,6 +63,8 @@ export interface AddOn extends CatalogItemBase {
   /** Charged once per order rather than per unit. */
   readonly perOrder: boolean;
   readonly summary: string;
+  /** Finish, where a product ships in one specific colourway. */
+  readonly colorNote?: string;
   readonly details: readonly string[];
   readonly specs: readonly { readonly label: string; readonly value: string }[];
   /** Price when offered as the checkout order bump, if it is ever bumped. */
@@ -92,10 +87,8 @@ export const coreProduct = {
   summary:
     'An acrylic countertop stand with an NFC chip inside and a QR code on the face. Both point at your Google review page. We program it to your link before it ships, so it works the moment you take it out of the box.',
   dimensions: '12.75 cm × 7.6 cm',
-  colors: [
-    { id: 'black', label: 'Black', swatch: '#0B0B0C' },
-    { id: 'white', label: 'White', swatch: '#F6F4F0' },
-  ],
+  /** Black is the only stand finish currently stocked. */
+  colors: [{ id: 'black', label: 'Black', swatch: '#0B0B0C' }],
   specs: [
     { label: 'Size', value: '12.75 cm × 7.6 cm' },
     { label: 'Material', value: '3 mm cast acrylic, matte face' },
@@ -191,7 +184,6 @@ export const standTiers: readonly StandTier[] = [
     name: '3 stands',
     qty: 3,
     priceCents: 8900,
-    badge: { label: 'Most popular', tone: 'popular' },
     shortLine: 'Covers a single-location shop.',
     rationale:
       'Counter, pay terminal, waiting area. Three placements is the point where a shop stops missing people, the ones who pay at the counter, the ones who pay at the table, and the ones sitting down waiting.',
@@ -209,7 +201,6 @@ export const standTiers: readonly StandTier[] = [
     name: '5 stands',
     qty: 5,
     priceCents: 13900,
-    badge: { label: 'Best value', tone: 'value' },
     shortLine: 'One per chair, bay, or table section.',
     rationale:
       'If your work happens at a station, a chair, a bay, a treatment room, the ask lands best right there, while the result is still in front of them. Five covers a typical floor with one spare.',
@@ -227,7 +218,6 @@ export const standTiers: readonly StandTier[] = [
     name: '10 stands',
     qty: 10,
     priceCents: 24900,
-    badge: { label: 'For multi-location', tone: 'scale' },
     shortLine: 'Two locations, fully covered, with spares.',
     rationale:
       'Each location can point at its own review page, we program them per location and label the boxes so your staff put the right ones out.',
@@ -251,75 +241,16 @@ export const DEFAULT_TIER_ID: StandTierId = 'stand-3';
 export const addOns: readonly AddOn[] = [
   {
     kind: 'add-on',
-    id: 'keychain',
-    slug: 'keychain',
-    name: 'Review keychain',
-    priceCents: 1900,
-    bumpPriceCents: 1400,
-    slot: 'picker',
-    hasPage: true,
-    perOrder: false,
-    shortLine: 'For staff who work away from the counter.',
-    summary:
-      'A pocket-sized NFC tag on a keyring, programmed to the same review link. Servers, stylists, and techs keep it on them and tap a customer’s phone wherever the conversation happens.',
-    details: [
-      'Same NFC chip as the stand, in a 32 mm anodised aluminium tag.',
-      'Programmed to the same review link as your stands, one link to change, not two.',
-      'Useful anywhere the customer is not standing at your counter: tableside, curbside, at the chair, on a job site.',
-      'QR code laser-marked on the reverse for phones without NFC.',
-    ],
-    specs: [
-      { label: 'Size', value: '32 mm disc, 4 mm thick' },
-      { label: 'Material', value: 'Anodised aluminium, split ring' },
-      { label: 'Chip', value: 'NTAG215, encoded before shipping' },
-    ],
-    photo: {
-      id: 'addon-keychain',
-      todo: 'Product photo, aluminium NFC keychain disc on a split ring, held between two fingers, off-white background',
-      alt: 'Aluminium NFC review keychain on a split ring',
-      aspect: 'square',
-    },
-  },
-  {
-    kind: 'add-on',
-    id: 'wallet-card',
-    slug: 'wallet-card',
-    name: 'Review cards, 3-pack',
-    priceCents: 2500,
-    slot: 'picker',
-    hasPage: true,
-    perOrder: false,
-    shortLine: 'Goes in the bill folder or the bag.',
-    summary:
-      'Three wallet-size NFC cards, same link. Drop one in the bill folder, the takeout bag, or hand it over with the receipt, the ask leaves with the customer instead of staying on your counter.',
-    details: [
-      'Credit-card size and thickness. Fits a bill folder, a receipt sleeve, or a wallet.',
-      'Three per pack, all programmed to the same review link.',
-      'Matte PVC, printed one side with your prompt and a QR code.',
-      'Works with delivery and takeout orders, where nobody ever sees your counter.',
-    ],
-    specs: [
-      { label: 'Size', value: '85.6 mm × 54 mm, 0.8 mm' },
-      { label: 'Quantity', value: '3 cards per pack' },
-      { label: 'Chip', value: 'NTAG215, encoded before shipping' },
-    ],
-    photo: {
-      id: 'addon-wallet-card',
-      todo: 'Product photo, three matte white NFC cards fanned on a dark bill folder, top-down',
-      alt: 'Three wallet-size NFC review cards fanned out',
-      aspect: 'landscape',
-    },
-  },
-  {
-    kind: 'add-on',
     id: 'sticker',
     slug: 'sticker',
-    name: 'Window sticker',
+    name: 'Review sticker',
     priceCents: 1500,
+    bumpPriceCents: 1100,
     slot: 'picker',
     hasPage: true,
     perOrder: false,
     shortLine: 'Sticks to glass, counters, and menu boards.',
+    colorNote: 'Blue and white',
     summary:
       'An adhesive NFC sticker for the places a stand cannot go, the inside of the front window, the side of a POS terminal, the edge of a menu board.',
     details: [
@@ -482,8 +413,8 @@ export const PLACEMENTS_PER_LOCATION = 5;
 
 /** Checkout order bump. Priced from the add-on's own bumpPriceCents. */
 export const orderBump = {
-  addOnId: 'keychain' as const,
-  copy: 'Add a review keychain so staff can ask away from the counter, same link as your stands.',
+  addOnId: 'sticker' as const,
+  copy: 'Add a window sticker so the ask reaches people before they are through the door, same link as your stands.',
 } as const;
 
 /** Post-purchase upsell. The window is enforced server-side against the Stripe
@@ -545,6 +476,11 @@ export function tierEconomics(tier: StandTier): TierEconomics {
     savingsCents,
     savingsPercent: listCents === 0 ? 0 : Math.round((savingsCents / listCents) * 100),
   };
+}
+
+/** Which numbered placements a tier actually fills. Replaces the badges. */
+export function coveredPositions(tier: StandTier): { from: number; to: number } {
+  return { from: 1, to: Math.min(tier.qty, placements.length) };
 }
 
 export const priceRangeCents = {

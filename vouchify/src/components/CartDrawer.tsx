@@ -215,7 +215,7 @@ export function CartDrawer() {
           </div>
         ) : null}
 
-        <div className="flex-1 overflow-y-auto px-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 [-webkit-overflow-scrolling:touch]">
           {empty ? (
             <div className="py-14">
               <p className="font-display text-lg font-bold tracking-tight">Nothing in the cart yet.</p>
@@ -278,7 +278,10 @@ export function CartDrawer() {
         </div>
 
         {!empty ? (
-          <div className="border-t border-warm-300 px-5 py-4">
+          <div
+            className="border-t border-warm-300 px-5 py-4"
+            style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+          >
             <label className="block">
               <span className="block text-xs font-semibold">
                 {perUnitLinks ? 'Your main Google review link' : 'Your Google review link'}

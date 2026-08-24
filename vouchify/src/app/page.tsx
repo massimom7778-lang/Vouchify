@@ -48,8 +48,11 @@ export default function HomePage() {
       ---------------------------------------------------------------- */}
       <section className="border-b border-warm-800 bg-ink text-paper">
         <Container className="pt-16 pb-14 md:pt-24 md:pb-20">
-          <Grid className="items-center gap-y-14">
-            <div className="col-span-4 md:col-span-6">
+          {/* On a phone the plan comes first and runs to both edges. The
+              stacked text column underneath it is the generic DTC skeleton, so
+              the distinctive artifact leads instead of being buried. */}
+          <Grid className="items-center gap-y-10 md:gap-y-14">
+            <div className="order-2 col-span-4 md:order-1 md:col-span-6">
               <p className="font-sans text-2xs font-semibold uppercase tracking-[0.2em] text-gold">
                 NFC review stands
               </p>
@@ -58,42 +61,62 @@ export default function HomePage() {
                 <br />
                 cover a shop.
               </h1>
-              <p className="mt-7 max-w-[46ch] text-lg text-warm-300">
+              <p className="mt-6 max-w-[46ch] text-base text-warm-300 md:mt-7 md:text-lg">
                 One on the counter, one at the pay terminal, one in the waiting area.
                 Customers tap their phone, your Google review page opens, and nobody
                 has to remember to ask.
               </p>
 
-              <div className="mt-9 flex flex-wrap items-center gap-3">
-                <ButtonLink href={`/products/${coreProduct.slug}?tier=stand-3`} size="lg">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-9">
+                <ButtonLink
+                  href={`/products/${coreProduct.slug}?tier=stand-3`}
+                  size="lg"
+                  className="w-full justify-center sm:w-auto"
+                >
                   Choose your bundle
                 </ButtonLink>
-                <ButtonLink href="/how-it-works" variant="onDark" size="lg">
+                <ButtonLink
+                  href="/how-it-works"
+                  variant="onDark"
+                  size="lg"
+                  className="w-full justify-center sm:w-auto"
+                >
                   How it works
                 </ButtonLink>
               </div>
 
-              <p className="mt-8 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm text-warm-400">
-                <span data-numeric className="font-display text-lg font-bold tracking-tight text-paper">
-                  {formatMoney(priceRangeCents.low, { compact: true })}
-                </span>
-                <span>for one.</span>
+              <dl className="mt-8 max-w-sm border-t border-warm-800">
+                <div className="flex items-baseline justify-between gap-4 border-b border-warm-800 py-3">
+                  <dt className="text-sm text-warm-400">One stand</dt>
+                  <dd data-numeric className="font-display text-lg font-bold tracking-tight text-paper">
+                    {formatMoney(priceRangeCents.low, { compact: true })}
+                  </dd>
+                </div>
                 {three && threeEconomics ? (
-                  <>
-                    <span data-numeric className="font-display text-lg font-bold tracking-tight text-gold">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-warm-800 py-3">
+                    <dt className="text-sm text-warm-400">
+                      Three stands,{' '}
+                      <span data-numeric>{formatMoney(threeEconomics.perUnitCents)} each</span>
+                    </dt>
+                    <dd data-numeric className="font-display text-lg font-bold tracking-tight text-gold">
                       {formatMoney(three.priceCents, { compact: true })}
-                    </span>
-                    <span data-numeric>
-                      for three, at {formatMoney(threeEconomics.perUnitCents)} each.
-                    </span>
-                  </>
+                    </dd>
+                  </div>
                 ) : null}
-              </p>
+              </dl>
             </div>
 
-            <div className="col-span-4 md:col-span-5 md:col-start-8">
-              <ShopPlan count={3} showLegend={false} locations={1} tone="ink" />
-              <p className="mt-4 font-sans text-2xs uppercase tracking-[0.16em] text-warm-500">
+            <div className="order-1 col-span-4 md:order-2 md:col-span-5 md:col-start-8">
+              {/* Only the drawing bleeds to the screen edges. Bleeding the whole
+                  column clipped the label row out of the container padding. */}
+              <ShopPlan
+                count={3}
+                showLegend={false}
+                locations={1}
+                tone="ink"
+                className="[&_svg]:-mx-5 [&_svg]:w-[calc(100%+2.5rem)] [&_svg]:rounded-none [&_svg]:border-x-0 md:[&_svg]:mx-0 md:[&_svg]:w-full md:[&_svg]:rounded-md md:[&_svg]:border-x"
+              />
+              <p className="mt-3 font-sans text-2xs uppercase tracking-[0.16em] text-warm-500 md:mt-4">
                 Typical single location, three placements filled
               </p>
             </div>
@@ -351,7 +374,7 @@ export default function HomePage() {
           </div>
           <div className="col-span-4 md:col-span-4 md:col-start-9 md:justify-self-end">
             <ButtonLink href={`/products/${coreProduct.slug}`} size="lg">
-              Choose your bundle
+              Order your stands
             </ButtonLink>
           </div>
         </Grid>

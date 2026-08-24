@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { AnimatedTotal, Badge, Button, Card, Price } from '@/components/ui';
+import { AnimatedTotal, Button, Card, Coverage, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatMoney } from '@/lib/format';
 import {
   DEFAULT_TIER_ID,
   buyBoxAddOns,
+  coveredPositions,
   standTiers,
   tierEconomics,
   type AddOnId,
@@ -78,11 +79,7 @@ export function TierPreview() {
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="font-display text-lg font-bold tracking-tight">{t.name}</span>
-                    {t.badge ? (
-                      <Badge tone={t.badge.tone === 'popular' ? 'popular' : t.badge.tone === 'value' ? 'value' : 'scale'}>
-                        {t.badge.label}
-                      </Badge>
-                    ) : null}
+                    <Coverage {...coveredPositions(t)} />
                   </span>
                   <span className="mt-0.5 block text-xs text-warm-600">
                     {economics.savingsCents > 0 ? (

@@ -1,15 +1,11 @@
 import Link from 'next/link';
-import { Badge, ButtonLink, Price } from '@/components/ui';
+import { ButtonLink, Coverage, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
-import { coreProduct, standTiers, tierEconomics, UNIT_PRICE_CENTS } from '@/data/products';
+import { DEFAULT_TIER_ID, coreProduct, coveredPositions, standTiers, tierEconomics, UNIT_PRICE_CENTS } from '@/data/products';
 
 function tierHref(id: string) {
   return `/products/${coreProduct.slug}?tier=${id}`;
-}
-
-function badgeTone(tone: 'popular' | 'value' | 'scale') {
-  return tone === 'popular' ? 'popular' : tone === 'value' ? 'value' : 'scale';
 }
 
 /**
@@ -52,7 +48,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
         <tbody>
           {standTiers.map((tier) => {
             const economics = tierEconomics(tier);
-            const highlight = tier.badge?.tone === 'popular';
+            const highlight = tier.id === DEFAULT_TIER_ID;
             return (
               <tr
                 key={tier.id}
@@ -69,9 +65,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                     >
                       {tier.qty}
                     </span>
-                    {tier.badge ? (
-                      <Badge tone={badgeTone(tier.badge.tone)}>{tier.badge.label}</Badge>
-                    ) : null}
+                    <Coverage {...coveredPositions(tier)} tone={onInk ? 'dark' : 'light'} />
                   </span>
                 </th>
                 <td className="py-5 pr-4 align-top">
@@ -111,7 +105,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
       <div className="flex flex-col gap-3 md:hidden">
         {standTiers.map((tier) => {
           const economics = tierEconomics(tier);
-          const highlight = tier.badge?.tone === 'popular';
+          const highlight = tier.id === DEFAULT_TIER_ID;
           return (
             <Link
               key={tier.id}
@@ -137,11 +131,9 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                   </span>
                 </span>
               </span>
-              {tier.badge ? (
-                <span className="mt-2 block">
-                  <Badge tone={badgeTone(tier.badge.tone)}>{tier.badge.label}</Badge>
-                </span>
-              ) : null}
+              <span className="mt-2 block">
+                <Coverage {...coveredPositions(tier)} tone={onInk ? 'dark' : 'light'} />
+              </span>
               <span className={cn('mt-2 block text-xs', muted)}>{tier.coverage}</span>
               {economics.savingsCents > 0 ? (
                 <span data-numeric className={cn('mt-1 block text-xs font-semibold', savings)}>

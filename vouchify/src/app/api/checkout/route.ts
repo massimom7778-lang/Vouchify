@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
 import { priceOrder } from '@/lib/pricing';
 import { checkoutRequestSchema } from '@/lib/schemas';
+import { orderBump } from '@/data/products';
 import { site } from '@/data/site';
 
 export const runtime = 'nodejs';
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
         // Provisioning reads this to label and colour the stand records.
         color: order.lines.find((line) => line.color)?.color ?? 'black',
         linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',
-        orderBump: parsed.data.bump ? 'keychain' : '',
+        orderBump: parsed.data.bump ? orderBump.addOnId : '',
       },
       success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout?cancelled=1`,

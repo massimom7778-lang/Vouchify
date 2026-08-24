@@ -18,7 +18,7 @@ export const cartLineSchema = z.object({
 
 export const checkoutRequestSchema = z.object({
   lines: z.array(cartLineSchema).min(1).max(20),
-  /** The keychain order bump, at its bump price. */
+  /** The checkout order bump, at its bump price. */
   bump: z.boolean().default(false),
   reviewLink: z.string().trim().max(500).optional(),
   email: z.string().trim().email().max(254).optional(),

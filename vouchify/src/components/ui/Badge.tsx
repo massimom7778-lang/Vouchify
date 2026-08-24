@@ -34,3 +34,41 @@ export function Badge({
     </span>
   );
 }
+
+/**
+ * Which numbered placements a tier fills, e.g. "Covers 01-03".
+ *
+ * This replaces the "Most popular" / "Best value" badges. Those were a claim
+ * about other buyers; this is a fact about the product, and it is the same
+ * argument the floor plan is already making everywhere else on the site.
+ */
+export function Coverage({
+  from,
+  to,
+  tone = 'light',
+  className,
+}: {
+  from: number;
+  to: number;
+  tone?: 'light' | 'dark';
+  className?: string;
+}) {
+  const single = from === to;
+  return (
+    <span
+      data-numeric
+      className={cn(
+        'inline-flex items-baseline gap-1.5 whitespace-nowrap font-sans text-2xs font-semibold uppercase tracking-[0.14em]',
+        tone === 'dark' ? 'text-warm-400' : 'text-warm-600',
+        className,
+      )}
+    >
+      <span className={tone === 'dark' ? 'text-gold' : 'text-gold-deep'}>
+        {single
+          ? String(from).padStart(2, '0')
+          : `${String(from).padStart(2, '0')}–${String(to).padStart(2, '0')}`}
+      </span>
+      <span>{single ? 'position' : 'positions'}</span>
+    </span>
+  );
+}

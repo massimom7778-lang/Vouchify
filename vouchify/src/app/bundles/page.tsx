@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { PlanDrawing } from '@/components/ShopPlan';
 import { TierTable } from '@/components/TierTable';
 import {
-  Badge,
   ButtonLink,
+  Coverage,
   Eyebrow,
   Grid,
   Price,
@@ -12,7 +12,9 @@ import {
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import {
+  DEFAULT_TIER_ID,
   coreProduct,
+  coveredPositions,
   standTiers,
   tierEconomics,
 } from '@/data/products';
@@ -53,7 +55,7 @@ export default function BundlesPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {standTiers.map((tier) => {
             const economics = tierEconomics(tier);
-            const highlight = tier.badge?.tone === 'popular';
+            const highlight = tier.id === DEFAULT_TIER_ID;
             return (
               <div
                 key={tier.id}
@@ -93,21 +95,9 @@ export default function BundlesPage() {
                 <p className="mt-4 text-xs text-warm-700">{tier.coverage}</p>
 
                 <div className="mt-auto pt-4">
-                  {tier.badge ? (
-                    <Badge
-                      tone={
-                        tier.badge.tone === 'popular'
-                          ? 'popular'
-                          : tier.badge.tone === 'value'
-                            ? 'value'
-                            : 'scale'
-                      }
-                      // The comparison columns are narrow; this badge may wrap.
-                      className="mb-3 whitespace-normal"
-                    >
-                      {tier.badge.label}
-                    </Badge>
-                  ) : null}
+                  <div className="mb-3">
+                    <Coverage {...coveredPositions(tier)} />
+                  </div>
                   <ButtonLink
                     href={`/products/${coreProduct.slug}?tier=${tier.id}`}
                     variant={highlight ? 'primary' : 'outline'}

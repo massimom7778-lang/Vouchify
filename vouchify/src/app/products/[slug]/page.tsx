@@ -164,7 +164,7 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
           <div className="col-span-4 md:col-span-7">
             <h2 className="text-xl md:text-2xl">One link across everything you order.</h2>
             <p className="mt-3 max-w-prose text-base text-warm-300">
-              Stands, keychains, cards and stickers all point at the same review page, so changing it
+              Stands and stickers all point at the same review page, so changing it
               later is one change, not five.
             </p>
           </div>

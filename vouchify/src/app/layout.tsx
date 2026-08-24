@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { bricolage, inter } from '@/lib/fonts';
@@ -20,6 +20,21 @@ export const metadata: Metadata = {
     locale: 'en_CA',
   },
   robots: { index: true, follow: true },
+};
+
+/**
+ * viewportFit: 'cover' lets the page paint into the notch and home-indicator
+ * areas, which is what makes env(safe-area-inset-*) return real values. The
+ * sticky buy bar and the cart drawer both depend on it.
+ */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F6F4F0' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B0B0C' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

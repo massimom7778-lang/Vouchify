@@ -72,7 +72,11 @@ export default async function ProductPage({
 
   return (
     // Bottom padding keeps the sticky mobile buy bar off the footer.
-    <main id="main" className="pb-20 lg:pb-0">
+    <main
+      id="main"
+      className="lg:pb-0"
+      style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
+    >
       <JsonLd data={productSchema} />
 
       <Section rhythm="tight" className="pb-0">
