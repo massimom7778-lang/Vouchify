@@ -129,7 +129,7 @@ export function CartContents() {
             </span>
             <span className="mt-0.5 block text-xs text-warm-600">
               {perUnitLinks
-                ? 'You picked a separate link per stand — we will email you for the rest before programming.'
+                ? 'You picked a separate link per stand, we will email you for the rest before programming.'
                 : 'We program every chip to this before shipping. Leave it blank and we will email you for it after checkout.'}
             </span>
             <input

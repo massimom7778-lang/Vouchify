@@ -22,7 +22,7 @@ function LinkCell({ stand }: { stand: StandWithCounts }) {
   if (!stand.targetUrl) {
     return (
       <span className="text-sm text-warm-600">
-        No link yet — a tap shows the “not pointed anywhere” page.
+        No link yet, a tap shows the “not pointed anywhere” page.
       </span>
     );
   }
@@ -68,7 +68,7 @@ export default async function DashboardPage({
           <div className="col-span-4 self-end md:col-span-4 md:col-start-9">
             <p className="text-base text-warm-700">
               Change a link and the next tap goes to the new place. Nothing is re-printed and nothing
-              is re-encoded — the chips never change.
+              is re-encoded, the chips never change.
             </p>
           </div>
         </Grid>
@@ -124,7 +124,7 @@ export default async function DashboardPage({
 
             <p className="mt-5 text-xs text-warm-600">
               A tap increments a counter for one stand, for one day. Nothing about the customer is
-              recorded — no address, no agent, no cookie.
+              recorded, no address, no agent, no cookie.
             </p>
           </div>
 
@@ -222,7 +222,7 @@ export default async function DashboardPage({
           <div className="col-span-4 md:col-span-6">
             <h2 className="text-lg">Keep this link private</h2>
             <p className="mt-3 text-sm text-warm-700">
-              This page has no password on purpose — the link on the card in your box is the key.
+              This page has no password on purpose, the link on the card in your box is the key.
               Anyone who has it can re-point your stands, so treat it like the key to the till and do
               not post it anywhere public.
             </p>

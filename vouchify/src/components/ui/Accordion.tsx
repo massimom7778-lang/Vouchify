@@ -11,7 +11,7 @@ export interface AccordionItem {
 /**
  * Disclosure list. Real buttons, aria-expanded, aria-controls, labelled regions,
  * and roving arrow-key navigation between headers. Opening one does not close
- * the others — an owner comparing two answers should not have to fight it.
+ * the others, an owner comparing two answers should not have to fight it.
  */
 export function Accordion({
   items,

@@ -84,7 +84,7 @@ export function QuoteForm() {
       <div className="rounded-md border border-warm-300 bg-warm-50 p-6">
         <h2 className="text-xl">Quote request received.</h2>
         <p className="mt-3 text-base text-warm-700">
-          We reply within one business day with a written quote — per-location links, labelled boxes,
+          We reply within one business day with a written quote, per-location links, labelled boxes,
           and a price for the whole group. No sales call unless you ask for one.
         </p>
         <p className="mt-3 text-sm text-warm-600">

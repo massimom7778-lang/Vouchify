@@ -285,7 +285,7 @@ export function CartDrawer() {
               </span>
               <span className="mt-0.5 block text-2xs text-warm-600">
                 {perUnitLinks
-                  ? 'You picked a separate link per stand — we will email you for the rest before programming.'
+                  ? 'You picked a separate link per stand, we will email you for the rest before programming.'
                   : 'We program every chip to this before shipping. You can add it after checkout instead.'}
               </span>
               <input
@@ -318,8 +318,7 @@ export function CartDrawer() {
                 Buying {stands} or more?{' '}
                 <Link href="/multi-location" className="font-semibold text-gold-deep underline underline-offset-4">
                   Get a multi-location quote
-                </Link>{' '}
-                — per-location links and labelled boxes, priced for the whole group.
+                </Link>{' '}, per-location links and labelled boxes, priced for the whole group.
               </p>
             ) : null}
 

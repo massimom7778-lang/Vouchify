@@ -25,7 +25,7 @@ export interface TierBadge {
  * Until `src` is set, the slot renders as a labelled warm-grey block carrying
  * the shot description, so the brief for whoever is making the image is
  * readable straight off the page. Set `src` to a file under /public and the
- * real image takes over — nothing else has to change.
+ * real image takes over, nothing else has to change.
  *
  * Drop files in `public/product/` and see the README there for the manifest.
  */
@@ -122,25 +122,25 @@ export const coreProduct = {
   photos: {
     hero: {
       id: 'core-hero',
-      todo: 'Product photo — black stand three-quarter view on a warm concrete counter, raking light from the left, shallow depth of field, no props',
+      todo: 'Product photo, black stand three-quarter view on a warm concrete counter, raking light from the left, shallow depth of field, no props',
       alt: 'Vouchify NFC review stand in black, standing on a counter',
       aspect: 'square',
     },
     inHand: {
       id: 'core-in-hand',
-      todo: 'Product photo — a phone held two centimetres from the stand mid-tap, thumb visible, screen showing a review page, shot at counter height',
+      todo: 'Product photo, a phone held two centimetres from the stand mid-tap, thumb visible, screen showing a review page, shot at counter height',
       alt: 'A customer holding a phone against the stand to open a review page',
       aspect: 'portrait',
     },
     pair: {
       id: 'core-pair',
-      todo: 'Product photo — black and white stand side by side on off-white seamless, straight-on, 50 mm',
+      todo: 'Product photo, black and white stand side by side on off-white seamless, straight-on, 50 mm',
       alt: 'Black and white versions of the stand side by side',
       aspect: 'landscape',
     },
     counter: {
       id: 'core-counter',
-      todo: 'Lifestyle photo — full-bleed, stand on a busy cafe pay counter next to a card terminal, real shop, no models looking at camera',
+      todo: 'Lifestyle photo, full-bleed, stand on a busy cafe pay counter next to a card terminal, real shop, no models looking at camera',
       alt: 'The stand on a cafe counter beside a card terminal',
       aspect: 'wide',
     },
@@ -148,7 +148,7 @@ export const coreProduct = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
-/* Tiers — the spine of the business                                           */
+/* Tiers, the spine of the business                                           */
 /* -------------------------------------------------------------------------- */
 
 export const standTiers: readonly StandTier[] = [
@@ -163,7 +163,7 @@ export const standTiers: readonly StandTier[] = [
     coverage: 'Checkout counter.',
     photo: {
       id: 'tier-1',
-      todo: 'Product photo — one black stand, straight-on, off-white seamless',
+      todo: 'Product photo, one black stand, straight-on, off-white seamless',
       alt: 'One NFC review stand',
       aspect: 'square',
     },
@@ -180,7 +180,7 @@ export const standTiers: readonly StandTier[] = [
     coverage: 'Checkout counter, pay terminal.',
     photo: {
       id: 'tier-2',
-      todo: 'Product photo — two black stands, one slightly behind the other, off-white seamless',
+      todo: 'Product photo, two black stands, one slightly behind the other, off-white seamless',
       alt: 'Two NFC review stands',
       aspect: 'square',
     },
@@ -194,11 +194,11 @@ export const standTiers: readonly StandTier[] = [
     badge: { label: 'Most popular', tone: 'popular' },
     shortLine: 'Covers a single-location shop.',
     rationale:
-      'Counter, pay terminal, waiting area. Three placements is the point where a shop stops missing people — the ones who pay at the counter, the ones who pay at the table, and the ones sitting down waiting.',
+      'Counter, pay terminal, waiting area. Three placements is the point where a shop stops missing people, the ones who pay at the counter, the ones who pay at the table, and the ones sitting down waiting.',
     coverage: 'Checkout counter, pay terminal, waiting area.',
     photo: {
       id: 'tier-3',
-      todo: 'Product photo — three black stands in a loose row, off-white seamless',
+      todo: 'Product photo, three black stands in a loose row, off-white seamless',
       alt: 'Three NFC review stands',
       aspect: 'square',
     },
@@ -212,11 +212,11 @@ export const standTiers: readonly StandTier[] = [
     badge: { label: 'Best value', tone: 'value' },
     shortLine: 'One per chair, bay, or table section.',
     rationale:
-      'If your work happens at a station — a chair, a bay, a treatment room — the ask lands best right there, while the result is still in front of them. Five covers a typical floor with one spare.',
+      'If your work happens at a station, a chair, a bay, a treatment room, the ask lands best right there, while the result is still in front of them. Five covers a typical floor with one spare.',
     coverage: 'Every station, plus counter and terminal.',
     photo: {
       id: 'tier-5',
-      todo: 'Product photo — five black stands in two rows, off-white seamless, slight overhead angle',
+      todo: 'Product photo, five black stands in two rows, off-white seamless, slight overhead angle',
       alt: 'Five NFC review stands',
       aspect: 'square',
     },
@@ -230,11 +230,11 @@ export const standTiers: readonly StandTier[] = [
     badge: { label: 'For multi-location', tone: 'scale' },
     shortLine: 'Two locations, fully covered, with spares.',
     rationale:
-      'Each location can point at its own review page — we program them per location and label the boxes so your staff put the right ones out.',
+      'Each location can point at its own review page, we program them per location and label the boxes so your staff put the right ones out.',
     coverage: 'Two full locations, per-location links, labelled boxes.',
     photo: {
       id: 'tier-10',
-      todo: 'Product photo — ten black stands in a grid, flat lay on off-white, overhead',
+      todo: 'Product photo, ten black stands in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review stands',
       aspect: 'square',
     },
@@ -264,7 +264,7 @@ export const addOns: readonly AddOn[] = [
       'A pocket-sized NFC tag on a keyring, programmed to the same review link. Servers, stylists, and techs keep it on them and tap a customer’s phone wherever the conversation happens.',
     details: [
       'Same NFC chip as the stand, in a 32 mm anodised aluminium tag.',
-      'Programmed to the same review link as your stands — one link to change, not two.',
+      'Programmed to the same review link as your stands, one link to change, not two.',
       'Useful anywhere the customer is not standing at your counter: tableside, curbside, at the chair, on a job site.',
       'QR code laser-marked on the reverse for phones without NFC.',
     ],
@@ -275,7 +275,7 @@ export const addOns: readonly AddOn[] = [
     ],
     photo: {
       id: 'addon-keychain',
-      todo: 'Product photo — aluminium NFC keychain disc on a split ring, held between two fingers, off-white background',
+      todo: 'Product photo, aluminium NFC keychain disc on a split ring, held between two fingers, off-white background',
       alt: 'Aluminium NFC review keychain on a split ring',
       aspect: 'square',
     },
@@ -291,7 +291,7 @@ export const addOns: readonly AddOn[] = [
     perOrder: false,
     shortLine: 'Goes in the bill folder or the bag.',
     summary:
-      'Three wallet-size NFC cards, same link. Drop one in the bill folder, the takeout bag, or hand it over with the receipt — the ask leaves with the customer instead of staying on your counter.',
+      'Three wallet-size NFC cards, same link. Drop one in the bill folder, the takeout bag, or hand it over with the receipt, the ask leaves with the customer instead of staying on your counter.',
     details: [
       'Credit-card size and thickness. Fits a bill folder, a receipt sleeve, or a wallet.',
       'Three per pack, all programmed to the same review link.',
@@ -305,7 +305,7 @@ export const addOns: readonly AddOn[] = [
     ],
     photo: {
       id: 'addon-wallet-card',
-      todo: 'Product photo — three matte white NFC cards fanned on a dark bill folder, top-down',
+      todo: 'Product photo, three matte white NFC cards fanned on a dark bill folder, top-down',
       alt: 'Three wallet-size NFC review cards fanned out',
       aspect: 'landscape',
     },
@@ -321,7 +321,7 @@ export const addOns: readonly AddOn[] = [
     perOrder: false,
     shortLine: 'Sticks to glass, counters, and menu boards.',
     summary:
-      'An adhesive NFC sticker for the places a stand cannot go — the inside of the front window, the side of a POS terminal, the edge of a menu board.',
+      'An adhesive NFC sticker for the places a stand cannot go, the inside of the front window, the side of a POS terminal, the edge of a menu board.',
     details: [
       'Peel-and-stick, 50 mm, rated for indoor glass, laminate, and painted metal.',
       'Reads through glass from the inside, so it survives the weather.',
@@ -335,7 +335,7 @@ export const addOns: readonly AddOn[] = [
     ],
     photo: {
       id: 'addon-sticker',
-      todo: 'Product photo — round NFC sticker applied to the inside of a shop window, shot from inside at an angle with street visible but blurred',
+      todo: 'Product photo, round NFC sticker applied to the inside of a shop window, shot from inside at an angle with street visible but blurred',
       alt: 'Round NFC review sticker applied to a shop window',
       aspect: 'square',
     },
@@ -364,7 +364,7 @@ export const addOns: readonly AddOn[] = [
     ],
     photo: {
       id: 'addon-custom-print',
-      todo: 'Product photo — black stand with a generic wordmark printed on the face, macro on the print edge to show quality',
+      todo: 'Product photo, black stand with a generic wordmark printed on the face, macro on the print edge to show quality',
       alt: 'A stand with a business logo printed on the face',
       aspect: 'square',
     },
@@ -393,7 +393,7 @@ export const addOns: readonly AddOn[] = [
     ],
     photo: {
       id: 'addon-rush',
-      todo: 'Product photo — a packed shipping mailer with a rush label, on a warm concrete surface',
+      todo: 'Product photo, a packed shipping mailer with a rush label, on a warm concrete surface',
       alt: 'A packed Vouchify shipping mailer',
       aspect: 'square',
     },
@@ -440,7 +440,7 @@ export const linkModes: readonly LinkModeOption[] = [
 export const DEFAULT_LINK_MODE: LinkMode = 'shared';
 
 /* -------------------------------------------------------------------------- */
-/* Placements — the order stands should go out in                              */
+/* Placements, the order stands should go out in                              */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -483,7 +483,7 @@ export const PLACEMENTS_PER_LOCATION = 5;
 /** Checkout order bump. Priced from the add-on's own bumpPriceCents. */
 export const orderBump = {
   addOnId: 'keychain' as const,
-  copy: 'Add a review keychain so staff can ask away from the counter — same link as your stands.',
+  copy: 'Add a review keychain so staff can ask away from the counter, same link as your stands.',
 } as const;
 
 /** Post-purchase upsell. The window is enforced server-side against the Stripe

@@ -44,7 +44,7 @@ export function CheckoutForm() {
       <div className="py-16">
         <h2 className="text-2xl">There is nothing to check out.</h2>
         <p className="mt-4 max-w-prose text-base text-warm-700">
-          Add a bundle first — the 3-pack covers the counter, the pay terminal and the waiting area.
+          Add a bundle first, the 3-pack covers the counter, the pay terminal and the waiting area.
         </p>
         <ButtonLink href={`/products/${coreProduct.slug}`} size="lg" className="mt-8">
           Choose your bundle
@@ -112,7 +112,7 @@ export function CheckoutForm() {
           <label className="block">
             <span className="block text-sm font-semibold">Email for the receipt</span>
             <span className="mt-0.5 block text-xs text-warm-600">
-              Optional here — Stripe will ask for it on the next screen either way.
+              Optional here, Stripe will ask for it on the next screen either way.
             </span>
             <input
               type="email"
@@ -131,7 +131,7 @@ export function CheckoutForm() {
             </span>
             <span className="mt-0.5 block text-xs text-warm-600">
               {perUnitLinks
-                ? 'You picked a separate link per stand — we will email you for the rest, then label each box.'
+                ? 'You picked a separate link per stand, we will email you for the rest, then label each box.'
                 : 'Leave it blank and we will email you for it before programming.'}
             </span>
             <input

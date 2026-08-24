@@ -21,7 +21,7 @@ export default async function CheckoutPage({
         <h1 className="mt-4 text-2xl md:text-3xl">Check it over, then pay.</h1>
 
         {/* Stripe's cancel_url lands here. Coming back from a payment page you
-            chose to leave is not an error, and nothing was charged — say so
+            chose to leave is not an error, and nothing was charged, say so
             plainly rather than leaving people wondering. */}
         {cancelled ? (
           <p
@@ -29,7 +29,7 @@ export default async function CheckoutPage({
             className="mt-6 max-w-prose rounded-md border border-warm-400 bg-warm-100 px-4 py-3 text-sm text-warm-700"
           >
             <span className="font-semibold text-ink">Nothing was charged.</span> You came back from
-            the payment page before finishing. Your order is exactly as you left it — pay whenever
+            the payment page before finishing. Your order is exactly as you left it, pay whenever
             you are ready.
           </p>
         ) : null}

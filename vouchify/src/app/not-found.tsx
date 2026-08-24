@@ -23,8 +23,7 @@ export default function NotFound() {
             <Eyebrow>404</Eyebrow>
             <h1 className="mt-4 text-2xl md:text-3xl">That page is not here.</h1>
             <p className="mt-6 max-w-prose text-base text-warm-700">
-              The address may have changed, or it may have been typed by hand. Nothing is broken —
-              this page simply does not exist.
+              The address may have changed, or it may have been typed by hand. Nothing is broken, this page simply does not exist.
             </p>
             <p className="mt-4 text-sm text-warm-600">
               If you followed a link from somewhere on this site, tell us where and we will fix it:{' '}

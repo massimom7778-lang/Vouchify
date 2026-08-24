@@ -58,7 +58,7 @@ export function UpsellOffer({
         <h2 className="text-xl">Added to your order.</h2>
         <p className="mt-3 text-base text-warm-700">
           {tier.qty} more stands are going in the same box, programmed to the same link. Your card
-          was charged {formatMoney(postPurchaseUpsell.priceCents, { compact: true })} — the receipt
+          was charged {formatMoney(postPurchaseUpsell.priceCents, { compact: true })}, the receipt
           is on its way.
         </p>
       </div>

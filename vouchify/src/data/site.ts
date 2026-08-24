@@ -2,8 +2,7 @@
  * Brand + commerce configuration. Policy copy lives in ./legal.ts.
  *
  * Everything here is copy or policy, never layout. Swapping this file for a
- * headless CMS payload later means matching this shape and nothing else —
- * no component reads a hardcoded brand string.
+ * headless CMS payload later means matching this shape and nothing else, * no component reads a hardcoded brand string.
  */
 
 export interface NavLink {
@@ -29,7 +28,7 @@ export const site = {
   /** Orders at or above this unit count are routed to the quote form, not checkout. */
   multiLocationMinUnits: 10,
   /** Post-purchase upsell window, in minutes. Validated server-side against the
-   *  Stripe session's created timestamp — never against a client clock. */
+   *  Stripe session's created timestamp, never against a client clock. */
   upsellWindowMinutes: 15,
   shipping: {
     processing: '1–2 business days',

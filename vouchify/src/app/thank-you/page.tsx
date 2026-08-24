@@ -105,7 +105,7 @@ export default async function ThankYouPage({
                 <h2 className="text-lg">Your stands dashboard</h2>
                 <p className="mt-2 text-sm text-warm-700">
                   {order.perUnitLinks
-                    ? 'You asked for a separate link per stand. Set each one here — the same link is printed on a card in the box.'
+                    ? 'You asked for a separate link per stand. Set each one here, the same link is printed on a card in the box.'
                     : 'Change where any stand points, and see which placement is doing the work. The same link is printed on a card in the box.'}
                 </p>
                 <a
@@ -129,7 +129,7 @@ export default async function ThankYouPage({
                     ? 'We program every chip to the review link you gave us and test it.'
                     : 'We email you for your Google review link, then program and test every chip.',
                   'The order ships with tracking. Canada 3–7 business days, US 5–9.',
-                  'Put the first one on the counter. It works out of the box — nothing to set up.',
+                  'Put the first one on the counter. It works out of the box, nothing to set up.',
                 ].map((text, index) => (
                   <li key={text} className="flex gap-4 py-4">
                     <span
@@ -169,7 +169,7 @@ export default async function ThankYouPage({
                 <p className="mt-3 text-base text-warm-700">
                   {order?.upsellRedeemed || upsell === 'done'
                     ? 'They are going in the same box, programmed to the same link.'
-                    : 'Keychains, wallet cards and window stickers carry the same link as your stands — useful for the customers who never reach the counter.'}
+                    : 'Keychains, wallet cards and window stickers carry the same link as your stands, useful for the customers who never reach the counter.'}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
@@ -185,7 +185,7 @@ export default async function ThankYouPage({
             {!order && sessionId ? (
               <p className="mt-4 text-xs text-warm-600">
                 We could not load the order details for this page. That does not affect your
-                payment — if you have a Stripe receipt, the order is in.
+                payment, if you have a Stripe receipt, the order is in.
               </p>
             ) : null}
 

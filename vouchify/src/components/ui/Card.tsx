@@ -4,7 +4,7 @@ import { cn } from '@/lib/cn';
 type CardTone = 'paper' | 'warm' | 'ink' | 'selected';
 
 /* Each tone sets its own text colour. A card is a surface change, so it must not
-   inherit the colour of the section it happens to be sitting in — a paper card
+   inherit the colour of the section it happens to be sitting in, a paper card
    dropped into an ink section would otherwise render near-white on near-white. */
 const tones: Record<CardTone, string> = {
   paper: 'bg-paper border-warm-300 text-ink',

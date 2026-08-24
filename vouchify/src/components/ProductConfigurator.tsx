@@ -309,7 +309,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
             </fieldset>
 
             {/* Link plan. Every chip is encoded separately before it ships, so a
-                pack does not have to point at one place — and the buyer should
+                pack does not have to point at one place, and the buyer should
                 be told that here, not discover it in a FAQ. */}
             {tier.qty > 1 ? (
               <fieldset className="mt-6 border-0 p-0">
@@ -399,7 +399,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
               </Button>
               <ul className="mt-4 space-y-1.5 text-xs text-warm-700">
                 <li data-numeric>
-                  Free shipping over {formatMoney(site.freeShippingThresholdCents, { compact: true })} — this order{' '}
+                  Free shipping over {formatMoney(site.freeShippingThresholdCents, { compact: true })}, this order{' '}
                   {total >= site.freeShippingThresholdCents ? 'qualifies' : 'does not yet'}
                 </li>
                 <li>{site.shipping.processing} to program and pack, tested on iPhone and Android</li>
@@ -422,11 +422,11 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
             <p className="mt-4 text-base text-warm-700">
               Placements are numbered in the order they earn their keep. Position 1 catches everyone
               who pays. By position 5 you are catching the people who never walk past the counter at
-              all — the ones sitting in a chair, or paying at the table.
+              all, the ones sitting in a chair, or paying at the table.
             </p>
             <p className="mt-4 text-base text-warm-700">
               Each stand counts its own taps, so after a fortnight you can see which placement is
-              doing the work and move the quiet one. The count is per stand and nothing else — no
+              doing the work and move the quiet one. The count is per stand and nothing else, no
               cookie on the customer’s phone, nothing that identifies them.
             </p>
             <p className="mt-4 text-sm text-warm-600">

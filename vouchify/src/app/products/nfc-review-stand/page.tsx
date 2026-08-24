@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `/products/${coreProduct.slug}` },
   openGraph: {
     type: 'website',
-    title: `${coreProduct.fullName} — ${site.name}`,
+    title: `${coreProduct.fullName}, ${site.name}`,
     description: coreProduct.summary,
     url: `/products/${coreProduct.slug}`,
   },

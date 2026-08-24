@@ -15,7 +15,7 @@ export interface LegalPage {
 
 /**
  * Policy copy, written to be read rather than to be survived. It is plain text
- * on purpose — a shop owner should be able to find the answer in one screen.
+ * on purpose, a shop owner should be able to find the answer in one screen.
  *
  * TODO: have a lawyer in your jurisdiction review these before launch. They are
  * written to be accurate about how the product actually works, not as a
@@ -81,7 +81,7 @@ export const legalPages: readonly LegalPage[] = [
         heading: 'Custom printing',
         body: [
           'Stands printed with your logo cannot be returned for a refund, because they cannot be sold to anyone else. We email a proof before printing so nothing goes to press unapproved.',
-          'If a printed order arrives wrong — wrong logo, wrong placement, wrong colour — that is our error and we reprint it at no charge.',
+          'If a printed order arrives wrong, wrong logo, wrong placement, wrong colour, that is our error and we reprint it at no charge.',
         ],
       },
       {
@@ -131,7 +131,7 @@ export const legalPages: readonly LegalPage[] = [
       {
         heading: 'Your choices',
         body: [
-          `Email ${site.supportEmail} to get a copy of what we hold about you, correct it, or have it deleted. Deleting your account data does not stop your stands working — the link forwarding continues.`,
+          `Email ${site.supportEmail} to get a copy of what we hold about you, correct it, or have it deleted. Deleting your account data does not stop your stands working, the link forwarding continues.`,
         ],
       },
     ],
@@ -173,7 +173,7 @@ export const legalPages: readonly LegalPage[] = [
       {
         heading: 'Liability',
         body: [
-          'We are responsible for the product arriving as described and working. We are not responsible for how many reviews you receive, or what they say — that is up to your customers.',
+          'We are responsible for the product arriving as described and working. We are not responsible for how many reviews you receive, or what they say, that is up to your customers.',
           `These terms are governed by the laws of the province in which ${site.legalEntity} is registered.`,
         ],
       },

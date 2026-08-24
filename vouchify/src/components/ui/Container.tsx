@@ -28,7 +28,7 @@ export function Container({
   );
 }
 
-/** The 12-column grid. Used asymmetrically — that is the whole point of it. */
+/** The 12-column grid. Used asymmetrically, that is the whole point of it. */
 export function Grid({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn('grid grid-cols-4 gap-x-5 md:grid-cols-12 md:gap-x-6', className)}>{children}</div>;
 }

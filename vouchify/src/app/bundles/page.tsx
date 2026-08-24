@@ -40,7 +40,7 @@ export default function BundlesPage() {
           </div>
           <div className="col-span-4 self-end md:col-span-4 md:col-start-9">
             <p className="text-base text-warm-700">
-              The stand does not change between bundles — the coverage does. Below, each bundle is
+              The stand does not change between bundles, the coverage does. Below, each bundle is
               drawn on the same floor so you can see exactly which customers it catches and which it
               misses.
             </p>

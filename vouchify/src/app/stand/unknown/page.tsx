@@ -25,7 +25,7 @@ export default function UnknownStandPage() {
           </p>
           <p className="mt-4 text-base text-warm-700">
             If you were trying to leave a review, search the business by name on Google and use the
-            review button on their listing — that is the same page this stand would have opened.
+            review button on their listing, that is the same page this stand would have opened.
           </p>
           <p className="mt-6 text-sm text-warm-600">
             If this is your stand, email{' '}

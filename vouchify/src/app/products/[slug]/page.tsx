@@ -33,7 +33,7 @@ export async function generateMetadata({
     alternates: { canonical: `/products/${addOn.slug}` },
     openGraph: {
       type: 'website',
-      title: `${addOn.name} — ${site.name}`,
+      title: `${addOn.name}, ${site.name}`,
       description: addOn.summary,
       url: `/products/${addOn.slug}`,
     },

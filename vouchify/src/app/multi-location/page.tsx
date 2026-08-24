@@ -21,7 +21,7 @@ export default function MultiLocationPage() {
               More than one address changes the order.
             </h1>
             <p className="mt-6 text-base text-warm-700">
-              Any pack can already be encoded with a separate link per stand — that is a checkbox in
+              Any pack can already be encoded with a separate link per stand, that is a checkbox in
               the buy box, not a conversation. What changes past{' '}
               {site.multiLocationMinUnits} stands is everything around the chips: which box goes to
               which address, who signs for it, what the whole group should cost, and what happens

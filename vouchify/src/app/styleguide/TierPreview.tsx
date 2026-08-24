@@ -14,7 +14,7 @@ import {
 } from '@/data/products';
 
 /**
- * Not the finished buy box — a working preview of the tier engine so the visual
+ * Not the finished buy box, a working preview of the tier engine so the visual
  * direction can be judged with real behaviour rather than a static mock.
  */
 export function TierPreview() {

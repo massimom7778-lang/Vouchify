@@ -102,7 +102,7 @@ export default function HowItWorksPage() {
             <Eyebrow tone="onDark">NFC and QR</Eyebrow>
             <h2 className="mt-4 text-2xl md:text-3xl">Two ways in, one link.</h2>
             <p className="mt-5 text-base text-warm-300">
-              Every stand carries both. The NFC chip is the fast path — no camera, no aiming, no
+              Every stand carries both. The NFC chip is the fast path, no camera, no aiming, no
               app. The QR code on the face is the fallback for phones that will not read a tag, and
               for the customer standing a metre away.
             </p>
@@ -188,7 +188,7 @@ export default function HowItWorksPage() {
             <h2 className="text-xl md:text-2xl">Where we stand on review policy</h2>
             <p className="mt-4 max-w-prose text-base text-warm-700">
               Asking every customer is fine. Offering something in return for a review, or screening
-              so only happy customers get asked, is not — and we do not build either. The stand opens
+              so only happy customers get asked, is not, and we do not build either. The stand opens
               your public review page for everyone who taps it.{' '}
               <Link href="/faq#google-policy" className="font-semibold text-gold-deep underline underline-offset-4">
                 The longer answer is in the FAQ

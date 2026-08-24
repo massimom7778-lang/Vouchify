@@ -11,21 +11,27 @@ import { cn } from '@/lib/cn';
  * this drawing are the same control.
  */
 
-function PlanOutline() {
+type PlanTone = 'paper' | 'ink';
+
+function PlanOutline({ tone }: { tone: PlanTone }) {
+  const onInk = tone === 'ink';
+  const wall = onInk ? 'stroke-warm-600' : 'stroke-warm-400';
+  const fixtureStroke = onInk ? 'stroke-warm-600' : 'stroke-warm-500';
+  const fixtureFill = onInk ? 'fill-warm-900' : 'fill-warm-100';
   return (
     <g fill="none" strokeLinecap="square">
       {/* Walls, with a doorway gap at the bottom left */}
-      <g className="stroke-warm-400" strokeWidth="1.5">
+      <g className={wall} strokeWidth="1.5">
         <path d="M10 10 H290 V250 H90" />
         <path d="M40 250 H10 V10" />
       </g>
       {/* Door leaf and swing */}
-      <g className="stroke-warm-400" strokeWidth="1">
+      <g className={wall} strokeWidth="1">
         <path d="M90 250 V205" />
         <path d="M90 205 A45 45 0 0 0 45 250" strokeDasharray="3 3" />
       </g>
       {/* Fixtures */}
-      <g className="fill-warm-100 stroke-warm-500" strokeWidth="1">
+      <g className={`${fixtureFill} ${fixtureStroke}`} strokeWidth="1">
         <rect x="30" y="40" width="140" height="26" rx="2" />
         <rect x="178" y="40" width="26" height="26" rx="2" />
         <rect x="160" y="195" width="110" height="24" rx="2" />
@@ -36,7 +42,18 @@ function PlanOutline() {
   );
 }
 
-function PlacementDot({ placement, filled }: { placement: Placement; filled: boolean }) {
+function PlacementDot({
+  placement,
+  filled,
+  tone,
+}: {
+  placement: Placement;
+  filled: boolean;
+  tone: PlanTone;
+}) {
+  const onInk = tone === 'ink';
+  const openDot = onInk ? 'fill-ink stroke-warm-600' : 'fill-paper stroke-warm-400';
+  const openText = onInk ? 'fill-warm-500' : 'fill-warm-500';
   return (
     <g style={{ transition: 'opacity 150ms var(--ease-out-quart)' }}>
       <circle
@@ -44,7 +61,7 @@ function PlacementDot({ placement, filled }: { placement: Placement; filled: boo
         cy={placement.y}
         r="11"
         className={cn(
-          filled ? 'fill-gold stroke-gold' : 'fill-paper stroke-warm-400',
+          filled ? 'fill-gold stroke-gold' : openDot,
           'transition-[fill,stroke] duration-150',
         )}
         strokeWidth="1"
@@ -55,7 +72,7 @@ function PlacementDot({ placement, filled }: { placement: Placement; filled: boo
         y={placement.y}
         textAnchor="middle"
         dominantBaseline="central"
-        className={cn('font-sans text-[11px] font-semibold', filled ? 'fill-ink' : 'fill-warm-500')}
+        className={cn('font-sans text-[11px] font-semibold', filled ? 'fill-ink' : openText)}
       >
         {placement.n}
       </text>
@@ -69,12 +86,14 @@ export function PlanDrawing({
   count,
   title,
   className,
+  tone = 'paper',
 }: {
   location: 1 | 2;
   count: number;
   /** Used for the accessible name only. */
   title: string;
   className?: string;
+  tone?: PlanTone;
 }) {
   const forLocation = placements.filter((p) => p.location === location);
   const active = forLocation.filter((p) => p.n <= count);
@@ -83,7 +102,12 @@ export function PlanDrawing({
   return (
     <svg
       viewBox="0 0 300 260"
-      className={cn('w-full rounded-md border border-warm-300 bg-paper', dormant && 'opacity-55', className)}
+      className={cn(
+        'w-full rounded-md border',
+        tone === 'ink' ? 'border-warm-800 bg-warm-900' : 'border-warm-300 bg-paper',
+        dormant && 'opacity-55',
+        className,
+      )}
       role="img"
       aria-label={
         active.length === 0
@@ -91,9 +115,9 @@ export function PlanDrawing({
           : `${title}: ${active.map((p) => p.label.toLowerCase()).join(', ')}.`
       }
     >
-      <PlanOutline />
+      <PlanOutline tone={tone} />
       {forLocation.map((placement) => (
-        <PlacementDot key={placement.n} placement={placement} filled={placement.n <= count} />
+        <PlacementDot key={placement.n} placement={placement} filled={placement.n <= count} tone={tone} />
       ))}
     </svg>
   );
@@ -103,27 +127,29 @@ function Plan({
   location,
   count,
   title,
+  tone,
 }: {
   location: 1 | 2;
   count: number;
   title: string;
+  tone: PlanTone;
 }) {
   const forLocation = placements.filter((p) => p.location === location);
   const active = forLocation.filter((p) => p.n <= count);
 
-  // Only the drawing dims when a location has no stands — dimming the labels
+  // Only the drawing dims when a location has no stands, dimming the labels
   // too would drop them below AA.
   return (
     <div className="min-w-0">
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <span className="font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+        <span className={cn('font-sans text-2xs font-semibold uppercase tracking-wide', tone === 'ink' ? 'text-warm-500' : 'text-warm-600')}>
           {title}
         </span>
-        <span className="font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600" data-numeric>
+        <span className={cn('font-sans text-2xs font-semibold uppercase tracking-wide', tone === 'ink' ? 'text-warm-500' : 'text-warm-600')} data-numeric>
           {active.length}/{PLACEMENTS_PER_LOCATION} covered
         </span>
       </div>
-      <PlanDrawing location={location} count={count} title={title} />
+      <PlanDrawing location={location} count={count} title={title} tone={tone} />
     </div>
   );
 }
@@ -133,6 +159,7 @@ export function ShopPlan({
   className,
   showLegend = true,
   locations = 'auto',
+  tone = 'paper',
 }: {
   /** How many stands are being bought. */
   count: number;
@@ -140,13 +167,14 @@ export function ShopPlan({
   showLegend?: boolean;
   /** 'auto' shows the second plan alongside; 1 draws a single shop, larger. */
   locations?: 'auto' | 1;
+  tone?: PlanTone;
 }) {
   const secondLocationActive = count > PLACEMENTS_PER_LOCATION;
 
   if (locations === 1) {
     return (
       <div className={className}>
-        <Plan location={1} count={count} title="Your shop" />
+        <Plan location={1} count={count} title="Your shop" tone={tone} />
       </div>
     );
   }
@@ -154,9 +182,9 @@ export function ShopPlan({
   return (
     <div className={className}>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Plan location={1} count={count} title="Your shop" />
+        <Plan location={1} count={count} title="Your shop" tone={tone} />
         <div className={cn(!secondLocationActive && 'hidden sm:block')}>
-          <Plan location={2} count={count} title="Second location" />
+          <Plan location={2} count={count} title="Second location" tone={tone} />
         </div>
       </div>
 

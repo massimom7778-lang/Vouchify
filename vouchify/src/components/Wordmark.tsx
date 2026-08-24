@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
  *
  * "Vouch" takes the surrounding text colour so the lockup works on both the
  * paper and the ink ground without a second asset. "ıfy" is gold, and the star
- * is the tittle of the i — a dotless ı (U+0131) is used so there is no dot
+ * is the tittle of the i, a dotless ı (U+0131) is used so there is no dot
  * underneath it.
  *
  * Everything is sized in em, so the mark scales from a favicon to a hero by
@@ -44,7 +44,7 @@ export function Wordmark({
         Vouch
         <span className="text-gold">
           <span className="relative inline-block">
-            {/* dotless i — the star is its tittle */}
+            {/* dotless i, the star is its tittle */}
             {'ı'}
             <Star
               className="absolute left-1/2 w-[0.58em] -translate-x-1/2 text-gold"

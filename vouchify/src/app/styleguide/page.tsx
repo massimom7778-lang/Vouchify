@@ -36,9 +36,9 @@ const warmRamp = [
   { name: 'warm-50', hex: '#FBFAF8', use: 'Lift inside a card on paper' },
   { name: 'warm-100', hex: '#F1EEE8', use: 'Alternating section ground' },
   { name: 'warm-200', hex: '#E6E2D9', use: 'Photo placeholder ground, inert chips' },
-  { name: 'warm-300', hex: '#D5CFC3', use: 'Hairline borders on light — the workhorse' },
+  { name: 'warm-300', hex: '#D5CFC3', use: 'Hairline borders on light, the workhorse' },
   { name: 'warm-400', hex: '#B4ADA0', use: 'Decorative rules, disabled glyphs' },
-  { name: 'warm-500', hex: '#8F877A', use: 'Non-text UI only. 3.23:1 — never body copy' },
+  { name: 'warm-500', hex: '#8F877A', use: 'Non-text UI only. 3.23:1, never body copy' },
   { name: 'warm-600', hex: '#6B655B', use: 'Muted body text. 5.26:1 on paper' },
   { name: 'warm-700', hex: '#4A4640', use: 'Answer copy, dense paragraphs. 8.53:1' },
   { name: 'warm-800', hex: '#2A2825', use: 'Hairline borders on ink' },
@@ -71,7 +71,7 @@ const sampleFaq = [
     question: 'Do I need wifi or power at the counter?',
     answer: (
       <p>
-        No. The chip is passive — it has no battery and draws its power from the phone that taps it.
+        No. The chip is passive, it has no battery and draws its power from the phone that taps it.
         The stand works during an outage and works in a basement.
       </p>
     ),
@@ -90,12 +90,12 @@ const sampleFaq = [
 export default function StyleguidePage() {
   return (
     <main id="main">
-      {/* Header band — dark, structural, 0 radius */}
+      {/* Header band, dark, structural, 0 radius */}
       <div className="bg-ink text-paper">
         <Container className="py-14 md:py-20">
           <Grid>
             <div className="col-span-4 md:col-span-7">
-              <Eyebrow tone="onDark">{site.name} — build step 1 &amp; 2</Eyebrow>
+              <Eyebrow tone="onDark">{site.name}, build step 1 &amp; 2</Eyebrow>
               <h1 className="mt-4 text-2xl md:text-3xl lg:text-4xl">
                 Theme tokens
                 <br />
@@ -139,7 +139,7 @@ export default function StyleguidePage() {
                     </div>
                     <p className="mt-2 text-xs text-warm-700">{s.use}</p>
                     <p className="mt-2 text-2xs uppercase tracking-wide text-warm-600" data-numeric>
-                      vs {s.on} — {s.ratio}
+                      vs {s.on}, {s.ratio}
                     </p>
                   </div>
                 </Card>
@@ -167,7 +167,7 @@ export default function StyleguidePage() {
 
             <p className="mt-4 max-w-prose text-xs text-warm-600">
               Note on the accent: <span className="font-semibold text-ink">#FF4D14 as text on paper is
-              3.02:1</span>, which fails AA for anything under 24px. So the accent has two roles — the
+              3.02:1</span>, which fails AA for anything under 24px. So the accent has two roles, the
               pure hue fills buttons and active states with ink text on top, and{' '}
               <span className="font-semibold text-gold-deep">gold-deep</span> carries orange text
               at body size. Same accent, two accessible jobs, no second colour introduced.
@@ -230,7 +230,7 @@ export default function StyleguidePage() {
             <SectionHeading className="mt-3 text-xl md:text-xl">Buttons, badges</SectionHeading>
             <p className="mt-3 text-sm text-warm-600">
               6px radius maximum, 1px borders, instant hover. No pill shapes, no gradient fills, no
-              drop shadows — the shadow tokens are cleared from the theme entirely.
+              drop shadows, the shadow tokens are cleared from the theme entirely.
             </p>
           </div>
 
@@ -295,7 +295,7 @@ export default function StyleguidePage() {
               The buy box is the highest-value screen on the site, so it is previewed here with live
               state rather than as a static mock. Selecting a tier updates the total in place; the
               total ticks 220ms rather than counting up through wrong numbers. Savings are derived
-              from the real one-unit price at render time — there is no stored discount figure and no
+              from the real one-unit price at render time, there is no stored discount figure and no
               invented MSRP anywhere in the catalog.
             </p>
             <dl className="mt-8 divide-y divide-warm-800 border-y border-warm-800">
@@ -360,7 +360,7 @@ export default function StyleguidePage() {
         </Grid>
       </Section>
 
-      {/* Full-bleed break — grid break #1 */}
+      {/* Full-bleed break, grid break #1 */}
       <div className="border-y border-warm-300">
         <PhotoBlock photo={coreProduct.photos.counter} square className="border-x-0 border-y-0" />
       </div>
@@ -394,7 +394,7 @@ export default function StyleguidePage() {
               </p>
               <p className="mt-2 max-w-prose text-sm text-warm-700">
                 That plus the 220ms total tick is the entire motion budget. No parallax, no spring,
-                no carousel, no hover transitions — hover states switch instantly. The hidden state is
+                no carousel, no hover transitions, hover states switch instantly. The hidden state is
                 applied by an effect, so with JavaScript off the content is simply visible, and
                 anyone with reduced-motion set skips it entirely.
               </p>
@@ -408,7 +408,7 @@ export default function StyleguidePage() {
           <p className="max-w-prose text-base text-warm-300">
             Steps 1 and 2 are done: theme tokens, catalog, site config, and the primitive set
             (Button, Card, Section, Container, Grid, Price, AnimatedTotal, Badge, Accordion, Reveal,
-            PhotoBlock). Pages are next, in the order set out in the brief — PDP first.
+            PhotoBlock). Pages are next, in the order set out in the brief, PDP first.
           </p>
         </Container>
       </div>

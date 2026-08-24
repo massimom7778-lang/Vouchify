@@ -20,7 +20,7 @@ export const faqs: readonly FaqEntry[] = [
     id: 'iphone',
     question: 'Does it work on iPhone?',
     answer: [
-      'Yes — iPhone XS and newer, with no app to install. Hold the top edge of the phone against the stand and the review page opens in Safari.',
+      'Yes, iPhone XS and newer, with no app to install. Hold the top edge of the phone against the stand and the review page opens in Safari.',
       'iPhone 7 through X can read it too, but the screen has to be awake and unlocked first. Anything older uses the QR code printed on the same face.',
     ],
     topics: ['phones'],
@@ -31,7 +31,7 @@ export const faqs: readonly FaqEntry[] = [
     question: 'Does it work on Android?',
     answer: [
       'Yes. Almost every Android phone sold since about 2015 has NFC and leaves it switched on. Tap the middle of the back of the phone against the stand.',
-      'If nothing happens, NFC is switched off in settings — or the phone is one of the budget models that ships without it, in which case the QR code covers it.',
+      'If nothing happens, NFC is switched off in settings, or the phone is one of the budget models that ships without it, in which case the QR code covers it.',
     ],
     topics: ['phones'],
     onProduct: true,
@@ -40,7 +40,7 @@ export const faqs: readonly FaqEntry[] = [
     id: 'no-nfc',
     question: 'What if a customer’s phone has no NFC?',
     answer: [
-      'Every stand has a QR code printed on the face, pointing at the same review page. The camera app reads it — no separate scanner app, no typing.',
+      'Every stand has a QR code printed on the face, pointing at the same review page. The camera app reads it, no separate scanner app, no typing.',
       'In practice a busy counter uses both: regulars tap, and anyone whose phone does not cooperate scans instead.',
     ],
     topics: ['phones'],
@@ -50,7 +50,7 @@ export const faqs: readonly FaqEntry[] = [
     id: 'power',
     question: 'Do I need wifi or power at the counter?',
     answer: [
-      'No. The chip is passive — no battery, no charging, no pairing. It draws the tiny amount of power it needs from the phone that taps it.',
+      'No. The chip is passive, no battery, no charging, no pairing. It draws the tiny amount of power it needs from the phone that taps it.',
       'The stand works during a power cut and works in a basement. The customer’s phone needs a connection to load the review page, but the stand itself never does.',
     ],
     topics: ['setup', 'product'],
@@ -81,7 +81,7 @@ export const faqs: readonly FaqEntry[] = [
     question: 'Is there a monthly fee?',
     answer: [
       'No. You pay once for the stands. There is no subscription, no per-review charge, and no paid tier holding back a feature.',
-      'Link changes and tap counts are included for as long as you own the stand. The only thing we run on your behalf is the forwarder that makes changing the link possible — if we ever stopped running it, we would publish a way to reprogram your chips to point straight at your review page.',
+      'Link changes and tap counts are included for as long as you own the stand. The only thing we run on your behalf is the forwarder that makes changing the link possible, if we ever stopped running it, we would publish a way to reprogram your chips to point straight at your review page.',
     ],
     topics: ['policy', 'setup'],
     onProduct: true,
@@ -100,7 +100,7 @@ export const faqs: readonly FaqEntry[] = [
     id: 'logo',
     question: 'Can I get my logo on it?',
     answer: [
-      'Yes — $29 once per order, however many stands are in it. Send a PNG, SVG, or PDF after checkout and we email a proof before anything is printed.',
+      'Yes, $29 once per order, however many stands are in it. Send a PNG, SVG, or PDF after checkout and we email a proof before anything is printed.',
       'Printing adds one business day to processing.',
     ],
     topics: ['product'],
@@ -110,7 +110,7 @@ export const faqs: readonly FaqEntry[] = [
     id: 'google-policy',
     question: 'Is asking for reviews against Google’s policy?',
     answer: [
-      'Asking every customer for feedback is fine. What is not allowed is offering an incentive for a review, or filtering so that only happy customers are asked — Google calls that review gating.',
+      'Asking every customer for feedback is fine. What is not allowed is offering an incentive for a review, or filtering so that only happy customers are asked, Google calls that review gating.',
       'Vouchify does not do either. There is no discount for leaving a review, no star-rating screen in front of the link, and no way to route unhappy customers somewhere private. The stand opens your public review page for everyone who taps it, whatever they are about to write.',
       'That is a deliberate product decision, and it is why the stand is a piece of acrylic rather than a funnel.',
     ],
@@ -141,7 +141,7 @@ export const faqs: readonly FaqEntry[] = [
     question: 'Can each location point at its own review page?',
     answer: [
       'Yes. We program each location’s stands to its own review link and label the boxes, so staff put the right ones out without checking with you.',
-      'For ten or more, ask for a multi-location quote instead of ordering through checkout — it is priced for the whole group.',
+      'For ten or more, ask for a multi-location quote instead of ordering through checkout, it is priced for the whole group.',
     ],
     topics: ['setup'],
   },
@@ -151,7 +151,7 @@ export const faqs: readonly FaqEntry[] = [
  * The homepage six, curated rather than sliced: one about the customer's phone,
  * one about the phones that will not tap, one about what the shop needs to
  * provide, one about the catch, one about delivery, and the one about whether
- * this is allowed at all. Order matters — it is the order people worry in.
+ * this is allowed at all. Order matters, it is the order people worry in.
  */
 const HOMEPAGE_FAQ_IDS = [
   'iphone',

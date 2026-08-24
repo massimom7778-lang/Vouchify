@@ -25,7 +25,7 @@ export default async function StandNotSetUpPage({
           <Eyebrow>Not pointed anywhere yet</Eyebrow>
           <h1 className="mt-4 text-2xl md:text-3xl">This stand has no link on it yet.</h1>
           <p className="mt-6 text-base text-warm-700">
-            The chip works — the business just has not told it where to send you. If you meant to
+            The chip works, the business just has not told it where to send you. If you meant to
             leave them a review, search their name on Google and use the review button on their
             listing.
           </p>

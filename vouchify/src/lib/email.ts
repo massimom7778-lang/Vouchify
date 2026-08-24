@@ -70,7 +70,7 @@ export async function sendEmail(message: OutboundEmail): Promise<Delivery> {
 }
 
 /**
- * The order confirmation. Its real job is delivering the dashboard link — that
+ * The order confirmation. Its real job is delivering the dashboard link, that
  * link is the only key to the stands, and until this email exists a customer
  * who closes the tab on the thank-you page has no way back to it.
  */
@@ -88,7 +88,7 @@ export function orderConfirmationText({
   const stands = `${standCount} stand${standCount === 1 ? '' : 's'}`;
 
   return [
-    `Thanks — your order is in.`,
+    `Thanks, your order is in.`,
     ``,
     `We program and pack in ${site.shipping.processing}. Every stand is tapped on both an iPhone and an Android handset before it goes in the box.`,
     ``,
@@ -103,9 +103,9 @@ export function orderConfirmationText({
         ? `We are programming all ${stands} to:\n${reviewLink}`
         : `We do not have your Google review link yet. Reply to this email with it, or paste it into the dashboard, and we will program ${stands} to it.`,
     ``,
-    `Questions about this order? Reply to this email — a person answers.`,
+    `Questions about this order? Reply to this email, a person answers.`,
     ``,
-    `— ${site.name}`,
+    `${site.name}`,
     site.url,
   ].join('\n');
 }
