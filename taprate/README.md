@@ -37,7 +37,32 @@ npm run dev                    # http://localhost:3000
 Without Stripe keys the whole storefront still builds and runs — the pay button
 reports that payments are not configured rather than throwing.
 
-Deploy target is Vercel. No build step beyond `next build`.
+### Deploying to Vercel
+
+This repository holds **two** separate applications side by side — `taprate/` and
+`meridian-concours/`. There is no app at the repository root, so Vercel must be
+told which one to build:
+
+1. **Project → Settings → Build and Deployment → Root Directory: `taprate`.**
+   Without this Vercel auto-detects whichever app it finds first and deploys that
+   one instead.
+2. **Project → Settings → Git → Production Branch:** set it to the branch that
+   actually contains `taprate/`. Vercel deploys the production branch, which
+   defaults to the repository's default branch on GitHub.
+3. **Project → Settings → Environment Variables:** everything in the table above.
+   `NEXT_PUBLIC_SITE_URL` must be the deployed origin, or Stripe's success and
+   cancel URLs and the emailed dashboard links will point somewhere else.
+4. Add the deployed origin as a Stripe webhook endpoint at `/api/webhook` and put
+   its signing secret in `STRIPE_WEBHOOK_SECRET`.
+
+To deploy both applications, create two Vercel projects from this one repository
+with different Root Directory settings. One project cannot serve both.
+
+`vercel.json` in this directory pins the framework and sets security headers —
+`no-referrer` and `noindex` on `/dashboard/:path*`, because the dashboard is
+opened by a bearer token in the URL and that path must never leak in a Referer
+header or reach an index, and `no-store` on `/r/:path*` so no intermediary
+caches a forward whose target can change at any moment.
 
 ---
 
