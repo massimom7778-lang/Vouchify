@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Vouchify theme tokens
+   Two structural colors, one accent, one warm neutral ramp derived from paper.
+   Everything below is the single source of truth for the storefront's look.
+   ========================================================================== */
+
+@theme {
+  /* --- Colors -------------------------------------------------------------
+     Tailwind's stock palette is cleared on purpose: it removes indigo/violet
+     and every other off-brand hue from the utility surface, so an off-palette
+     color can't be typed by accident. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-ink: #0b0b0c;          /* structural dark  */
+  --color-paper: #f6f4f0;        /* structural light */
+  --color-white: #ffffff;
+
+  /* Warm neutral ramp, hue-matched to paper (~40deg). Never a cool grey. */
+  --color-warm-50: #fbfaf8;
+  --color-warm-100: #f1eee8;
+  --color-warm-200: #e6e2d9;
+  --color-warm-300: #d5cfc3;     /* hairline borders on light             */
+  --color-warm-400: #b4ada0;     /* decorative rules, disabled glyphs     */
+  --color-warm-500: #8f877a;     /* non-text UI only (3.2:1 on paper)     */
+  --color-warm-600: #6b655b;     /* muted body text  — 5.2:1 on paper AA  */
+  --color-warm-700: #4a4640;
+  --color-warm-800: #2a2825;     /* hairline borders on ink               */
+  --color-warm-900: #171614;     /* raised surfaces on ink                */
+
+  /* The one accent. Vouchify gold, taken from the wordmark.
+     Gold behaves nothing like a bright accent: on the paper ground it measures
+     2.05:1, so it can never be small text there. It is brilliant on ink (8.74:1)
+     and takes ink on top of it (8.74:1), which is why the primary button is an
+     ink fill with a gold label rather than a gold fill. */
+  --color-gold: #c9a961;        /* the brand gold: fills, and text ON INK */
+  --color-gold-hover: #b8912f;  /* pressed fill — ink on it is still 6.68:1 */
+  --color-gold-deep: #7d6318;   /* the same gold darkened for SMALL TEXT on
+                                   light — 5.21:1 on paper. Not a second colour. */
+  --color-gold-tint: #f7f0de;   /* flat wash behind the selected tier row */
+
+  /* --- Type ---------------------------------------------------------------
+     Scale is fixed at 12 / 14 / 16 / 17 / 20 / 28 / 40 / 60 / 84.
+     Stock steps are cleared so nothing lands between them. */
+  --text-*: initial;
+  --text-2xs: 0.75rem;           /* 12 — eyebrows, legal, table meta */
+  --text-2xs--line-height: 1.25;
+  --text-2xs--letter-spacing: 0.08em;
+  --text-xs: 0.875rem;           /* 14 — labels, helper text */
+  --text-xs--line-height: 1.45;
+  --text-sm: 1rem;               /* 16 — dense body, mobile body */
+  --text-sm--line-height: 1.6;
+  --text-base: 1.0625rem;        /* 17 — default body */
+  --text-base--line-height: 1.6;
+  --text-lg: 1.25rem;            /* 20 — lead paragraphs, buy-box totals */
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.75rem;            /* 28 — card headings */
+  --text-xl--line-height: 1.2;
+  --text-xl--letter-spacing: -0.02em;
+  --text-2xl: 2.5rem;            /* 40 — section headings (mobile display) */
+  --text-2xl--line-height: 1.05;
+  --text-2xl--letter-spacing: -0.02em;
+  --text-3xl: 3.75rem;           /* 60 — section display */
+  --text-3xl--line-height: 0.98;
+  --text-3xl--letter-spacing: -0.025em;
+  --text-4xl: 5.25rem;           /* 84 — hero only */
+  --text-4xl--line-height: 0.92;
+  --text-4xl--letter-spacing: -0.03em;
+
+  --font-display: var(--font-bricolage), "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+
+  --tracking-*: initial;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.08em;       /* eyebrow / caps labels */
+
+  /* --- Radius: 6px ceiling. 0 on structural elements. ---------------------- */
+  --radius-*: initial;
+  --radius-none: 0px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+
+  /* --- Shadows: cleared. This site uses hairline borders, not elevation. --- */
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  /* --- Layout -------------------------------------------------------------- */
+  --container-*: initial;
+  --container-prose: 40rem;      /* 640 — reading measure  */
+  --container-narrow: 56rem;     /* 896 — forms, legal     */
+  --container-page: 84rem;       /* 1344 — 12-col grid max */
+
+  /* --- Motion: functional only. One reveal, one number tick. -------------- */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --animate-rise: rise 400ms var(--ease-out-quart) both;
+  --animate-tick: tick 220ms var(--ease-out-quart) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tick {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: var(--tracking-tight);
+    text-wrap: balance;
+  }
+
+  /* Prices, savings, quantities, totals — never let digits shift width. */
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-deep);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  /* On a gold surface a gold ring is invisible; on ink it needs to be gold. */
+  .on-gold:focus-visible {
+    outline-color: var(--color-ink);
+  }
+  .on-ink:focus-visible {
+    outline-color: var(--color-gold);
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility vignette {
+  /* The only gradient permitted anywhere on the site: a soft radial pool of
+     light behind product photography. */
+  background-image: radial-gradient(
+    62% 62% at 50% 44%,
+    var(--color-warm-100) 0%,
+    var(--color-warm-200) 58%,
+    var(--color-warm-300) 100%
+  );
+}
+
+@utility rule-y {
+  /* Structural hairline used to separate stacked rows. */
+  border-block: 1px solid var(--color-warm-300);
+}
