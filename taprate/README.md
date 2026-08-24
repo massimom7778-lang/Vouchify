@@ -106,11 +106,63 @@ which feed the FAQ page, the homepage accordion, the product page, and the
 | `src/components/ui/` | Primitives. Nothing here knows about products. |
 | `src/components/ShopPlan.tsx` | The shop plan drawing |
 | `src/lib/cart.ts` | Zustand cart, persisted, plus derived totals |
+| `src/lib/store/` | The forwarder's data layer: interface, adapters, `schema.sql` |
+| `src/lib/provision.ts` | Paid order to stand records, idempotent on the Stripe session |
+| `src/app/r/[code]/` | The forwarder every chip points at |
+| `src/app/dashboard/[token]/` | Owner dashboard: re-point stands, see tap counts |
 | `src/lib/pricing.ts` | The only place an order total is computed for payment |
 | `src/lib/schemas.ts` | Zod schemas for every API route |
 | `/styleguide` | Living token and primitive reference. Not indexed. |
 
 ---
+
+## The forwarder
+
+Chips are encoded once with a short TapRate address (`/r/K3M7QX2`) and never
+again. A tap is one lookup, one counter increment, and a 302. Everything that
+changes afterwards is a row in the database — which is exactly why link changes
+are free and why a stand can be re-pointed without touching it.
+
+```
+tap  →  GET /r/[code]  →  lookup  →  count today  →  302 to the review page
+                              ↓ no such code      → /stand/unknown
+                              ↓ no link set yet   → /stand/not-set-up
+```
+
+**Setup.** Provision Postgres, set `DATABASE_URL`, then:
+
+```bash
+psql "$DATABASE_URL" -f src/lib/store/schema.sql
+```
+
+Without `DATABASE_URL` the store falls back to an in-memory adapter so a fresh
+clone runs with nothing attached. That adapter does not persist between
+requests — the dashboard says so in a banner, and `getStore()` warns in
+production.
+
+**Trying it without Stripe.** Set `ENABLE_DEV_SEED=1` and run the dev server:
+
+```bash
+curl -X POST 'http://localhost:3000/api/dev/seed?stands=6'
+```
+
+You get a dashboard URL and a tap URL per stand. The endpoint is refused in
+production regardless of the flag — it mints working dashboard tokens.
+
+**Authentication is a link.** `/dashboard/[token]` has no password: the token is
+printed on a card in the box, which is what "no account for your staff to
+remember" costs. It is 26 characters of CSPRNG (~130 bits), the page is
+`noindex, nocache`, and `/dashboard/` is disallowed in robots.txt. The token
+decides which order may be edited, and the store checks the stand belongs to
+that order — a guessed stand code from another order is simply not found. If you
+later want real accounts, `getOrderByToken` is the single seam to replace.
+
+**What a tap records.** A counter, per stand, per UTC day. No row per visitor, no
+IP, no user agent, no cookie — read `schema.sql` and note what is absent. Obvious
+crawlers and link unfurlers are excluded so previews do not inflate counts, and a
+failed count never costs the customer their redirect. Redirect targets are
+validated to `http`/`https` on both write and read, so a stored `javascript:` URL
+could not forward even if one got in.
 
 ## Things worth knowing before you change them
 
@@ -174,7 +226,13 @@ pages, `FAQPage` on the FAQ, plus `sitemap.ts` and `robots.ts`.
 ## Not built yet
 
 - Stripe webhook handler (`STRIPE_WEBHOOK_SECRET` is reserved for it). Orders are
-  currently confirmed by reading the Checkout Session on the thank-you page.
+  currently confirmed — and stands provisioned — by reading the Checkout Session
+  on the thank-you page. That means a customer who closes the tab before the
+  redirect has paid without being provisioned. `provisionFromCheckoutSession()`
+  is idempotent and is exactly what the webhook should call.
+- The Postgres adapter has been written and type-checked but never run against a
+  live database. Treat the first deploy as its test: provision an order, tap a
+  code, edit a link, then check the three tables.
 - Real photography, customer logos, and testimonials — all marked `TODO:`.
 - Tax configuration. Stripe Tax is not enabled; totals are shown before tax.
 - The link-forwarding dashboard the FAQ refers to.

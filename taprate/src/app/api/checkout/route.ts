@@ -83,6 +83,8 @@ export async function POST(request: Request) {
       metadata: {
         reviewLink: parsed.data.reviewLink ?? '',
         standCount: String(order.standCount),
+        // Provisioning reads this to label and colour the stand records.
+        color: order.lines.find((line) => line.color)?.color ?? 'black',
         linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',
         orderBump: parsed.data.bump ? 'keychain' : '',
       },

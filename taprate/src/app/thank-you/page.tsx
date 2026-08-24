@@ -4,7 +4,8 @@ import { UpsellOffer } from './UpsellOffer';
 import { ButtonLink, Eyebrow, Grid, Price, Section } from '@/components/ui';
 import { getStandTier, postPurchaseUpsell, coreProduct } from '@/data/products';
 import { site } from '@/data/site';
-import { getStripe, isStripeConfigured } from '@/lib/stripe';
+import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
+import { provisionFromCheckoutSession } from '@/lib/provision';
 
 export const metadata: Metadata = {
   title: 'Order confirmed',
@@ -18,6 +19,9 @@ interface OrderView {
   reviewLink: string;
   minutesLeft: number;
   upsellRedeemed: boolean;
+  /** The tokenised dashboard link. Also printed on a card in the box. */
+  dashboardUrl: string | null;
+  perUnitLinks: boolean;
 }
 
 async function loadOrder(sessionId: string): Promise<OrderView | null> {
@@ -29,7 +33,19 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
     const elapsed = Math.floor(Date.now() / 1000) - session.created;
     const remaining = site.upsellWindowMinutes * 60 - elapsed;
 
+    // Provisioning is idempotent on the session id, so a refresh is harmless.
+    // This is where a webhook will call the same function once one exists.
+    let dashboardUrl: string | null = null;
+    try {
+      const order = await provisionFromCheckoutSession(session);
+      if (order) dashboardUrl = `${siteOrigin()}/dashboard/${order.dashboardToken}`;
+    } catch (error) {
+      console.error('[thank-you] provisioning failed', error);
+    }
+
     return {
+      dashboardUrl,
+      perUnitLinks: session.metadata?.linkPlan === 'per-unit',
       email: session.customer_details?.email ?? null,
       totalCents: session.amount_total,
       currency: (session.currency ?? site.currency).toUpperCase(),
@@ -82,6 +98,27 @@ export default async function ThankYouPage({
                 </span>
                 <Price cents={order.totalCents} size="lg" />
               </p>
+            ) : null}
+
+            {order?.dashboardUrl ? (
+              <div className="mt-8 rounded-md border border-warm-300 bg-warm-50 p-5">
+                <h2 className="text-lg">Your stands dashboard</h2>
+                <p className="mt-2 text-sm text-warm-700">
+                  {order.perUnitLinks
+                    ? 'You asked for a separate link per stand. Set each one here — the same link is printed on a card in the box.'
+                    : 'Change where any stand points, and see which placement is doing the work. The same link is printed on a card in the box.'}
+                </p>
+                <a
+                  href={order.dashboardUrl}
+                  className="mt-3 block break-all rounded-sm border border-warm-300 bg-paper px-3 py-2 text-sm font-semibold text-signal-deep underline underline-offset-4"
+                >
+                  {order.dashboardUrl}
+                </a>
+                <p className="mt-2 text-2xs text-warm-600">
+                  Anyone with this link can re-point your stands. Keep it somewhere only staff you
+                  trust can reach.
+                </p>
+              </div>
             ) : null}
 
             <div className="mt-8">
