@@ -112,6 +112,8 @@ which feed the FAQ page, the homepage accordion, the product page, and the
 | `src/app/dashboard/[token]/` | Owner dashboard: re-point stands, see tap counts |
 | `src/lib/pricing.ts` | The only place an order total is computed for payment |
 | `src/lib/schemas.ts` | Zod schemas for every API route |
+| `src/lib/email.ts` | One outbound-mail path, degrading to logs without a key |
+| `src/app/api/webhook/` | Stripe webhook: provisions and sends the confirmation |
 | `/styleguide` | Living token and primitive reference. Not indexed. |
 
 ---
@@ -148,6 +150,25 @@ curl -X POST 'http://localhost:3000/api/dev/seed?stands=6'
 
 You get a dashboard URL and a tap URL per stand. The endpoint is refused in
 production regardless of the flag — it mints working dashboard tokens.
+
+**Orders are fulfilled by the webhook, not by a page load.** `/api/webhook`
+verifies the Stripe signature against `STRIPE_WEBHOOK_SECRET` over the raw body,
+then provisions. The thank-you page provisions too, but only the webhook is
+guaranteed to run — a customer who pays and closes the tab never loads that page.
+Both call the same idempotent function, so whichever lands first wins. The
+confirmation email is sent only when `provisionOrder` reports `created: true`, so
+a Stripe retry cannot send it twice. A handler failure returns 500 on purpose:
+that asks Stripe to retry, which is safe precisely because provisioning is
+idempotent.
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhook
+```
+
+**The confirmation email is the only copy of the dashboard link.** It is also
+printed on a card in the box, but the email is what reaches someone who lost the
+card. Without `RESEND_API_KEY` it is logged in full instead of sent, so you can
+see exactly what would have gone out.
 
 **Authentication is a link.** `/dashboard/[token]` has no password: the token is
 printed on a card in the box, which is what "no account for your staff to
@@ -225,14 +246,13 @@ pages, `FAQPage` on the FAQ, plus `sitemap.ts` and `robots.ts`.
 
 ## Not built yet
 
-- Stripe webhook handler (`STRIPE_WEBHOOK_SECRET` is reserved for it). Orders are
-  currently confirmed — and stands provisioned — by reading the Checkout Session
-  on the thank-you page. That means a customer who closes the tab before the
-  redirect has paid without being provisioned. `provisionFromCheckoutSession()`
-  is idempotent and is exactly what the webhook should call.
 - The Postgres adapter has been written and type-checked but never run against a
   live database. Treat the first deploy as its test: provision an order, tap a
   code, edit a link, then check the three tables.
 - Real photography, customer logos, and testimonials — all marked `TODO:`.
 - Tax configuration. Stripe Tax is not enabled; totals are shown before tax.
+- A live Stripe test-mode pass. Signature verification, idempotency and the
+  unpaid/unhandled branches are verified against a running server with forged and
+  valid signatures, but no real card has been through Checkout — in particular
+  the upsell's `authentication_required` fallback has never executed.
 - The link-forwarding dashboard the FAQ refers to.

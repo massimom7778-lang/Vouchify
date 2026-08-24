@@ -58,9 +58,16 @@ export interface ProvisionInput {
   }[];
 }
 
+export interface ProvisionResult {
+  readonly order: OrderRecord;
+  /** False when this session had already been provisioned. Lets a caller send
+   *  the confirmation email exactly once across webhook retries. */
+  readonly created: boolean;
+}
+
 export interface StandStore {
   /** Creates the order and its stands. Safe to call repeatedly for one session. */
-  provisionOrder(input: ProvisionInput): Promise<OrderRecord>;
+  provisionOrder(input: ProvisionInput): Promise<ProvisionResult>;
   getStandByCode(code: string): Promise<Stand | null>;
   getOrderByToken(token: string): Promise<OrderRecord | null>;
   getOrderByCheckoutSession(checkoutSessionId: string): Promise<OrderRecord | null>;

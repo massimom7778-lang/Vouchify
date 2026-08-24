@@ -4,6 +4,7 @@ import type {
   DailyCount,
   OrderRecord,
   ProvisionInput,
+  ProvisionResult,
   Stand,
   StandStore,
   StandWithCounts,
@@ -74,16 +75,16 @@ function toStand(row: StandRow): Stand {
 
 export function createPostgresStore(): StandStore {
   return {
-    async provisionOrder(input: ProvisionInput): Promise<OrderRecord> {
+    async provisionOrder(input: ProvisionInput): Promise<ProvisionResult> {
       const client = db();
-      return client.begin(async (tx) => {
+      return client.begin(async (tx): Promise<ProvisionResult> => {
         // Idempotent on the Stripe session: a retried webhook or a refreshed
         // thank-you page must not mint a second set of codes.
         const existing = await tx<OrderRow[]>`
           SELECT * FROM orders WHERE checkout_session_id = ${input.checkoutSessionId}
         `;
         const found = existing[0];
-        if (found) return toOrder(found);
+        if (found) return { order: toOrder(found), created: false };
 
         const id = newOrderId();
         const token = newDashboardToken();
@@ -109,7 +110,7 @@ export function createPostgresStore(): StandStore {
           }
         }
 
-        return toOrder(inserted[0]!);
+        return { order: toOrder(inserted[0]!), created: true };
       });
     },
 

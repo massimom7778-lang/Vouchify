@@ -3,6 +3,7 @@ import type {
   DailyCount,
   OrderRecord,
   ProvisionInput,
+  ProvisionResult,
   Stand,
   StandStore,
   StandWithCounts,
@@ -34,12 +35,12 @@ function state(): MemoryState {
 
 export function createMemoryStore(): StandStore {
   return {
-    async provisionOrder(input: ProvisionInput): Promise<OrderRecord> {
+    async provisionOrder(input: ProvisionInput): Promise<ProvisionResult> {
       const store = state();
       const existing = [...store.orders.values()].find(
         (order) => order.checkoutSessionId === input.checkoutSessionId,
       );
-      if (existing) return existing;
+      if (existing) return { order: existing, created: false };
 
       const order: OrderRecord = {
         id: newOrderId(),
@@ -64,7 +65,7 @@ export function createMemoryStore(): StandStore {
           targetUpdatedAt: null,
         });
       }
-      return order;
+      return { order, created: true };
     },
 
     async getStandByCode(code) {

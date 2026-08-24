@@ -37,8 +37,8 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
     // This is where a webhook will call the same function once one exists.
     let dashboardUrl: string | null = null;
     try {
-      const order = await provisionFromCheckoutSession(session);
-      if (order) dashboardUrl = `${siteOrigin()}/dashboard/${order.dashboardToken}`;
+      const result = await provisionFromCheckoutSession(session);
+      if (result) dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
     } catch (error) {
       console.error('[thank-you] provisioning failed', error);
     }

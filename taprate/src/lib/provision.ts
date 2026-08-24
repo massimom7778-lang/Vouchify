@@ -1,7 +1,7 @@
 import 'server-only';
 import type Stripe from 'stripe';
 import { getStore } from '@/lib/store';
-import type { OrderRecord, ProvisionInput } from '@/lib/store/types';
+import type { OrderRecord, ProvisionInput, ProvisionResult } from '@/lib/store/types';
 import { PLACEMENTS_PER_LOCATION, getStandTier, placements } from '@/data/products';
 
 /**
@@ -40,12 +40,12 @@ function standsFromSession(session: Stripe.Checkout.Session): {
  */
 export async function provisionFromCheckoutSession(
   session: Stripe.Checkout.Session,
-): Promise<OrderRecord | null> {
+): Promise<ProvisionResult | null> {
   if (session.payment_status !== 'paid') return null;
 
   const store = getStore();
   const existing = await store.getOrderByCheckoutSession(session.id);
-  if (existing) return existing;
+  if (existing) return { order: existing, created: false };
 
   const { count, color } = standsFromSession(session);
   if (count === 0) return null;
@@ -81,7 +81,7 @@ export async function provisionFromCheckoutSession(
 export async function provisionDemoOrder(standCount = 5): Promise<OrderRecord> {
   const tier = getStandTier('stand-5');
   const count = Math.min(Math.max(standCount, 1), tier ? PLACEMENTS_PER_LOCATION * 2 : 10);
-  return getStore().provisionOrder({
+  const { order } = await getStore().provisionOrder({
     checkoutSessionId: `demo_${Date.now()}`,
     email: 'demo@example.com',
     stands: Array.from({ length: count }, (_, index) => {
@@ -94,4 +94,5 @@ export async function provisionDemoOrder(standCount = 5): Promise<OrderRecord> {
       };
     }),
   });
+  return order;
 }

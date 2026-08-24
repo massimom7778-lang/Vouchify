@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendEmail } from '@/lib/email';
 import { quoteRequestSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 
@@ -41,38 +42,14 @@ export async function POST(request: Request) {
   }
 
   const quote = parsed.data;
-  const body = formatQuote(quote);
-  const apiKey = process.env.RESEND_API_KEY;
+  const total = quote.locations * quote.standsPerLocation;
 
-  if (!apiKey) {
-    console.info('[quote] no RESEND_API_KEY set, logging instead\n%s', body);
-    return NextResponse.json({ ok: true, delivered: 'logged' });
-  }
+  const delivered = await sendEmail({
+    to: site.supportEmail,
+    replyTo: quote.email,
+    subject: `Quote request — ${quote.business} (${total} stands)`,
+    text: formatQuote(quote),
+  });
 
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: process.env.QUOTE_FROM_EMAIL ?? `quotes@${new URL(site.url).hostname}`,
-        to: [site.supportEmail],
-        reply_to: quote.email,
-        subject: `Quote request — ${quote.business} (${quote.locations * quote.standsPerLocation} stands)`,
-        text: body,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error('[quote] resend rejected the send: %s\n%s', response.status, body);
-      return NextResponse.json({ ok: true, delivered: 'logged' });
-    }
-  } catch (error) {
-    console.error('[quote] resend request failed', error, '\n', body);
-    return NextResponse.json({ ok: true, delivered: 'logged' });
-  }
-
-  return NextResponse.json({ ok: true, delivered: 'email' });
+  return NextResponse.json({ ok: true, delivered });
 }

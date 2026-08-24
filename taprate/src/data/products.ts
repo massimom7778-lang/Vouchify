@@ -19,13 +19,23 @@ export interface TierBadge {
   readonly tone: BadgeTone;
 }
 
-/** A description of the photograph that belongs in this slot. Rendered as a
- *  labelled warm-grey block until the real asset exists. */
+/**
+ * An image slot.
+ *
+ * Until `src` is set, the slot renders as a labelled warm-grey block carrying
+ * the shot description, so the brief for whoever is making the image is
+ * readable straight off the page. Set `src` to a file under /public and the
+ * real image takes over — nothing else has to change.
+ *
+ * Drop files in `public/product/` and see the README there for the manifest.
+ */
 export interface PhotoSlot {
   readonly id: string;
   readonly todo: string;
   readonly alt: string;
   readonly aspect: 'square' | 'portrait' | 'landscape' | 'wide';
+  /** Public path, e.g. '/product/core-hero.jpg'. Omit while it does not exist. */
+  readonly src?: string;
 }
 
 interface CatalogItemBase {
