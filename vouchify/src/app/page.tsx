@@ -46,17 +46,18 @@ export default function HomePage() {
   return (
     <main id="main">
       {/* ---------------------------------------------------------------
-          HERO. Full bleed ink, type led, with the floor plan as the image.
-          The plan is the thesis of the business, so it opens the page.
+          HERO. Paper, type led, with the product itself as the image. The
+          stand is black, so it can only read as a product against light. On
+          ink it was a silhouette on a silhouette.
       ---------------------------------------------------------------- */}
-      <section className="border-b border-warm-800 bg-ink text-paper">
+      <section className="border-b border-warm-300 bg-paper text-ink">
         <Container className="pt-16 pb-14 md:pt-24 md:pb-20">
-          {/* On a phone the plan comes first and runs to both edges. The
-              stacked text column underneath it is the generic DTC skeleton, so
-              the distinctive artifact leads instead of being buried. */}
+          {/* On a phone the product comes first. A stacked text column above
+              the image is the generic DTC skeleton, so the goods lead instead
+              of being buried under a headline. */}
           <Grid className="items-center gap-y-10 md:gap-y-14">
             <div className="order-2 col-span-4 md:order-1 md:col-span-6">
-              <p className="font-sans text-2xs font-semibold uppercase tracking-[0.2em] text-gold">
+              <p className="font-sans text-2xs font-semibold uppercase tracking-[0.2em] text-gold-deep">
                 Black stands, blue review plates
               </p>
               <h1 className="mt-6 text-2xl md:text-3xl lg:text-4xl">
@@ -64,7 +65,7 @@ export default function HomePage() {
                 <br />
                 cover a shop.
               </h1>
-              <p className="mt-6 max-w-[46ch] text-base text-warm-300 md:mt-7 md:text-lg">
+              <p className="mt-6 max-w-[46ch] text-base text-warm-700 md:mt-7 md:text-lg">
                 One on the counter, one at the pay terminal, one in the waiting area,
                 plus a square plate on the window for the spots a stand will not sit.
                 Customers tap their phone, your Google review page opens, and nobody
@@ -81,7 +82,7 @@ export default function HomePage() {
                 </ButtonLink>
                 <ButtonLink
                   href="/how-it-works"
-                  variant="onDark"
+                  variant="outline"
                   size="lg"
                   className="w-full justify-center sm:w-auto"
                 >
@@ -89,20 +90,20 @@ export default function HomePage() {
                 </ButtonLink>
               </div>
 
-              <dl className="mt-8 max-w-sm border-t border-warm-800">
-                <div className="flex items-baseline justify-between gap-4 border-b border-warm-800 py-3">
-                  <dt className="text-sm text-warm-400">One stand</dt>
-                  <dd data-numeric className="font-display text-lg font-bold tracking-tight text-paper">
+              <dl className="mt-8 max-w-sm border-t border-warm-300">
+                <div className="flex items-baseline justify-between gap-4 border-b border-warm-300 py-3">
+                  <dt className="text-sm text-warm-600">One stand</dt>
+                  <dd data-numeric className="font-display text-lg font-bold tracking-tight text-ink">
                     {formatMoney(priceRangeCents.low, { compact: true })}
                   </dd>
                 </div>
                 {three && threeEconomics ? (
-                  <div className="flex items-baseline justify-between gap-4 border-b border-warm-800 py-3">
-                    <dt className="text-sm text-warm-400">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-warm-300 py-3">
+                    <dt className="text-sm text-warm-600">
                       Three stands,{' '}
                       <span data-numeric>{formatMoney(threeEconomics.perUnitCents)} each</span>
                     </dt>
-                    <dd data-numeric className="font-display text-lg font-bold tracking-tight text-gold">
+                    <dd data-numeric className="font-display text-lg font-bold tracking-tight text-gold-deep">
                       {formatMoney(three.priceCents, { compact: true })}
                     </dd>
                   </div>
@@ -114,15 +115,16 @@ export default function HomePage() {
               {/* The stage runs a little wider than its column on a phone so the
                   product reads at a real size on a 375px screen. */}
               <TapStage className="-mx-2 w-[calc(100%+1rem)] md:mx-0 md:w-full" />
-              <p className="mt-1 font-sans text-2xs uppercase tracking-[0.16em] text-warm-500 md:mt-2">
+              <p className="mt-1 font-sans text-2xs uppercase tracking-[0.16em] text-warm-600 md:mt-2">
                 One tap. Your review page. No staff asking.
               </p>
             </div>
           </Grid>
         </Container>
 
-        {/* Specification band. Dense, tabular, hairline ruled. */}
-        <div className="border-t border-warm-800">
+        {/* Specification band. Dense, tabular, hairline ruled. It carries the
+            page's first dark ground, so the hero above it stays clean. */}
+        <div className="border-t border-warm-300 bg-ink text-paper">
           <Container>
             <dl className="grid grid-cols-2 md:grid-cols-4">
               {heroSpecs.map((spec, index) => (

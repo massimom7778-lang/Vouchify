@@ -269,11 +269,12 @@
   background-size: contain;
 }
 
-.tap-stage__photo,
+.tap-stage__photo[data-loaded],
 .tap-stage__fallback {
-  /* the product is lit from the left on the page, so its own cast shadow
-     agrees with the pool of light under it */
-  filter: drop-shadow(0 18px 26px rgb(0 0 0 / 0.55));
+  /* On paper the cast shadow is a real shadow, not a glow. Two of them: a
+     tight one that grounds the foot and a wide soft one for the room. */
+  filter: drop-shadow(0 10px 12px rgb(40 34 24 / 0.22))
+    drop-shadow(0 26px 40px rgb(40 34 24 / 0.16));
 }
 
 /* The glare rides across the product, clipped to the product's own alpha by
@@ -291,9 +292,9 @@
   background-image: linear-gradient(
     104deg,
     transparent 38%,
-    rgb(255 255 255 / 0.10) 45%,
-    rgb(255 255 255 / 0.42) 50%,
-    rgb(255 255 255 / 0.10) 55%,
+    rgb(255 255 255 / 0.12) 45%,
+    rgb(255 255 255 / 0.50) 50%,
+    rgb(255 255 255 / 0.12) 55%,
     transparent 62%
   );
   background-size: 260% 100%;
@@ -313,8 +314,8 @@
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgb(201 169 97 / 0.30),
-    rgb(201 169 97 / 0.06) 65%,
+    rgb(40 34 24 / 0.26),
+    rgb(40 34 24 / 0.07) 62%,
     transparent
   );
   animation: ts-shadow 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
