@@ -28,8 +28,11 @@ export interface PhotoSlot {
   readonly todo: string;
   readonly alt: string;
   readonly aspect: 'square' | 'portrait' | 'landscape' | 'wide';
-  /** Public path, e.g. '/product/core-hero.jpg'. Omit while it does not exist. */
+  /** Public path, e.g. '/product/stand-hero.webp'. Omit while it does not exist. */
   readonly src?: string;
+  /** object-position, for when the photograph's shape and the slot's shape
+   *  disagree and a centre crop would cut the subject. */
+  readonly focus?: string;
 }
 
 interface CatalogItemBase {
@@ -116,14 +119,19 @@ export const coreProduct = {
     hero: {
       id: 'core-hero',
       todo: 'Product photo, black stand three-quarter view on a warm concrete counter, raking light from the left, shallow depth of field, no props',
-      alt: 'Vouchify NFC review stand in black, standing on a counter',
+      alt: 'The black Vouchify review stand standing on a pale concrete surface, its face showing the review prompt, five stars, a QR code and the tap or scan line',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      /* Portrait photograph in a square slot. Centred, the foot of the stand
+         fell off the bottom edge, so the crop is biased down. */
+      focus: '50% 62%',
     },
     inHand: {
       id: 'core-in-hand',
       todo: 'Product photo, a phone held two centimetres from the stand mid-tap, thumb visible, screen showing a review page, shot at counter height',
-      alt: 'A customer holding a phone against the stand to open a review page',
+      alt: 'A hand holding a phone against the black stand on a cafe counter. The phone shows an NFC tag detected notice above an open review form with five stars',
       aspect: 'portrait',
+      src: '/product/phone-tap.webp',
     },
     pair: {
       id: 'core-pair',
@@ -134,8 +142,17 @@ export const coreProduct = {
     counter: {
       id: 'core-counter',
       todo: 'Lifestyle photo, full-bleed, stand on a busy cafe pay counter next to a card terminal, real shop, no models looking at camera',
-      alt: 'The stand on a cafe counter beside a card terminal',
+      alt: 'The black stand on a cafe pay counter beside a card terminal, with a barista handing a coffee across the counter behind it',
       aspect: 'wide',
+      src: '/product/cafe-lifestyle.webp',
+      /* The photograph is portrait (2:3) and this slot is a full-bleed 21:9
+         band, so any crop is a slice of it. Biased up: at 64% the band was the
+         counter and the QR code alone, with the cafe gone. At 42% it keeps the
+         barista, the customer's hand and the top of the stand, which is the
+         part of this photograph that is doing the work.
+         TODO: a landscape frame of this scene would suit a full-bleed band far
+         better than a crop of a portrait one. */
+      focus: '50% 42%',
     },
   },
 } as const;

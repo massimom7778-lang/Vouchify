@@ -53,6 +53,7 @@ export function PhotoBlock({
           sizes={sizes[photo.aspect]}
           priority={priority}
           className="object-cover"
+          style={photo.focus ? { objectPosition: photo.focus } : undefined}
         />
       </div>
     );
