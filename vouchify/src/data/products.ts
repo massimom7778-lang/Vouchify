@@ -136,8 +136,14 @@ export const coreProduct = {
     pair: {
       id: 'core-pair',
       todo: 'Product photo, the black stand and the blue and white plate side by side on off-white seamless, straight-on, 50 mm',
-      alt: 'The black stand and the blue and white review plate side by side',
+      alt: 'The blue and white square review plate beside the taller black stand on a pale seamless background, showing the two at true relative size',
       aspect: 'landscape',
+      src: '/product/stand-plate-comparison.webp',
+      /* A 16:9 frame in a 4:3 slot, with both products sitting right of centre
+         and empty ground to their left. Centred, the crop clipped the edge of
+         the stand; biased right it keeps both whole, which is the entire point
+         of a comparison shot. */
+      focus: '76% 50%',
     },
     counter: {
       id: 'core-counter',
