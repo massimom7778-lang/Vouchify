@@ -291,8 +291,9 @@ export const addOns: readonly AddOn[] = [
     photo: {
       id: 'addon-sticker',
       todo: 'Product photo, blue and white square NFC plate applied to the inside of a shop window, shot from inside at an angle with street visible but blurred',
-      alt: 'Blue and white square NFC review plate applied to a shop window',
+      alt: 'The blue and white review plate stuck to the inside of a shopfront window, with the street and passers-by out of focus beyond the glass',
       aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
     },
   },
   {
@@ -352,6 +353,38 @@ export const addOns: readonly AddOn[] = [
       alt: 'A packed Vouchify shipping mailer',
       aspect: 'square',
     },
+  },
+];
+
+/* -------------------------------------------------------------------------- */
+/* The plate in place                                                          */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Two rooms the plate is already working in. These sit on the homepage next to
+ * the line about the places a stand will not go, because that claim is easier
+ * to believe when you can see it stuck to a counter.
+ */
+export const plateInPlace: readonly (PhotoSlot & { readonly caption: string })[] = [
+  {
+    id: 'plate-restaurant-host-stand',
+    caption: 'Restaurant host stand',
+    todo: 'Lifestyle photo, plate on the side of a dark wood host stand, diners walking past out of focus',
+    alt: 'The blue and white review plate on the side of a dark wood restaurant host stand, with two diners walking past out of focus',
+    aspect: 'portrait',
+    src: '/product/plate-restaurant-host-stand.webp',
+    /* The plate sits low and right in a 2:3 frame. Centred, a 4:5 crop cut it
+       in half. */
+    focus: '62% 62%',
+  },
+  {
+    id: 'plate-coffee-counter',
+    caption: 'Coffee counter',
+    todo: 'Lifestyle photo, plate on the wood panelling of a cafe counter, POS tablet and espresso machine behind',
+    alt: 'The blue and white review plate on the wood panelling of a cafe counter, with a card terminal and an espresso machine behind it',
+    aspect: 'portrait',
+    src: '/product/plate-coffee-counter.webp',
+    focus: '58% 66%',
   },
 ];
 

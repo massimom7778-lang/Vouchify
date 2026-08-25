@@ -11,6 +11,7 @@ import {
   Container,
   Eyebrow,
   Grid,
+  PhotoBlock,
   Reveal,
   Section,
 } from "@/components/ui";
@@ -18,6 +19,7 @@ import { homepageFaqs } from "@/data/faq";
 import {
   coreProduct,
   placements,
+  plateInPlace,
   priceRangeCents,
   standTiers,
   tierEconomics,
@@ -166,19 +168,37 @@ export default function HomePage() {
               ))}
             </dl>
 
+            {/* The plate, and two rooms it is already working in. The claim
+                about the places a stand will not go is easier to believe with
+                the thing stuck to a counter beside it. */}
             <div className="mt-9 border-t border-line pt-6">
-              <p className="max-w-prose text-sm text-ink-soft">
-                For the window, the front door and anywhere a stand will not
-                sit, the blue and white square plate sticks flat and carries the
-                same link.{" "}
-                <Link
-                  href="/products/sticker"
-                  className="font-medium text-ink underline decoration-line underline-offset-4 hover:decoration-brass"
-                >
-                  See the plate
-                </Link>
-                .
-              </p>
+              <Grid className="gap-y-6">
+                <div className="col-span-4 md:col-span-5">
+                  <p className="max-w-prose text-sm text-ink-soft">
+                    For the window, the front door and anywhere a stand will not
+                    sit, the blue and white square plate sticks flat and carries
+                    the same link.{" "}
+                    <Link
+                      href="/products/sticker"
+                      className="font-medium text-ink underline decoration-line underline-offset-4 hover:decoration-brass"
+                    >
+                      See the plate
+                    </Link>
+                    .
+                  </p>
+                </div>
+
+                <ul className="col-span-4 grid grid-cols-2 gap-4 md:col-span-6 md:col-start-7">
+                  {plateInPlace.map((shot) => (
+                    <li key={shot.id}>
+                      <PhotoBlock photo={shot} />
+                      <p className="mt-2.5 font-mono text-2xs font-medium uppercase tracking-[0.12em] text-ink-soft">
+                        {shot.caption}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </Grid>
             </div>
 
             {/* The two prices that used to sit in the hero. */}
