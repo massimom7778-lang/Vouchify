@@ -61,6 +61,8 @@ export interface AddOn extends CatalogItemBase {
   /** 'picker' rows carry a thumbnail in the buy box. 'order-option' rows are
    *  per-order services shown as a compact pair beneath them. */
   readonly slot: 'picker' | 'order-option';
+  /** Extra shots for the add-on's own page, shown under its hero. */
+  readonly gallery?: readonly PhotoSlot[];
   /** Whether this SKU gets its own PDP at /products/[slug]. */
   readonly hasPage: boolean;
   /** Charged once per order rather than per unit. */
@@ -287,6 +289,39 @@ export const addOns: readonly AddOn[] = [
       { label: 'Finish', value: 'Blue and white' },
       { label: 'Adhesive', value: '3M backing, removable within 30 days' },
       { label: 'Chip', value: 'NTAG215, encoded before shipping' },
+    ],
+    gallery: [
+      {
+        id: 'plate-plinth',
+        todo: 'Product photo, plate on a stone plinth, studio, warm neutral ground',
+        alt: 'The blue and white review plate propped on a pale stone plinth in a studio, lit softly from the left',
+        aspect: 'wide',
+        src: '/product/plate-plinth.webp',
+      },
+      {
+        id: 'plate-phone-tap',
+        todo: 'Lifestyle photo, a phone held against the plate on a shop counter, mid-tap',
+        alt: 'A hand holding a phone against the plate on a wooden shop counter, the phone showing a contactless symbol and a confirmation tick',
+        aspect: 'portrait',
+        src: '/product/plate-phone-tap.webp',
+        focus: '50% 58%',
+      },
+      {
+        id: 'plate-boutique-counter',
+        todo: 'Lifestyle photo, plate on the front face of a boutique counter, till above',
+        alt: 'The plate on the front face of a pale boutique counter, with a till screen above it and clothing rails behind',
+        aspect: 'portrait',
+        src: '/product/plate-boutique-counter.webp',
+        focus: '50% 62%',
+      },
+      {
+        id: 'plate-counter-pos',
+        todo: 'Lifestyle photo, plate lying flat on a wooden counter beside a till',
+        alt: 'The plate lying flat on a wooden shop counter beside a till screen, with clothing rails out of focus behind',
+        aspect: 'portrait',
+        src: '/product/plate-counter-pos.webp',
+        focus: '50% 60%',
+      },
     ],
     photo: {
       id: 'addon-sticker',

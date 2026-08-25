@@ -71,6 +71,23 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
         <Grid className="gap-y-10">
           <div className="col-span-4 md:col-span-6">
             <PhotoBlock photo={addOn.photo} vignette />
+
+            {/* The rest of the shots, in the same two-up grid the stand's page
+                uses. A wide frame takes the full column rather than being
+                squeezed into half of it. */}
+            {addOn.gallery?.length ? (
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {addOn.gallery.map((shot) => (
+                  <PhotoBlock
+                    key={shot.id}
+                    photo={shot}
+                    className={
+                      shot.aspect === 'wide' ? 'col-span-2 sm:col-span-3' : undefined
+                    }
+                  />
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="col-span-4 md:col-span-5 md:col-start-8">
