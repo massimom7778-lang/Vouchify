@@ -1,7 +1,7 @@
-import Link from 'next/link';
 
 import { Price } from '@/components/ui';
-import { CORE_SLUG, coreProduct, getAddOn, UNIT_PRICE_CENTS } from '@/data/products';
+import { FlipCard } from '@/components/FlipCard';
+import { CORE_SLUG, coreProduct, getAddOn, lineupBackFaces, UNIT_PRICE_CENTS } from '@/data/products';
 import { cn } from '@/lib/cn';
 
 /**
@@ -264,67 +264,64 @@ export function ProductLineup({
   return (
     <div className={cn('grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2', className)}>
       {items().map((item) => (
-        <Link
+        <FlipCard
           key={item.href}
+          tone={tone}
+          name={item.name}
           href={item.href}
-          className={cn(
-            'group block rounded-md focus-visible:outline-none',
-            onInk ? 'on-ink' : 'on-gold',
-          )}
-        >
-          <div
-            className={cn(
-              'rounded-md border px-2 pb-1 pt-3 transition-colors',
-              onInk
-                ? 'border-warm-800 bg-warm-900 group-hover:border-warm-700'
-                : 'border-warm-300 bg-paper group-hover:border-warm-400',
-            )}
-          >
-            <Panel kind={item.kind} tone={tone} ariaLabel={item.ariaLabel} />
-          </div>
-
-          <div
-            className={cn(
-              'mt-5 border-t pt-4',
-              onInk ? 'border-warm-800' : 'border-warm-300',
-            )}
-          >
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3
+          rows={lineupBackFaces[item.kind]}
+          front={
+            <>
+              <div
                 className={cn(
-                  'text-lg font-semibold underline-offset-4 group-hover:underline',
-                  onInk ? 'text-paper' : 'text-ink',
+                  'rounded-md border px-2 pb-1 pt-3 transition-colors',
+                  onInk
+                    ? 'border-warm-800 bg-warm-900 group-hover:border-warm-700'
+                    : 'border-warm-300 bg-paper group-hover:border-warm-400',
                 )}
               >
-                {item.name}
-              </h3>
-              <Price
-                cents={item.priceCents}
-                size="md"
-                tone={onInk ? 'onDark' : 'ink'}
-                suffix={item.priceSuffix}
-              />
-            </div>
+                <Panel kind={item.kind} tone={tone} ariaLabel={item.ariaLabel} />
+              </div>
 
-            <p
-              data-numeric
-              className={cn(
-                'mt-1.5 font-sans text-2xs font-semibold uppercase tracking-[0.14em]',
-                onInk ? 'text-gold' : 'text-gold-deep',
-              )}
-            >
-              {item.finish}
-              <span className={onInk ? 'text-warm-500' : 'text-warm-600'}>
-                {' · '}
-                {item.size}
-              </span>
-            </p>
+              <div className={cn('mt-5 border-t pt-4', onInk ? 'border-warm-800' : 'border-warm-300')}>
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <h3
+                    className={cn(
+                      'text-lg font-semibold underline-offset-4 group-hover:underline',
+                      onInk ? 'text-paper' : 'text-ink',
+                    )}
+                  >
+                    {item.name}
+                  </h3>
+                  <Price
+                    cents={item.priceCents}
+                    size="md"
+                    tone={onInk ? 'onDark' : 'ink'}
+                    suffix={item.priceSuffix}
+                  />
+                </div>
 
-            <p className={cn('mt-3 text-sm', onInk ? 'text-warm-300' : 'text-warm-700')}>
-              {item.line}
-            </p>
-          </div>
-        </Link>
+                <p
+                  data-numeric
+                  className={cn(
+                    'mt-1.5 font-sans text-2xs font-semibold uppercase tracking-[0.14em]',
+                    onInk ? 'text-gold' : 'text-gold-deep',
+                  )}
+                >
+                  {item.finish}
+                  <span className={onInk ? 'text-warm-500' : 'text-warm-600'}>
+                    {' \u00b7 '}
+                    {item.size}
+                  </span>
+                </p>
+
+                <p className={cn('mt-3 text-sm', onInk ? 'text-warm-300' : 'text-warm-700')}>
+                  {item.line}
+                </p>
+              </div>
+            </>
+          }
+        />
       ))}
     </div>
   );

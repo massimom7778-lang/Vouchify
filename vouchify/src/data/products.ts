@@ -127,8 +127,8 @@ export const coreProduct = {
     },
     pair: {
       id: 'core-pair',
-      todo: 'Product photo, black and white stand side by side on off-white seamless, straight-on, 50 mm',
-      alt: 'Black and white versions of the stand side by side',
+      todo: 'Product photo, the black stand and the blue and white plate side by side on off-white seamless, straight-on, 50 mm',
+      alt: 'The black stand and the blue and white review plate side by side',
       aspect: 'landscape',
     },
     counter: {
@@ -254,7 +254,7 @@ export const addOns: readonly AddOn[] = [
     summary:
       'A 100 mm square NFC plate for the places a stand cannot go, the inside of the front window, the side of a POS terminal, the edge of a menu board.',
     details: [
-      'Peel-and-stick, 100 mm square, 1.5 mm thick, rated for indoor glass, laminate, and painted metal.',
+      'Peel-and-stick on a 3M backing, 100 mm square, 1.5 mm thick, rated for indoor glass, laminate, and painted metal.',
       'Rigid face, so it stays flat instead of curling at the corners like a paper sticker.',
       'Same link as your stands, same free link changes.',
       'Printed QR code on the face for phones without NFC.',
@@ -262,7 +262,7 @@ export const addOns: readonly AddOn[] = [
     specs: [
       { label: 'Size', value: '100 × 100 mm, 1.5 mm thick' },
       { label: 'Finish', value: 'Blue and white' },
-      { label: 'Adhesive', value: 'Indoor acrylic, removable within 30 days' },
+      { label: 'Adhesive', value: '3M backing, removable within 30 days' },
       { label: 'Chip', value: 'NTAG215, encoded before shipping' },
     ],
     photo: {
@@ -331,6 +331,46 @@ export const addOns: readonly AddOn[] = [
     },
   },
 ];
+
+/* -------------------------------------------------------------------------- */
+/* Lineup back faces                                                           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * What the homepage cards say when you turn them over.
+ *
+ * Every value here is taken from the specs above or from something the owner
+ * has stated, because the moment it renders it is a product claim a buyer can
+ * hold us to. Four lines were proposed for these cards that this catalogue
+ * contradicts and that are therefore not here: an anodized aluminium body and a
+ * weighted base (the stand is 3 mm cast acrylic on a folded foot), a 2 mm plate
+ * profile (it is 1.5 mm), an outdoor and UV rating (the plate is rated indoor),
+ * and a commercial-duty rating (nobody has rated it).
+ */
+export interface BackFaceRow {
+  readonly label: string;
+  readonly value: string;
+}
+
+export const lineupBackFaces: Record<'stand' | 'plate', readonly BackFaceRow[]> = {
+  stand: [
+    { label: 'Material', value: '3 mm cast acrylic, matte face, folded foot' },
+    { label: 'Chip', value: 'NTAG215. Passive, no battery, no wifi, nothing to charge' },
+    { label: 'Works with', value: 'iPhone and Android. Nothing for anyone to install' },
+    {
+      label: 'In the box',
+      value: 'The stands encoded to your link, a placement card, adhesive pads, and your dashboard card',
+    },
+    { label: 'Durability', value: 'No moving parts and no battery. Wipes clean with a cloth' },
+  ],
+  plate: [
+    { label: 'Material', value: '100 mm square, 1.5 mm thick, blue and white' },
+    { label: 'Chip', value: 'NTAG215. Passive, no battery, nothing to charge' },
+    { label: 'Mounts to', value: 'Glass, laminate counters, painted metal, menu boards' },
+    { label: 'In the box', value: 'One plate on a 3M adhesive backing, encoded to your link' },
+    { label: 'Durability', value: 'Rated indoor. Reads through glass from the inside' },
+  ],
+};
 
 /* -------------------------------------------------------------------------- */
 /* Link assignment                                                             */
