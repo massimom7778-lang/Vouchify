@@ -202,21 +202,179 @@
 /* ==========================================================================
    The hero stage.
 
-   One twelve second loop: a phone arrives, the chip answers, five stars fill,
-   everything holds, everything leaves. It rests for more than half its length
-   on purpose, a hero that never stops moving reads as a banner ad.
+   A cut-out photograph of the real stand floats free with no background,
+   turning slowly left and right under a travelling glare, while the arcs and
+   the phone beside it are drawn in SVG.
 
-   Only transform and opacity are animated, so the whole thing composites on
-   the GPU and costs a phone nothing.
+   The turn is eleven seconds, the float is seven, the glare is nine. Three
+   periods that do not divide into each other, so the composite never repeats
+   the same way twice and the eye never catches the loop.
+
+   Only transform and opacity animate, so all of it composites on the GPU.
    ========================================================================== */
 
 .tap-stage {
-  /* transforms below are written in viewBox units, so the box has to be the
-     viewBox rather than each element's own bounding box */
-  transform-box: view-box;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5%;
+  /* Both children are sized off the container's height, not its width. Sizing
+     them by width let the taller of the two set the height and left the
+     product floating small in a mostly empty box. */
+  aspect-ratio: 3 / 2;
+  container-type: inline-size;
 }
 
-.tap-stage .ts-phone {
+/* ---- the product ---- */
+
+.tap-stage__product {
+  position: relative;
+  flex: none;
+  height: 100%;
+  /* the source frame is square; the stand sits inside it with its own margin */
+  aspect-ratio: 1;
+  perspective: 1400px;
+}
+
+/* Two transforms on one element fight each other, so the turn and the float
+   each get their own layer. */
+.tap-stage__turn {
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: ts-turn 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.tap-stage__float {
+  position: relative;
+  height: 100%;
+  animation: ts-float 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* The drawn stand, underneath. Only ever seen if the photograph does not
+   arrive, which is the point of it. */
+.tap-stage__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The photograph, painted over the drawing. A background does not render a
+   broken-image box or spill alt text into the layout when it fails. */
+.tap-stage__photo {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.tap-stage__photo,
+.tap-stage__fallback {
+  /* the product is lit from the left on the page, so its own cast shadow
+     agrees with the pool of light under it */
+  filter: drop-shadow(0 18px 26px rgb(0 0 0 / 0.55));
+}
+
+/* The glare rides across the product, clipped to the product's own alpha by
+   the mask, so it never shows in the empty corners of the frame. */
+.tap-stage__glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  background-image: linear-gradient(
+    104deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.10) 45%,
+    rgb(255 255 255 / 0.42) 50%,
+    rgb(255 255 255 / 0.10) 55%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  background-repeat: no-repeat;
+  animation: ts-glare 9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+/* The shadow on the surface below. It tightens as the product rises, which is
+   the cue that sells the hover. */
+.tap-stage__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  width: 40%;
+  height: 3%;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(201 169 97 / 0.30),
+    rgb(201 169 97 / 0.06) 65%,
+    transparent
+  );
+  animation: ts-shadow 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes ts-turn {
+  0%,
+  100% {
+    transform: rotateY(-13deg);
+  }
+  50% {
+    transform: rotateY(13deg);
+  }
+}
+
+@keyframes ts-float {
+  0%,
+  100% {
+    transform: translateY(1.6%);
+  }
+  50% {
+    transform: translateY(-1.6%);
+  }
+}
+
+@keyframes ts-shadow {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scaleX(0.86);
+  }
+}
+
+@keyframes ts-glare {
+  0%,
+  8% {
+    background-position: 165% 0;
+  }
+  46%,
+  100% {
+    background-position: -65% 0;
+  }
+}
+
+/* ---- the arcs and the phone ---- */
+
+.tap-stage__side {
+  flex: none;
+  align-self: flex-end;
+  /* the handset is the supporting act, so it stands a little shorter than the
+     product it is answering */
+  height: 84%;
+  width: auto;
+}
+
+.tap-stage__side .ts-phone {
   transform-box: view-box;
   animation: ts-phone 12s var(--ease-out-quart) infinite;
 }
@@ -225,7 +383,7 @@
   0%,
   14% {
     opacity: 0;
-    transform: translateX(104px);
+    transform: translateX(80px);
   }
   30%,
   74% {
@@ -235,23 +393,19 @@
   90%,
   100% {
     opacity: 0;
-    transform: translateX(104px);
+    transform: translateX(80px);
   }
 }
 
-/* The chip answering. Three arcs leaving the stand's tap point, staggered. */
-.tap-stage .ts-wave {
+/* The chip answering: three arcs leaving the stand, staggered. */
+.tap-stage__side .ts-wave {
   transform-box: view-box;
-  transform-origin: 246px 159px;
+  transform-origin: 0 173px;
   opacity: 0;
   animation: ts-wave 12s ease-out infinite;
 }
-.tap-stage .ts-wave-2 {
-  animation-delay: 0.14s;
-}
-.tap-stage .ts-wave-3 {
-  animation-delay: 0.28s;
-}
+.tap-stage__side .ts-wave-2 { animation-delay: 0.14s; }
+.tap-stage__side .ts-wave-3 { animation-delay: 0.28s; }
 
 @keyframes ts-wave {
   0%,
@@ -269,40 +423,33 @@
   }
 }
 
-/* The review page arriving on the screen, a beat behind the phone. */
-.tap-stage .ts-page {
+.tap-stage__side .ts-page {
   animation: ts-page 12s var(--ease-out-quart) infinite;
 }
 
 @keyframes ts-page {
   0%,
-  26% {
-    opacity: 0;
-  }
+  26% { opacity: 0; }
   36%,
-  74% {
-    opacity: 1;
-  }
+  74% { opacity: 1; }
   86%,
-  100% {
-    opacity: 0;
-  }
+  100% { opacity: 0; }
 }
 
-/* Five stars, one at a time, with a little overshoot so they land. */
-.tap-stage .ts-star-on {
-  /* fill-box on a <use> computes its box before the x/y translate in several
-     browsers, which threw the scaled stars clear of the phone. Origins are
-     given in viewBox units instead, one per star, which is exact everywhere. */
+/* Five stars, one at a time, with an overshoot so they land rather than
+   appear. fill-box on a <use> computes its box before the x/y translate in
+   several browsers, which threw the scaled stars clear of the phone, so the
+   origins are given per star in viewBox units instead. */
+.tap-stage__side .ts-star-on {
   transform-box: view-box;
   opacity: 0;
   animation: ts-star 12s var(--ease-out-quart) infinite;
 }
-.tap-stage .ts-star-1 { transform-origin: 336px 182px; }
-.tap-stage .ts-star-2 { transform-origin: 350px 182px; animation-delay: 0.13s; }
-.tap-stage .ts-star-3 { transform-origin: 364px 182px; animation-delay: 0.26s; }
-.tap-stage .ts-star-4 { transform-origin: 378px 182px; animation-delay: 0.39s; }
-.tap-stage .ts-star-5 { transform-origin: 392px 182px; animation-delay: 0.52s; }
+.tap-stage__side .ts-star-1 { transform-origin: 90px 184px; }
+.tap-stage__side .ts-star-2 { transform-origin: 104px 184px; animation-delay: 0.13s; }
+.tap-stage__side .ts-star-3 { transform-origin: 118px 184px; animation-delay: 0.26s; }
+.tap-stage__side .ts-star-4 { transform-origin: 132px 184px; animation-delay: 0.39s; }
+.tap-stage__side .ts-star-5 { transform-origin: 146px 184px; animation-delay: 0.52s; }
 
 @keyframes ts-star {
   0%,
@@ -326,56 +473,46 @@
   }
 }
 
-/* The button waking up once the rating is in. */
-.tap-stage .ts-submit {
+.tap-stage__side .ts-submit {
   opacity: 0.28;
   animation: ts-submit 12s var(--ease-out-quart) infinite;
 }
 
 @keyframes ts-submit {
   0%,
-  48% {
-    opacity: 0.28;
-  }
+  48% { opacity: 0.28; }
   56%,
-  74% {
-    opacity: 1;
-  }
+  74% { opacity: 1; }
   84%,
-  100% {
-    opacity: 0.28;
-  }
+  100% { opacity: 0.28; }
 }
 
-/* The stand breathing in its pool of light. Two pixels, barely there. */
-.tap-stage .ts-stand {
-  transform-box: view-box;
-  animation: ts-breathe 9s ease-in-out infinite;
+/* On a narrow phone the arcs and the handset crowd the product, so the product
+   takes the width and the interaction stands down. */
+@container (max-width: 340px) {
+  /* on a narrow phone the arcs crowd the product, so the interaction stands
+     down and the goods take the room */
+  .tap-stage__side { height: 72%; }
+  .tap-stage__side .ts-waves { display: none; }
 }
 
-@keyframes ts-breathe {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-/* Reduced motion gets the composed resting frame, not a random keyframe.
-   Everything is present, nothing moves. */
+/* Reduced motion gets the composed resting frame, not whichever keyframe the
+   engine happens to stop on. */
 @media (prefers-reduced-motion: reduce) {
-  .tap-stage .ts-phone,
-  .tap-stage .ts-page,
-  .tap-stage .ts-star-on,
-  .tap-stage .ts-submit,
-  .tap-stage .ts-stand {
+  .tap-stage__turn,
+  .tap-stage__float,
+  .tap-stage__glare,
+  .tap-stage__shadow,
+  .tap-stage__side .ts-phone,
+  .tap-stage__side .ts-page,
+  .tap-stage__side .ts-star-on,
+  .tap-stage__side .ts-submit {
     animation: none !important;
     opacity: 1;
     transform: none;
   }
-  .tap-stage .ts-wave {
+  .tap-stage__glare { opacity: 0; }
+  .tap-stage__side .ts-wave {
     animation: none !important;
     opacity: 0.4;
     transform: none;
