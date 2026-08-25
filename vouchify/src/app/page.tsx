@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FaqList } from '@/components/FaqList';
 import { ProductLineup } from '@/components/ProductLineup';
 import { ShopPlan } from '@/components/ShopPlan';
+import { TapStage } from '@/components/TapStage';
 import { StandElevation } from '@/components/StandElevation';
 import { TierTable } from '@/components/TierTable';
 import {
@@ -110,17 +111,11 @@ export default function HomePage() {
             </div>
 
             <div className="order-1 col-span-4 md:order-2 md:col-span-5 md:col-start-8">
-              {/* Only the drawing bleeds to the screen edges. Bleeding the whole
-                  column clipped the label row out of the container padding. */}
-              <ShopPlan
-                count={3}
-                showLegend={false}
-                locations={1}
-                tone="ink"
-                className="[&_svg]:-mx-5 [&_svg]:w-[calc(100%+2.5rem)] [&_svg]:rounded-none [&_svg]:border-x-0 md:[&_svg]:mx-0 md:[&_svg]:w-full md:[&_svg]:rounded-md md:[&_svg]:border-x"
-              />
-              <p className="mt-3 font-sans text-2xs uppercase tracking-[0.16em] text-warm-500 md:mt-4">
-                Typical single location, three placements filled
+              {/* The stage runs a little wider than its column on a phone so the
+                  product reads at a real size on a 375px screen. */}
+              <TapStage className="-mx-2 w-[calc(100%+1rem)] md:mx-0 md:w-full" />
+              <p className="mt-1 font-sans text-2xs uppercase tracking-[0.16em] text-warm-500 md:mt-2">
+                One tap. Your review page. No staff asking.
               </p>
             </div>
           </Grid>

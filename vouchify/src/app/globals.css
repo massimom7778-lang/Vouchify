@@ -198,3 +198,186 @@
   /* Structural hairline used to separate stacked rows. */
   border-block: 1px solid var(--color-warm-300);
 }
+
+/* ==========================================================================
+   The hero stage.
+
+   One twelve second loop: a phone arrives, the chip answers, five stars fill,
+   everything holds, everything leaves. It rests for more than half its length
+   on purpose, a hero that never stops moving reads as a banner ad.
+
+   Only transform and opacity are animated, so the whole thing composites on
+   the GPU and costs a phone nothing.
+   ========================================================================== */
+
+.tap-stage {
+  /* transforms below are written in viewBox units, so the box has to be the
+     viewBox rather than each element's own bounding box */
+  transform-box: view-box;
+}
+
+.tap-stage .ts-phone {
+  transform-box: view-box;
+  animation: ts-phone 12s var(--ease-out-quart) infinite;
+}
+
+@keyframes ts-phone {
+  0%,
+  14% {
+    opacity: 0;
+    transform: translateX(104px);
+  }
+  30%,
+  74% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  90%,
+  100% {
+    opacity: 0;
+    transform: translateX(104px);
+  }
+}
+
+/* The chip answering. Three arcs leaving the stand's tap point, staggered. */
+.tap-stage .ts-wave {
+  transform-box: view-box;
+  transform-origin: 246px 159px;
+  opacity: 0;
+  animation: ts-wave 12s ease-out infinite;
+}
+.tap-stage .ts-wave-2 {
+  animation-delay: 0.14s;
+}
+.tap-stage .ts-wave-3 {
+  animation-delay: 0.28s;
+}
+
+@keyframes ts-wave {
+  0%,
+  31% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  37% {
+    opacity: 0.85;
+  }
+  50%,
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+/* The review page arriving on the screen, a beat behind the phone. */
+.tap-stage .ts-page {
+  animation: ts-page 12s var(--ease-out-quart) infinite;
+}
+
+@keyframes ts-page {
+  0%,
+  26% {
+    opacity: 0;
+  }
+  36%,
+  74% {
+    opacity: 1;
+  }
+  86%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Five stars, one at a time, with a little overshoot so they land. */
+.tap-stage .ts-star-on {
+  /* fill-box on a <use> computes its box before the x/y translate in several
+     browsers, which threw the scaled stars clear of the phone. Origins are
+     given in viewBox units instead, one per star, which is exact everywhere. */
+  transform-box: view-box;
+  opacity: 0;
+  animation: ts-star 12s var(--ease-out-quart) infinite;
+}
+.tap-stage .ts-star-1 { transform-origin: 336px 182px; }
+.tap-stage .ts-star-2 { transform-origin: 350px 182px; animation-delay: 0.13s; }
+.tap-stage .ts-star-3 { transform-origin: 364px 182px; animation-delay: 0.26s; }
+.tap-stage .ts-star-4 { transform-origin: 378px 182px; animation-delay: 0.39s; }
+.tap-stage .ts-star-5 { transform-origin: 392px 182px; animation-delay: 0.52s; }
+
+@keyframes ts-star {
+  0%,
+  38% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+  43% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  47%,
+  74% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  84%,
+  100% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+}
+
+/* The button waking up once the rating is in. */
+.tap-stage .ts-submit {
+  opacity: 0.28;
+  animation: ts-submit 12s var(--ease-out-quart) infinite;
+}
+
+@keyframes ts-submit {
+  0%,
+  48% {
+    opacity: 0.28;
+  }
+  56%,
+  74% {
+    opacity: 1;
+  }
+  84%,
+  100% {
+    opacity: 0.28;
+  }
+}
+
+/* The stand breathing in its pool of light. Two pixels, barely there. */
+.tap-stage .ts-stand {
+  transform-box: view-box;
+  animation: ts-breathe 9s ease-in-out infinite;
+}
+
+@keyframes ts-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Reduced motion gets the composed resting frame, not a random keyframe.
+   Everything is present, nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .tap-stage .ts-phone,
+  .tap-stage .ts-page,
+  .tap-stage .ts-star-on,
+  .tap-stage .ts-submit,
+  .tap-stage .ts-stand {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+  .tap-stage .ts-wave {
+    animation: none !important;
+    opacity: 0.4;
+    transform: none;
+  }
+}
