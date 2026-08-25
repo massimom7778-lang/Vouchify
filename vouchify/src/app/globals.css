@@ -256,12 +256,18 @@
 .tap-stage__turn {
   height: 100%;
   transform-style: preserve-3d;
+  /* Declaring the transform up front makes the compositor allocate this layer
+     at the device's real pixel ratio. Without it the product is rasterised at
+     CSS size and then scaled up by the 3D transform, which is what softens a
+     rotating image on a retina screen. */
+  will-change: transform;
   animation: ts-turn 11s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
 .tap-stage__float {
   position: relative;
   height: 100%;
+  will-change: transform;
   animation: ts-float 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
@@ -282,14 +288,18 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
+  /* Its own layer, so the shadow pass below does not force the product to be
+     re-rasterised along with everything around it on every frame. */
+  transform: translateZ(0);
 }
 
 .tap-stage__photo[data-loaded],
 .tap-stage__fallback {
-  /* On paper the cast shadow is a real shadow, not a glow. Two of them: a
-     tight one that grounds the foot and a wide soft one for the room. */
-  filter: drop-shadow(0 10px 12px rgb(40 34 24 / 0.22))
-    drop-shadow(0 26px 40px rgb(40 34 24 / 0.16));
+  /* One drop-shadow, not two. Each filter in a chain is a separate raster
+     pass over the image, and on an element that is rotating every frame that
+     is both slower and softer. The wide ambient half of the old pair is now
+     the ground pool below, which does not touch the product at all. */
+  filter: drop-shadow(0 14px 20px rgb(40 34 24 / 0.24));
 }
 
 /* The glare rides across the product, clipped to the product's own alpha by
@@ -322,9 +332,9 @@
 .tap-stage__shadow {
   position: absolute;
   left: 50%;
-  bottom: 8%;
-  width: 40%;
-  height: 3%;
+  bottom: 7%;
+  width: 52%;
+  height: 4.5%;
   translate: -50% 0;
   border-radius: 50%;
   background: radial-gradient(
