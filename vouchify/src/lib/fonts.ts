@@ -1,17 +1,25 @@
-import { Bricolage_Grotesque, Inter } from 'next/font/google';
+import { IBM_Plex_Mono, Instrument_Sans, Public_Sans } from 'next/font/google';
 
-/** Display. Variable optical-size axis, used heavy (600–800) and tight. */
-export const bricolage = Bricolage_Grotesque({
+/** Display. Instrument Sans at 700, set tight. */
+export const display = Instrument_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-bricolage',
-  weight: ['600', '700', '800'],
+  variable: '--font-display-face',
+  weight: ['500', '600', '700'],
 });
 
-/** Body. 16–17px, 1.6 line height, tabular numerals wherever a price appears. */
-export const inter = Inter({
+/** Body. Public Sans, 400 and 500. */
+export const body = Public_Sans({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-body-face',
   weight: ['400', '500', '600'],
+});
+
+/** Utility. IBM Plex Mono, for eyebrow tags and small metadata only. */
+export const mono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono-face',
+  weight: ['400', '500'],
 });

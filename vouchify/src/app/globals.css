@@ -15,9 +15,21 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --color-ink: #0b0b0c;          /* structural dark  */
-  --color-paper: #f6f4f0;        /* structural light */
+  --color-ink: #15151a;          /* structural dark  — 17.41:1 on paper */
+  --color-paper: #fafaf8;        /* structural light */
   --color-white: #ffffff;
+
+  /* --- The direction's palette -------------------------------------------
+     A cooler, quieter set than the warm ramp below it, and the two are not
+     interchangeable. Anything in the hero and the strip under it uses these. */
+  --color-panel: #f2f0ea;        /* alternate ground, one step off paper   */
+  --color-ink-soft: #5b5a56;     /* secondary text — 6.61:1 on paper AA    */
+  --color-line: #e3e0d8;         /* hairline. 1.26:1, so decorative only,
+                                    never the sole carrier of a boundary   */
+  --color-brass: #b8863e;        /* the accent. 3.08:1 on paper, which is
+                                    why it is a dot and a detail, and never
+                                    small text on light.                   */
+  --color-navy: #1c2b33;         /* CTA fill. White on it is 14.56:1.      */
 
   /* Warm neutral ramp, hue-matched to paper (~40deg). Never a cool grey. */
   --color-warm-50: #fbfaf8;
@@ -70,11 +82,12 @@
   --text-4xl--line-height: 0.92;
   --text-4xl--letter-spacing: -0.03em;
 
-  --font-display: var(--font-bricolage), "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-display-face), "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-body-face), "Public Sans", ui-sans-serif, system-ui, Arial, sans-serif;
+  --font-mono: var(--font-mono-face), "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --tracking-*: initial;
-  --tracking-tight: -0.02em;
+  --tracking-tight: -0.02em;   /* Instrument Sans, as directed */
   --tracking-normal: 0em;
   --tracking-wide: 0.08em;       /* eyebrow / caps labels */
 
@@ -83,6 +96,8 @@
   --radius-none: 0px;
   --radius-sm: 3px;
   --radius-md: 6px;
+  --radius-lg: 8px;              /* the navy CTA, as directed */
+  --radius-pill: 999px;          /* the eyebrow tag           */
 
   /* --- Shadows: cleared. This site uses hairline borders, not elevation. --- */
   --shadow-*: initial;

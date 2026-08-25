@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
-export type ButtonVariant = 'primary' | 'solid' | 'outline' | 'quiet' | 'onDark';
+export type ButtonVariant = 'primary' | 'navy' | 'solid' | 'outline' | 'quiet' | 'onDark';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonStyleProps {
@@ -23,6 +23,10 @@ const variants: Record<ButtonVariant, string> = {
   // The single most important button on the site. Ink on gold is 5.9:1.
   primary:
     'bg-gold text-ink border-gold hover:bg-gold-hover hover:border-gold-hover on-gold',
+  // The hero's call to action. Flat navy, white label at 14.56:1, 8px corners,
+  // no gradient and no elevation. It darkens on press rather than lifting.
+  navy:
+    'bg-navy text-white border-navy hover:bg-ink hover:border-ink',
   solid: 'bg-ink text-paper border-ink hover:bg-warm-800 hover:border-warm-800',
   outline: 'bg-transparent text-ink border-ink hover:bg-ink hover:text-paper',
   onDark: 'bg-paper text-ink border-paper hover:bg-warm-200 hover:border-warm-200',
@@ -47,7 +51,9 @@ export function buttonClasses({
     base,
     variants[variant],
     sizes[size],
-    square ? 'rounded-none' : 'rounded-md',
+    // cn is a plain joiner, so two rounded-* classes would race on equal
+    // specificity. The radius is resolved to exactly one class here.
+    square ? 'rounded-none' : variant === 'navy' ? 'rounded-lg' : 'rounded-md',
     block && 'w-full',
     className,
   );

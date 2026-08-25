@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
-import { bricolage, inter } from '@/lib/fonts';
+import { body, display, mono } from '@/lib/fonts';
 import { site } from '@/data/site';
 import './globals.css';
 
@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-CA" className={`${bricolage.variable} ${inter.variable}`}>
+    <html lang="en-CA" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-paper text-ink antialiased">
         <a
           href="#main"
