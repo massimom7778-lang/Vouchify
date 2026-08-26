@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Button, ButtonLink, Eyebrow, Grid, Price } from '@/components/ui';
+import { EVENTS, dollars, emit } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { formatMoney } from '@/lib/format';
 import {
@@ -10,6 +11,7 @@ import {
   hasPerUnitLinks,
   resolveLines,
   shippingState,
+  standCount,
   useCart,
   useCartReady,
 } from '@/lib/cart';
@@ -32,6 +34,20 @@ export function CheckoutForm() {
   // The bump offers the same SKU at a discount, so it makes no sense once
   // the customer has already added it at full price.
   const bumpAlreadyInCart = lines.some((line) => line.sku === orderBump.addOnId);
+
+  // `bump_shown` has to be emitted from above the early returns below, because
+  // a hook cannot sit after them. It re-derives the same condition the JSX uses
+  // for the bump box and fires once per mount, so the toggle rate has a real
+  // denominator — customers who could not see the offer are not counted against
+  // it. The ref is what stops a keystroke in the email field re-firing it.
+  const bumpTracked = useRef(false);
+  useEffect(() => {
+    if (bumpTracked.current || !ready) return;
+    const visible = resolveLines(lines).length > 0 && Boolean(bumpItem) && !bumpAlreadyInCart;
+    if (!visible) return;
+    bumpTracked.current = true;
+    emit(EVENTS.bumpShown, { sku: orderBump.addOnId });
+  }, [ready, lines, bumpItem, bumpAlreadyInCart]);
 
   if (!ready) {
     return (
@@ -68,6 +84,10 @@ export function CheckoutForm() {
   async function startCheckout() {
     setStatus('starting');
     setError(null);
+    // Emitted before the request, not after: this measures the customer
+    // choosing to pay, so a Stripe outage should show as begin_checkout without
+    // a purchase rather than as no intent at all.
+    emit(EVENTS.beginCheckout, { value: dollars(total), standCount: standCount(lines) });
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -203,7 +223,13 @@ export function CheckoutForm() {
                 <input
                   type="checkbox"
                   checked={bump}
-                  onChange={(event) => setBump(event.target.checked)}
+                  onChange={(event) => {
+                    setBump(event.target.checked);
+                    emit(EVENTS.bumpToggled, {
+                      sku: orderBump.addOnId,
+                      accepted: event.target.checked,
+                    });
+                  }}
                   className="mt-1 h-4 w-4 shrink-0 accent-[#C9A961]"
                 />
                 <span className="min-w-0">

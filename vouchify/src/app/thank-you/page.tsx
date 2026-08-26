@@ -1,8 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { PurchaseTracker } from './PurchaseTracker';
 import { UpsellOffer } from './UpsellOffer';
 import { ButtonLink, Eyebrow, Grid, Price, Section } from '@/components/ui';
-import { getStandTier, postPurchaseUpsell, coreProduct } from '@/data/products';
+import {
+  getStandTier,
+  postPurchaseUpsell,
+  coreProduct,
+  type StandTierId,
+} from '@/data/products';
 import { site } from '@/data/site';
 import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
 import { provisionFromCheckoutSession } from '@/lib/provision';
@@ -23,6 +29,9 @@ interface OrderView {
   /** The tokenised dashboard link. Also printed on a card in the box. */
   dashboardUrl: string | null;
   perUnitLinks: boolean;
+  standCount: number;
+  /** The largest pack in the order, written into metadata at checkout. */
+  tierId: StandTierId | 'none';
 }
 
 async function loadOrder(sessionId: string): Promise<OrderView | null> {
@@ -65,8 +74,14 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
       console.error('[thank-you] provisioning failed', error);
     }
 
+    const metaTier = session.metadata?.tierId;
+    const tierId: StandTierId | 'none' =
+      metaTier && getStandTier(metaTier) ? (metaTier as StandTierId) : 'none';
+
     return {
       dashboardUrl,
+      tierId,
+      standCount: Number(session.metadata?.standCount ?? 0) || 0,
       perUnitLinks: session.metadata?.linkPlan === 'per-unit',
       email: session.customer_details?.email ?? null,
       totalCents: session.amount_total,
@@ -99,6 +114,18 @@ export default async function ThankYouPage({
 
   return (
     <main id="main">
+      {/* Sends the purchase event from the browser. `order` is non-null only
+          when Stripe confirmed the session as paid, so a bookmarked or forged
+          /thank-you URL records nothing. */}
+      {sessionId && order ? (
+        <PurchaseTracker
+          sessionId={sessionId}
+          valueCents={order.totalCents ?? 0}
+          standCount={order.standCount}
+          tierId={order.tierId}
+          upsellReturned={upsell === 'done'}
+        />
+      ) : null}
       <Section rhythm="tight" className="pt-10 md:pt-16">
         <Grid className="gap-y-10">
           <div className="col-span-4 md:col-span-5">

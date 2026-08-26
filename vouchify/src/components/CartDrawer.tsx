@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef } from 'react';
 import { Button, ButtonLink, Price } from '@/components/ui';
+import { EVENTS, dollars, emit } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import {
   describeLine,
   hasPerUnitLinks,
+  itemCount,
   lineKey,
   resolveLines,
   shippingState,
@@ -66,8 +68,27 @@ export function CartDrawer() {
 
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
 
   const close = useCallback(() => closeDrawer(), [closeDrawer]);
+
+  // One event per opening, on the closed -> open edge. The drawer stays mounted
+  // and merely hidden, so without the ref every re-render while it is open —
+  // a quantity step, a review link keystroke — would count as another opening.
+  // It waits for `ready` so the counts describe the rehydrated cart rather
+  // than the empty one the first client render starts from.
+  useEffect(() => {
+    if (!open) {
+      wasOpen.current = false;
+      return;
+    }
+    if (wasOpen.current || !ready) return;
+    wasOpen.current = true;
+    emit(EVENTS.cartOpened, {
+      itemCount: itemCount(lines),
+      subtotal: dollars(subtotalCents(lines)),
+    });
+  }, [open, ready, lines]);
 
   // Focus trap, escape to close, scroll lock, focus restored on the way out.
   useEffect(() => {
@@ -204,6 +225,11 @@ export function CartDrawer() {
                   const s = shipping.suggestion;
                   if (s?.kind !== 'add-on') return;
                   add(s.addOn.id, s.qty);
+                  emit(EVENTS.addToCart, {
+                    sku: s.addOn.id,
+                    qty: s.qty,
+                    value: dollars(s.totalCents),
+                  });
                 }}
                 className="mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm border border-warm-300 px-3 py-2 text-left hover:border-ink"
               >
@@ -230,6 +256,11 @@ export function CartDrawer() {
                   add(upgrade.tier.id, 1, {
                     color: upgrade.fromLine.color,
                     linkMode: upgrade.fromLine.linkMode,
+                  });
+                  emit(EVENTS.addToCart, {
+                    sku: upgrade.tier.id,
+                    qty: 1,
+                    value: dollars(upgrade.tier.priceCents),
                   });
                 }}
                 className="mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm border border-warm-300 px-3 py-2 text-left hover:border-ink"

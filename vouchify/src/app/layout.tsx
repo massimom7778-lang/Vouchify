@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { body, display, mono } from '@/lib/fonts';
@@ -50,6 +51,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         {children}
         <Footer />
+        {/* Vercel Analytics. Cookieless and first-party, which is why there is
+            no consent banner: nothing is stored on the visitor's device and no
+            third-party script is loaded. It renders nothing, so it cannot
+            affect layout, and it is a client component inside a server layout,
+            so the static routes stay static. */}
+        <Analytics />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ShopPlan } from '@/components/ShopPlan';
 import { AnimatedTotal, Button, Coverage, Eyebrow, Grid, PhotoBlock, Price } from '@/components/ui';
+import { EVENTS, dollars, emit } from '@/lib/analytics';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
 import { useCart, type StandColor } from '@/lib/cart';
@@ -200,7 +201,13 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
   function addToCart() {
     // A single stand cannot have more than one link, so the choice is dropped.
     add(tier.id, 1, { color, linkMode: tier.qty > 1 ? linkMode : undefined });
-    for (const addOn of selectedAddOns) add(addOn.id, 1);
+    emit(EVENTS.addToCart, { sku: tier.id, qty: 1, value: dollars(tier.priceCents) });
+    // One event per SKU: the transport takes flat scalars only, so a tier plus
+    // two add-ons is three events rather than one carrying a list.
+    for (const addOn of selectedAddOns) {
+      add(addOn.id, 1);
+      emit(EVENTS.addToCart, { sku: addOn.id, qty: 1, value: dollars(addOn.priceCents) });
+    }
   }
 
   return (
@@ -301,7 +308,11 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
                     key={t.id}
                     tier={t}
                     selected={t.id === tierId}
-                    onSelect={() => setTierId(t.id)}
+                    onSelect={() => {
+                      if (t.id === tierId) return; // re-clicking the current tier is not a choice
+                      setTierId(t.id);
+                      emit(EVENTS.tierSelected, { tierId: t.id });
+                    }}
                   />
                 ))}
               </div>

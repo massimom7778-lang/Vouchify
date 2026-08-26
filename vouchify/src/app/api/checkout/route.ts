@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
-import { priceOrder } from '@/lib/pricing';
+import { priceOrder, type PricedOrder } from '@/lib/pricing';
 import { checkoutRequestSchema } from '@/lib/schemas';
 import { orderBump } from '@/data/products';
 import { site } from '@/data/site';
 
 export const runtime = 'nodejs';
+
+/**
+ * The pack a purchase is attributed to when the report asks "which tier sold".
+ * A cart can hold several, so the largest one wins; a cart of add-ons only has
+ * no tier and says so rather than pretending to be the single stand.
+ */
+function primaryTierId(order: PricedOrder): string {
+  let best: { id: string; cents: number } | null = null;
+  for (const line of order.lines) {
+    if (line.item.kind !== 'stand-tier') continue;
+    if (!best || line.unitCents > best.cents) best = { id: line.item.id, cents: line.unitCents };
+  }
+  return best?.id ?? 'none';
+}
 
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
@@ -84,6 +98,9 @@ export async function POST(request: Request) {
       metadata: {
         reviewLink: parsed.data.reviewLink ?? '',
         standCount: String(order.standCount),
+        // The largest pack in the order, carried through so the thank-you page
+        // can attribute the purchase to a tier without re-expanding line items.
+        tierId: primaryTierId(order),
         // Provisioning reads this to label and colour the stand records.
         color: order.lines.find((line) => line.color)?.color ?? 'black',
         linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Badge, Button, Price } from '@/components/ui';
+import { EVENTS, dollars, emit } from '@/lib/analytics';
 import { formatMoney, pluralize } from '@/lib/format';
 import { postPurchaseUpsell, tierEconomics, type StandTier } from '@/data/products';
 
@@ -19,6 +20,16 @@ export function UpsellOffer({
 }) {
   const [status, setStatus] = useState<Status>('idle');
   const [message, setMessage] = useState<string | null>(null);
+
+  // The component only renders when the server has already decided the offer is
+  // open, so mounting is the impression. No session id is sent — the offer is
+  // identified by what it sells, not by who is being sold to.
+  useEffect(() => {
+    emit(EVENTS.upsellShown, {
+      tierId: postPurchaseUpsell.tierId,
+      value: dollars(postPurchaseUpsell.priceCents),
+    });
+  }, []);
 
   const economics = tierEconomics(tier);
   const savingVsTier = tier.priceCents - postPurchaseUpsell.priceCents;
@@ -41,6 +52,13 @@ export function UpsellOffer({
         return;
       }
       if (response.ok && result.ok) {
+        // Emitted on the confirmed charge, not on the click, so this counts
+        // money rather than intent. The card-authentication fallback above
+        // redirects instead and is counted on the way back in PurchaseTracker.
+        emit(EVENTS.upsellAccepted, {
+          tierId: postPurchaseUpsell.tierId,
+          value: dollars(postPurchaseUpsell.priceCents),
+        });
         setStatus('added');
         return;
       }
