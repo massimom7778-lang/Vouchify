@@ -178,7 +178,9 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) setBarVisible(!entry.isIntersecting);
+        for (const entry of entries) {
+          setBarVisible(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+        }
       },
       { threshold: 0 },
     );
@@ -216,10 +218,11 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
         {/* Gallery */}
         <div className="col-span-4 md:col-span-7">
           <PhotoBlock photo={coreProduct.photos.hero} vignette />
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <PhotoBlock photo={coreProduct.photos.pair} />
-            <PhotoBlock photo={coreProduct.photos.inHand} />
-          </div>
+          <PhotoBlock photo={coreProduct.photos.inHand} className="mt-4" />
+
+          {/* The scale comparison sits with the size spec it is evidence for,
+              not mixed into the gallery above as if it were another stand shot. */}
+          <PhotoBlock photo={coreProduct.photos.pair} className="mt-4" />
 
           <dl className="mt-8 grid grid-cols-2 gap-x-6 border-t border-warm-300 sm:grid-cols-3">
             {coreProduct.specs.map((spec) => (

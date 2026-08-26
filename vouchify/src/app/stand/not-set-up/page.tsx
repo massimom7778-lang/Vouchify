@@ -35,7 +35,7 @@ export default async function StandNotSetUpPage({
               <span className="text-2xs font-semibold uppercase tracking-wide text-warm-600">
                 Stand code
               </span>
-              <span data-numeric className="font-display text-xl font-extrabold tracking-tight">
+              <span data-numeric className="font-display text-xl font-bold tracking-tight">
                 {code}
               </span>
             </p>

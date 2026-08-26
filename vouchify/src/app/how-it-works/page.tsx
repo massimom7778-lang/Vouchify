@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
                 >
                   <span
                     data-numeric
-                    className="font-display text-2xl font-extrabold leading-none tracking-tight text-gold-deep"
+                    className="font-display text-2xl font-bold leading-none tracking-tight text-gold-deep"
                   >
                     {step.n}
                   </span>
@@ -190,7 +190,7 @@ export default function HowItWorksPage() {
               Asking every customer is fine. Offering something in return for a review, or screening
               so only happy customers get asked, is not, and we do not build either. The stand opens
               your public review page for everyone who taps it.{' '}
-              <Link href="/faq#google-policy" className="font-semibold text-gold-deep underline underline-offset-4">
+              <Link href="/faq#policy" className="font-semibold text-gold-deep underline underline-offset-4">
                 The longer answer is in the FAQ
               </Link>
               .

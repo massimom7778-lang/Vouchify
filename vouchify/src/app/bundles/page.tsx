@@ -65,7 +65,7 @@ export default function BundlesPage() {
                 )}
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-display text-xl font-extrabold tracking-tight" data-numeric>
+                  <span className="font-display text-xl font-bold tracking-tight" data-numeric>
                     {tier.qty}
                   </span>
                   <Price cents={tier.priceCents} size="sm" />

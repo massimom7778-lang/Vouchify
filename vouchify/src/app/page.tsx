@@ -29,7 +29,6 @@ import { setupSteps } from "@/data/steps";
 import { formatMoney } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: `${site.name}, ${site.tagline}`,
   description: site.description,
   alternates: { canonical: "/" },
 };
@@ -407,8 +406,8 @@ export default function HomePage() {
                       data-numeric
                       className={
                         placed
-                          ? "font-display text-lg font-extrabold leading-tight tracking-tight text-gold-deep"
-                          : "font-display text-lg font-extrabold leading-tight tracking-tight text-warm-400"
+                          ? "font-display text-lg font-bold leading-tight tracking-tight text-gold-deep"
+                          : "font-display text-lg font-bold leading-tight tracking-tight text-warm-400"
                       }
                     >
                       {String(placement.n).padStart(2, "0")}
@@ -505,7 +504,7 @@ export default function HomePage() {
               >
                 <span
                   data-numeric
-                  className="font-display text-2xl font-extrabold leading-none tracking-tight text-gold-deep"
+                  className="font-display text-2xl font-bold leading-none tracking-tight text-gold-deep"
                 >
                   {String(step.n).padStart(2, "0")}
                 </span>

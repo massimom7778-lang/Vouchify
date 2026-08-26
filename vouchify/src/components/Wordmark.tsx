@@ -37,7 +37,7 @@ export function Wordmark({
     <span className={cn('inline-flex flex-col', className)}>
       <span
         className={cn(
-          'font-display font-extrabold leading-none tracking-[-0.03em]',
+          'font-display font-bold leading-none tracking-[-0.03em]',
           size === 'lg' ? 'text-xl' : 'text-lg',
         )}
       >

@@ -29,6 +29,9 @@ export function CheckoutForm() {
 
   const bumpItem = getAddOn(orderBump.addOnId);
   const bumpPrice = bumpItem?.bumpPriceCents ?? 0;
+  // The bump offers the same SKU at a discount, so it makes no sense once
+  // the customer has already added it at full price.
+  const bumpAlreadyInCart = lines.some((line) => line.sku === orderBump.addOnId);
 
   if (!ready) {
     return (
@@ -70,7 +73,12 @@ export function CheckoutForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lines: lines.map((line) => ({ sku: line.sku, qty: line.qty, color: line.color })),
+          lines: lines.map((line) => ({
+            sku: line.sku,
+            qty: line.qty,
+            color: line.color,
+            linkMode: line.linkMode,
+          })),
           bump,
           reviewLink: reviewLink || undefined,
           email: email || undefined,
@@ -184,7 +192,7 @@ export function CheckoutForm() {
           ) : null}
 
           {/* Order bump. One box, one sentence, a real before-and-after price. */}
-          {bumpItem ? (
+          {bumpItem && !bumpAlreadyInCart ? (
             <div
               className={cn(
                 'mt-6 rounded-md border-2 p-4',

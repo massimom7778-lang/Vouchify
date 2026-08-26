@@ -59,7 +59,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                     <span
                       data-numeric
                       className={cn(
-                        'font-display text-xl font-extrabold tracking-tight',
+                        'font-display text-xl font-bold tracking-tight',
                         onInk && 'text-paper',
                       )}
                     >

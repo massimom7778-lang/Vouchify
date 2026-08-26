@@ -87,13 +87,13 @@ export default async function DashboardPage({
             <dl className="divide-y divide-warm-300 border-y border-warm-300">
               <div className="flex items-baseline justify-between py-4">
                 <dt className="text-sm text-warm-700">Taps in the last {RECENT_DAYS} days</dt>
-                <dd data-numeric className="font-display text-xl font-extrabold tracking-tight">
+                <dd data-numeric className="font-display text-xl font-bold tracking-tight">
                   {recentTotal}
                 </dd>
               </div>
               <div className="flex items-baseline justify-between py-4">
                 <dt className="text-sm text-warm-700">Taps all time</dt>
-                <dd data-numeric className="font-display text-xl font-extrabold tracking-tight">
+                <dd data-numeric className="font-display text-xl font-bold tracking-tight">
                   {allTime}
                 </dd>
               </div>
@@ -189,7 +189,7 @@ export default async function DashboardPage({
                   <p
                     data-numeric
                     className={cn(
-                      'font-display text-xl font-extrabold tracking-tight',
+                      'font-display text-xl font-bold tracking-tight',
                       stand.recentTaps === 0 && 'text-warm-500',
                     )}
                   >

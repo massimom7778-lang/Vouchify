@@ -198,7 +198,7 @@ export default function StyleguidePage() {
                   <span
                     className={
                       t.px >= 20
-                        ? 'font-display font-extrabold tracking-tight'
+                        ? 'font-display font-bold tracking-tight'
                         : 'font-sans'
                     }
                     style={{ fontSize: `${Math.min(t.px, 60)}px`, lineHeight: 1.05 }}

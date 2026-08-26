@@ -134,7 +134,7 @@ export default async function ThankYouPage({
                   <li key={text} className="flex gap-4 py-4">
                     <span
                       data-numeric
-                      className="font-display text-lg font-extrabold leading-tight tracking-tight text-gold-deep"
+                      className="font-display text-lg font-bold leading-tight tracking-tight text-gold-deep"
                     >
                       {index + 1}
                     </span>
@@ -159,28 +159,32 @@ export default async function ThankYouPage({
           <div className="col-span-4 md:col-span-6 md:col-start-7">
             {offerOpen && tier && sessionId ? (
               <UpsellOffer sessionId={sessionId} tier={tier} minutesLeft={order.minutesLeft} />
-            ) : (
-              <div className="rounded-md border border-warm-300 bg-warm-50 p-6">
-                <h2 className="text-xl">
-                  {order?.upsellRedeemed || upsell === 'done'
-                    ? 'Extra stands added.'
-                    : 'While you are here'}
-                </h2>
-                <p className="mt-3 text-base text-warm-700">
-                  {order?.upsellRedeemed || upsell === 'done'
-                    ? 'They are going in the same box, programmed to the same link.'
-                    : 'Review plates carry the same link as your stands, useful for the window and the places a stand will not sit.'}
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
-                    The Stand
-                  </ButtonLink>
-                  <ButtonLink href="/products/sticker" variant="outline" size="md">
-                    Review plates
-                  </ButtonLink>
-                </div>
+            ) : null}
+
+            <div
+              className={`rounded-md border border-warm-300 bg-warm-50 p-6 ${
+                offerOpen && tier && sessionId ? 'mt-6' : ''
+              }`}
+            >
+              <h2 className="text-xl">
+                {order?.upsellRedeemed || upsell === 'done'
+                  ? 'Extra stands added.'
+                  : 'While you are here'}
+              </h2>
+              <p className="mt-3 text-base text-warm-700">
+                {order?.upsellRedeemed || upsell === 'done'
+                  ? 'They are going in the same box, programmed to the same link.'
+                  : 'Review plates carry the same link as your stands, useful for the window and the places a stand will not sit.'}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
+                  The Stand
+                </ButtonLink>
+                <ButtonLink href="/products/sticker" variant="outline" size="md">
+                  Review plates
+                </ButtonLink>
               </div>
-            )}
+            </div>
 
             {!order && sessionId ? (
               <p className="mt-4 text-xs text-warm-600">

@@ -6,10 +6,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import {
   addOns,
   getCatalogItem,
+  getStandTier,
+  standTiers,
   type AddOn,
   type CatalogItem,
   type LinkMode,
   type Sku,
+  type StandTier,
 } from '@/data/products';
 import { site } from '@/data/site';
 
@@ -182,26 +185,94 @@ export function itemCount(lines: readonly CartLine[]): number {
   return lines.reduce((sum, line) => sum + line.qty, 0);
 }
 
+/** Add more of a stackable add-on, or one unit of a per-order service, to
+ *  close the gap. Never costs more than the shipping fee it would save,
+ *  or it is not a saving at all. */
+export interface AddOnSuggestion {
+  readonly kind: 'add-on';
+  readonly addOn: AddOn;
+  readonly qty: number;
+  readonly totalCents: number;
+}
+
+/** Move the cart's one stand-tier line up to a bigger pack that clears the
+ *  threshold on its own. Allowed to cost more than the shipping saved,
+ *  since the customer is buying more stands, not just dodging a fee. */
+export interface TierUpgradeSuggestion {
+  readonly kind: 'tier-upgrade';
+  readonly fromLine: CartLine;
+  readonly tier: StandTier;
+  readonly extraCents: number;
+}
+
+export type ShippingSuggestion = AddOnSuggestion | TierUpgradeSuggestion | null;
+
 export interface ShippingState {
   readonly qualifies: boolean;
   readonly remainingCents: number;
   readonly progress: number;
-  /** The cheapest add-on not already in the cart that would close the gap. */
-  readonly suggestion: AddOn | null;
+  readonly suggestion: ShippingSuggestion;
 }
 
 export function shippingState(lines: readonly CartLine[]): ShippingState {
   const subtotal = subtotalCents(lines);
   const threshold = site.freeShippingThresholdCents;
   const remaining = Math.max(0, threshold - subtotal);
-  const inCart = new Set(lines.map((line) => line.sku));
+  const shippingSaved = site.flatShippingCents;
 
-  const suggestion =
-    remaining === 0
-      ? null
-      : (addOns
-          .filter((addOn) => !inCart.has(addOn.id) && addOn.priceCents >= remaining)
-          .sort((a, b) => a.priceCents - b.priceCents)[0] ?? null);
+  let suggestion: ShippingSuggestion = null;
+
+  if (remaining > 0) {
+    const inCart = new Set(lines.map((line) => line.sku));
+
+    // (a) The cheapest add-on that closes the gap without costing more than
+    // the shipping fee it saves. A per-order service can only be added once,
+    // a stackable one (the plate) can be topped up by the unit.
+    let bestAddOn: AddOnSuggestion | null = null;
+    for (const addOn of addOns) {
+      if (addOn.perOrder && inCart.has(addOn.id)) continue;
+      const qty = addOn.perOrder ? 1 : Math.max(1, Math.ceil(remaining / addOn.priceCents));
+      const totalCents = addOn.priceCents * qty;
+      if (totalCents < remaining) continue; // does not close the gap
+      if (totalCents > shippingSaved) continue; // costs more than it saves
+      if (!bestAddOn || totalCents < bestAddOn.totalCents) {
+        bestAddOn = { kind: 'add-on', addOn, qty, totalCents };
+      }
+    }
+
+    // (b) Moving to a bigger pack, when the cart holds exactly one pack of
+    // one tier, so there is no ambiguity about what "upgrade" means.
+    const tierLines = lines.filter((line) => getCatalogItem(line.sku)?.kind === 'stand-tier');
+    const [fromLine] = tierLines;
+    let tierUpgrade: TierUpgradeSuggestion | null = null;
+    if (tierLines.length === 1 && fromLine && fromLine.qty === 1) {
+      const fromTier = getStandTier(fromLine.sku);
+      if (fromTier) {
+        const next = standTiers
+          .filter((tier) => tier.priceCents > fromTier.priceCents)
+          .sort((a, b) => a.priceCents - b.priceCents)
+          .find((tier) => subtotal - fromTier.priceCents + tier.priceCents >= threshold);
+        if (next) {
+          tierUpgrade = {
+            kind: 'tier-upgrade',
+            fromLine,
+            tier: next,
+            extraCents: next.priceCents - fromTier.priceCents,
+          };
+        }
+      }
+    }
+
+    // Prefer whichever leaves the customer better off: the smaller amount
+    // spent beyond what free shipping actually saves them.
+    if (bestAddOn && tierUpgrade) {
+      const addOnNet = bestAddOn.totalCents - shippingSaved;
+      const tierNet = tierUpgrade.extraCents - shippingSaved;
+      suggestion = addOnNet <= tierNet ? bestAddOn : tierUpgrade;
+    } else {
+      suggestion = bestAddOn ?? tierUpgrade;
+    }
+  }
 
   return {
     qualifies: remaining === 0,

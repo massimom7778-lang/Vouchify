@@ -6,6 +6,7 @@ import { formatMoney } from '@/lib/format';
 import {
   describeLine,
   hasPerUnitLinks,
+  lineKey,
   resolveLines,
   shippingCents,
   shippingState,
@@ -176,19 +177,52 @@ export function CartContents() {
                 style={{ width: `${Math.round(shipping.progress * 100)}%` }}
               />
             </div>
-            {shipping.suggestion ? (
+            {shipping.suggestion?.kind === 'add-on' ? (
               <button
                 type="button"
-                onClick={() => add(shipping.suggestion!.id)}
+                onClick={() => {
+                  const s = shipping.suggestion;
+                  if (s?.kind !== 'add-on') return;
+                  add(s.addOn.id, s.qty);
+                }}
                 className="mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm border border-warm-300 bg-paper px-3 py-2 text-left hover:border-ink"
               >
                 <span className="min-w-0">
                   <span className="block text-xs font-semibold">
-                    Add {shipping.suggestion.name.toLowerCase()} to close the gap
+                    Add {shipping.suggestion.qty > 1 ? `${shipping.suggestion.qty} ` : ''}
+                    {shipping.suggestion.addOn.name.toLowerCase()} to close the gap
                   </span>
-                  <span className="block text-2xs text-warm-600">{shipping.suggestion.shortLine}</span>
+                  <span className="block text-2xs text-warm-600">
+                    {shipping.suggestion.addOn.shortLine}
+                  </span>
                 </span>
-                <Price cents={shipping.suggestion.priceCents} size="xs" display={false} />
+                <Price cents={shipping.suggestion.totalCents} size="xs" display={false} />
+              </button>
+            ) : null}
+
+            {shipping.suggestion?.kind === 'tier-upgrade' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const upgrade = shipping.suggestion;
+                  if (upgrade?.kind !== 'tier-upgrade') return;
+                  remove(lineKey(upgrade.fromLine));
+                  add(upgrade.tier.id, 1, {
+                    color: upgrade.fromLine.color,
+                    linkMode: upgrade.fromLine.linkMode,
+                  });
+                }}
+                className="mt-3 flex w-full cursor-pointer items-center justify-between gap-3 rounded-sm border border-warm-300 bg-paper px-3 py-2 text-left hover:border-ink"
+              >
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold">
+                    Move up to {shipping.suggestion.tier.name.toLowerCase()} to clear the gap
+                  </span>
+                  <span className="block text-2xs text-warm-600">
+                    {shipping.suggestion.tier.shortLine}
+                  </span>
+                </span>
+                <Price cents={shipping.suggestion.extraCents} size="xs" display={false} />
               </button>
             ) : null}
           </div>
@@ -216,19 +250,19 @@ export function CartContents() {
             </div>
           </dl>
 
-          {stands >= site.multiLocationMinUnits ? (
-            <p className="mt-4 rounded-sm border border-warm-300 bg-paper px-3 py-2 text-xs text-warm-700">
-              {stands} stands is quote territory.{' '}
-              <Link href="/multi-location" className="font-semibold text-gold-deep underline underline-offset-4">
-                Ask for a multi-location price
-              </Link>{' '}
-              before you pay this.
-            </p>
-          ) : null}
-
           <ButtonLink href="/checkout" size="lg" block className="mt-6">
             Checkout
           </ButtonLink>
+
+          {stands > site.multiLocationMinUnits ? (
+            <p className="mt-4 rounded-sm border border-warm-300 bg-paper px-3 py-2 text-xs text-warm-700">
+              Buying for more than one address? We can quote the group.{' '}
+              <Link href="/multi-location" className="font-semibold text-gold-deep underline underline-offset-4">
+                Get a multi-location quote
+              </Link>
+            </p>
+          ) : null}
+
           <Button
             variant="quiet"
             size="sm"

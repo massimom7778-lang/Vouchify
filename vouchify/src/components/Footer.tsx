@@ -36,7 +36,7 @@ export function Footer() {
             </nav>
           ))}
 
-          <div className="col-span-4 md:col-span-3 md:col-start-10">
+          <div className="col-span-4 md:col-span-2 md:col-start-11">
             <h2 className="font-sans text-2xs font-semibold uppercase tracking-wide text-warm-400">
               Multi-location
             </h2>

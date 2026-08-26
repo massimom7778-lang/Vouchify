@@ -148,7 +148,7 @@ export function QuoteForm() {
         className="mt-5 flex items-baseline justify-between gap-4 rounded-sm border border-warm-300 bg-paper px-4 py-3"
       >
         <span className="text-sm text-warm-700">Total stands in this quote</span>
-        <span data-numeric className="font-display text-xl font-extrabold tracking-tight">
+        <span data-numeric className="font-display text-xl font-bold tracking-tight">
           {total}
         </span>
       </div>

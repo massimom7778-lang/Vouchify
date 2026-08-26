@@ -72,11 +72,7 @@ export default async function ProductPage({
 
   return (
     // Bottom padding keeps the sticky mobile buy bar off the footer.
-    <main
-      id="main"
-      className="lg:pb-0"
-      style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
-    >
+    <main id="main" className="pb-[calc(5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
       <JsonLd data={productSchema} />
 
       <Section rhythm="tight" className="pb-0">
@@ -147,7 +143,7 @@ export default async function ProductPage({
               <Reveal as="li" key={step.n} delay={step.n * 60} className="flex gap-5 border-b border-warm-300 py-6 first:border-t">
                 <span
                   data-numeric
-                  className="font-display text-2xl font-extrabold leading-none tracking-tight text-gold-deep"
+                  className="font-display text-2xl font-bold leading-none tracking-tight text-gold-deep"
                 >
                   {step.n}
                 </span>
