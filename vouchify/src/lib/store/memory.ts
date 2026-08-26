@@ -1,12 +1,17 @@
-import { newDashboardToken, newOrderId, newStandCode } from './codes';
-import type {
-  DailyCount,
-  OrderRecord,
-  ProvisionInput,
-  ProvisionResult,
-  Stand,
-  StandStore,
-  StandWithCounts,
+import { newDashboardToken, newOrderId, newQuoteId, newStandCode } from './codes';
+import {
+  EMPTY_ADDRESS,
+  type AppendResult,
+  type DailyCount,
+  type FulfillmentOrder,
+  type OrderRecord,
+  type ProvisionInput,
+  type ProvisionResult,
+  type QuoteInput,
+  type Stand,
+  type StandInput,
+  type StandStore,
+  type StandWithCounts,
 } from './types';
 
 interface MemoryState {
@@ -14,6 +19,9 @@ interface MemoryState {
   stands: Map<string, Stand>;
   /** `${code}:${day}` -> count */
   taps: Map<string, number>;
+  /** Append refs already applied, so a retry adds nothing. */
+  appends: Set<string>;
+  quotes: (QuoteInput & { id: string; createdAt: string })[];
 }
 
 /**
@@ -28,9 +36,50 @@ const globalState = globalThis as typeof globalThis & { __vouchifyStore?: Memory
 
 function state(): MemoryState {
   if (!globalState.__vouchifyStore) {
-    globalState.__vouchifyStore = { orders: new Map(), stands: new Map(), taps: new Map() };
+    globalState.__vouchifyStore = {
+      orders: new Map(),
+      stands: new Map(),
+      taps: new Map(),
+      appends: new Set(),
+      quotes: [],
+    };
   }
   return globalState.__vouchifyStore;
+}
+
+function insertStands(
+  store: MemoryState,
+  orderId: string,
+  createdAt: string,
+  stands: readonly StandInput[],
+): Stand[] {
+  const added: Stand[] = [];
+  for (const stand of stands) {
+    let code = newStandCode();
+    let attempts = 0;
+    while (store.stands.has(code)) {
+      code = newStandCode();
+      attempts += 1;
+      // Matches the Postgres adapter: never silently create fewer stands than
+      // were paid for.
+      if (attempts >= 5) {
+        throw new Error(`Could not allocate a unique stand code for order ${orderId}.`);
+      }
+    }
+    const record: Stand = {
+      code,
+      orderId,
+      placementLabel: stand.placementLabel,
+      placementNumber: stand.placementNumber,
+      targetUrl: stand.targetUrl,
+      color: stand.color,
+      createdAt,
+      targetUpdatedAt: null,
+    };
+    store.stands.set(code, record);
+    added.push(record);
+  }
+  return added;
 }
 
 export function createMemoryStore(): StandStore {
@@ -48,24 +97,24 @@ export function createMemoryStore(): StandStore {
         dashboardToken: newDashboardToken(),
         email: input.email,
         createdAt: new Date().toISOString(),
+        shipping: input.shipping ?? EMPTY_ADDRESS,
+        fulfilledAt: null,
       };
       store.orders.set(order.id, order);
-
-      for (const stand of input.stands) {
-        let code = newStandCode();
-        while (store.stands.has(code)) code = newStandCode();
-        store.stands.set(code, {
-          code,
-          orderId: order.id,
-          placementLabel: stand.placementLabel,
-          placementNumber: stand.placementNumber,
-          targetUrl: stand.targetUrl,
-          color: stand.color,
-          createdAt: order.createdAt,
-          targetUpdatedAt: null,
-        });
-      }
+      insertStands(store, order.id, order.createdAt, input.stands);
       return { order, created: true };
+    },
+
+    async appendStands(orderId, ref, stands): Promise<AppendResult | null> {
+      const store = state();
+      const order = store.orders.get(orderId);
+      if (!order) return null;
+
+      if (store.appends.has(ref)) return { order, added: [], created: false };
+      store.appends.add(ref);
+
+      const added = insertStands(store, order.id, new Date().toISOString(), stands);
+      return { order, added, created: true };
     },
 
     async getStandByCode(code) {
@@ -106,6 +155,31 @@ export function createMemoryStore(): StandStore {
       });
     },
 
+    async listRecentOrders(sinceDays): Promise<FulfillmentOrder[]> {
+      const store = state();
+      const cutoff = new Date(Date.now() - sinceDays * 86_400_000).toISOString();
+      return [...store.orders.values()]
+        .filter((order) => order.createdAt >= cutoff)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((order) => ({
+          ...order,
+          stands: [...store.stands.values()]
+            .filter((stand) => stand.orderId === order.id)
+            .sort((a, b) => a.placementNumber - b.placementNumber),
+        }));
+    },
+
+    async setFulfilled(orderId, fulfilled) {
+      const store = state();
+      const order = store.orders.get(orderId);
+      if (!order) return false;
+      store.orders.set(orderId, {
+        ...order,
+        fulfilledAt: fulfilled ? new Date().toISOString() : null,
+      });
+      return true;
+    },
+
     async updateTarget(orderId, code, targetUrl) {
       const store = state();
       const stand = store.stands.get(code);
@@ -135,6 +209,10 @@ export function createMemoryStore(): StandStore {
         out.push({ day, count });
       }
       return out.sort((a, b) => a.day.localeCompare(b.day));
+    },
+
+    async recordQuote(input) {
+      state().quotes.push({ ...input, id: newQuoteId(), createdAt: new Date().toISOString() });
     },
   };
 }

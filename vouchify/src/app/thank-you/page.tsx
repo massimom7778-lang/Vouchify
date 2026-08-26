@@ -6,6 +6,7 @@ import { getStandTier, postPurchaseUpsell, coreProduct } from '@/data/products';
 import { site } from '@/data/site';
 import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
 import { provisionFromCheckoutSession } from '@/lib/provision';
+import { sendOrderConfirmation } from '@/lib/notify';
 
 export const metadata: Metadata = {
   title: 'Order confirmed',
@@ -27,18 +28,39 @@ interface OrderView {
 async function loadOrder(sessionId: string): Promise<OrderView | null> {
   if (!isStripeConfigured()) return null;
   try {
-    const session = await getStripe().checkout.sessions.retrieve(sessionId);
+    const stripe = getStripe();
+    let session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') return null;
+
+    // The upsell's card-authentication fallback is its own paid session, but it
+    // is a top-up rather than an order. Everything this page shows — the total,
+    // the dashboard link, the offer window — belongs to the original order, so
+    // follow the pointer and render that instead. The webhook is what actually
+    // appends the stands.
+    const parentSessionId = session.metadata?.upsellFor;
+    if (parentSessionId && parentSessionId !== session.id) {
+      session = await stripe.checkout.sessions.retrieve(parentSessionId);
+      if (session.payment_status !== 'paid') return null;
+    }
 
     const elapsed = Math.floor(Date.now() / 1000) - session.created;
     const remaining = site.upsellWindowMinutes * 60 - elapsed;
 
     // Provisioning is idempotent on the session id, so a refresh is harmless.
-    // This is where a webhook will call the same function once one exists.
+    // The webhook calls the same function; whichever arrives first creates the
+    // order, and whichever created it sends the confirmation.
     let dashboardUrl: string | null = null;
     try {
       const result = await provisionFromCheckoutSession(session);
-      if (result) dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
+      if (result) {
+        dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
+        // This page creating the order used to mean no confirmation was ever
+        // sent: the webhook would arrive later, see `created: false` and return
+        // early, leaving the dashboard link only on a page about to be closed.
+        if (result.created) {
+          await sendOrderConfirmation({ order: result.order, session });
+        }
+      }
     } catch (error) {
       console.error('[thank-you] provisioning failed', error);
     }

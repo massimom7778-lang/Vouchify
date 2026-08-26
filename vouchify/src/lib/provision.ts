@@ -1,7 +1,14 @@
 import 'server-only';
 import type Stripe from 'stripe';
 import { getStore } from '@/lib/store';
-import type { OrderRecord, ProvisionInput, ProvisionResult } from '@/lib/store/types';
+import type {
+  AppendResult,
+  OrderRecord,
+  ProvisionInput,
+  ProvisionResult,
+  ShippingAddress,
+  StandInput,
+} from '@/lib/store/types';
 import { PLACEMENTS_PER_LOCATION, getStandTier, placements } from '@/data/products';
 
 /**
@@ -22,6 +29,34 @@ function placementFor(index: number): { number: number; label: string } {
   return { number: index + 1, label: `${placement.label}${suffix}` };
 }
 
+/**
+ * Builds `count` stand inputs starting at `startIndex`.
+ *
+ * Appends pass the existing stand count as `startIndex`, so extra stands
+ * continue the placement sequence rather than restarting at "Checkout counter".
+ */
+export function buildStands({
+  count,
+  color,
+  targetUrl,
+  startIndex = 0,
+}: {
+  count: number;
+  color: 'black' | 'white';
+  targetUrl: string;
+  startIndex?: number;
+}): StandInput[] {
+  return Array.from({ length: count }, (_, offset) => {
+    const placement = placementFor(startIndex + offset);
+    return {
+      placementNumber: placement.number,
+      placementLabel: placement.label,
+      color,
+      targetUrl,
+    };
+  });
+}
+
 /** How many stands a paid session bought, and in what colour. */
 function standsFromSession(session: Stripe.Checkout.Session): {
   count: number;
@@ -31,6 +66,42 @@ function standsFromSession(session: Stripe.Checkout.Session): {
   const count = Number.isFinite(fromMetadata) && fromMetadata > 0 ? fromMetadata : 0;
   const color = session.metadata?.color === 'white' ? 'white' : 'black';
   return { count, color };
+}
+
+/**
+ * The shipping address Stripe collected at checkout.
+ *
+ * Without this the packing list has codes and no destination, and every box
+ * means going back to the Stripe dashboard to find out where it goes.
+ */
+export function shippingFromSession(session: Stripe.Checkout.Session): ShippingAddress {
+  // `collected_information.shipping_details` is where current API versions put
+  // this; `shipping_details` is the older top-level field. Read whichever the
+  // account's version sends.
+  const withShipping = session as Stripe.Checkout.Session & {
+    shipping_details?: { name?: string | null; address?: Stripe.Address | null } | null;
+    collected_information?: {
+      shipping_details?: { name?: string | null; address?: Stripe.Address | null } | null;
+    } | null;
+  };
+
+  const details =
+    withShipping.collected_information?.shipping_details ??
+    withShipping.shipping_details ??
+    null;
+
+  const address = details?.address ?? session.customer_details?.address ?? null;
+
+  return {
+    name: details?.name ?? session.customer_details?.name ?? null,
+    line1: address?.line1 ?? null,
+    line2: address?.line2 ?? null,
+    city: address?.city ?? null,
+    region: address?.state ?? null,
+    postalCode: address?.postal_code ?? null,
+    country: address?.country ?? null,
+    phone: session.customer_details?.phone ?? null,
+  };
 }
 
 /**
@@ -59,18 +130,58 @@ export async function provisionFromCheckoutSession(
   const input: ProvisionInput = {
     checkoutSessionId: session.id,
     email: session.customer_details?.email ?? null,
-    stands: Array.from({ length: count }, (_, index) => {
-      const placement = placementFor(index);
-      return {
-        placementNumber: placement.number,
-        placementLabel: placement.label,
-        color,
-        targetUrl: sharedTarget,
-      };
-    }),
+    shipping: shippingFromSession(session),
+    stands: buildStands({ count, color, targetUrl: sharedTarget }),
   };
 
   return store.provisionOrder(input);
+}
+
+/**
+ * Adds stands to an order that already exists.
+ *
+ * This is what the post-purchase upsell needs: the customer has paid for more
+ * stands against an order that is already provisioned, and those stands have to
+ * become real codes on the same order, continuing the same placement sequence,
+ * pointing at the same review link.
+ *
+ * `ref` is the idempotency key — the upsell PaymentIntent id, or the fallback
+ * Checkout Session id. Calling twice with the same ref adds stands once.
+ */
+export async function appendStandsToOrder({
+  order,
+  ref,
+  count,
+  color,
+  targetUrl,
+}: {
+  order: OrderRecord;
+  ref: string;
+  count: number;
+  color?: 'black' | 'white';
+  targetUrl?: string;
+}): Promise<AppendResult | null> {
+  if (count <= 0) return null;
+
+  const store = getStore();
+  const existing = await store.listStands(order.id, 1);
+
+  // Continue the placement sequence, and inherit colour and target from the
+  // stands already on the order so the new ones match what is being packed.
+  const last = existing[existing.length - 1];
+  const inheritedColor = color ?? last?.color ?? 'black';
+  const inheritedTarget = targetUrl ?? last?.targetUrl ?? '';
+
+  return store.appendStands(
+    order.id,
+    ref,
+    buildStands({
+      count,
+      color: inheritedColor,
+      targetUrl: inheritedTarget,
+      startIndex: existing.length,
+    }),
+  );
 }
 
 /**
@@ -84,14 +195,10 @@ export async function provisionDemoOrder(standCount = 5): Promise<OrderRecord> {
   const { order } = await getStore().provisionOrder({
     checkoutSessionId: `demo_${Date.now()}`,
     email: 'demo@example.com',
-    stands: Array.from({ length: count }, (_, index) => {
-      const placement = placementFor(index);
-      return {
-        placementNumber: placement.number,
-        placementLabel: placement.label,
-        color: 'black' as const,
-        targetUrl: 'https://www.google.com/search?q=leave+a+review',
-      };
+    stands: buildStands({
+      count,
+      color: 'black',
+      targetUrl: 'https://www.google.com/search?q=leave+a+review',
     }),
   });
   return order;

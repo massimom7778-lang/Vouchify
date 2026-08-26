@@ -1,7 +1,15 @@
 import 'server-only';
 import { site } from '@/data/site';
 
-export type Delivery = 'email' | 'logged';
+/**
+ * 'email'  — accepted by Resend.
+ * 'logged' — no key configured, so it was written to the log on purpose.
+ * 'failed' — a key IS configured and the send was rejected or threw. This is
+ *            the one that means a customer did not get their mail, and it is
+ *            deliberately distinct from 'logged' so alerting can tell them
+ *            apart.
+ */
+export type Delivery = 'email' | 'logged' | 'failed';
 
 export interface OutboundEmail {
   readonly to: string;
@@ -59,11 +67,11 @@ export async function sendEmail(message: OutboundEmail): Promise<Delivery> {
         message.subject,
         message.text,
       );
-      return 'logged';
+      return 'failed';
     }
   } catch (error) {
     console.error('[email] resend request failed', error, '\n', message.text);
-    return 'logged';
+    return 'failed';
   }
 
   return 'email';

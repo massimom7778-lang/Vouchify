@@ -68,7 +68,7 @@ export default function GlobalError({
             Try again
           </button>
           <p style={{ marginTop: '1.5rem', fontSize: '0.875rem', color: '#6b655b' }}>
-            Still broken? Email support@vouchify.co
+            Still broken? Email support@vouchify.ca
             {error.digest ? ` and quote ${error.digest}.` : '.'}
           </p>
         </div>

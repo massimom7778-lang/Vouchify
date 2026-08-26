@@ -34,6 +34,10 @@ export function newOrderId(): string {
   return `ord_${fromRandom(16).toLowerCase()}`;
 }
 
+export function newQuoteId(): string {
+  return `qte_${fromRandom(16).toLowerCase()}`;
+}
+
 /** Codes are printed in caps; people will type them in whatever case they like. */
 export function normaliseCode(input: string): string {
   return input.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');

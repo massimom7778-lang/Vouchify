@@ -16,9 +16,8 @@ export const site = {
   tagline: 'NFC review cards for counters that get busy.',
   description:
     'A stand that sits on your counter. Customers tap their phone. Your Google review page opens. That is it.',
-  supportEmail: 'support@vouchify.co',
-  /** TODO: replace with the production domain before launch. */
-  url: 'https://vouchify.co',
+  supportEmail: 'support@vouchify.ca',
+  url: 'https://www.vouchify.ca',
   currency: 'CAD',
   locale: 'en-CA',
   /** Free shipping kicks in at this subtotal, in cents. Drives the cart drawer bar. */

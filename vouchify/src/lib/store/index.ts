@@ -39,5 +39,12 @@ export function isStorePersistent(): boolean {
   return Boolean(process.env.DATABASE_URL);
 }
 
-export type { Stand, StandWithCounts, OrderRecord, DailyCount } from './types';
-export { utcDay } from './types';
+export type {
+  Stand,
+  StandWithCounts,
+  OrderRecord,
+  DailyCount,
+  FulfillmentOrder,
+  ShippingAddress,
+} from './types';
+export { utcDay, EMPTY_ADDRESS } from './types';

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
+import { appendStandsToOrder } from '@/lib/provision';
+import { alertOperator } from '@/lib/notify';
+import { getStore } from '@/lib/store';
 import { upsellRequestSchema } from '@/lib/schemas';
 import { getStandTier, postPurchaseUpsell } from '@/data/products';
 import { site } from '@/data/site';
@@ -108,11 +111,53 @@ export async function POST(request: Request) {
       );
 
       if (intent.status === 'succeeded' || intent.status === 'processing') {
+        // The charge is not the deliverable. Until these stands exist as
+        // records the customer has paid for stands that will never be
+        // encoded, never be packed, and never appear on their dashboard.
+        const order = await getStore().getOrderByCheckoutSession(session.id);
+        if (!order) {
+          await alertOperator({
+            subject: 'Upsell charged but the order is not provisioned',
+            lines: [
+              'An off-session upsell charge succeeded, but the order it belongs to',
+              'does not exist yet, so the extra stands could not be added.',
+              `Session: ${session.id}`,
+              `PaymentIntent: ${intent.id}`,
+              `Stands owed: ${tier.qty}`,
+            ],
+          });
+        } else {
+          // Idempotent on the PaymentIntent, which itself is created under an
+          // idempotency key — a repeated request cannot double-provision.
+          const appended = await appendStandsToOrder({
+            order,
+            ref: intent.id,
+            count: tier.qty,
+          });
+          if (!appended) {
+            await alertOperator({
+              subject: 'Upsell charged but stands were not added',
+              lines: [
+                'The charge succeeded and the order exists, but appending stands returned nothing.',
+                `Session: ${session.id}`,
+                `Order: ${order.id}`,
+                `PaymentIntent: ${intent.id}`,
+                `Stands owed: ${tier.qty}`,
+              ],
+            });
+          }
+        }
+
         await stripe.checkout.sessions.update(session.id, {
           metadata: {
             ...(session.metadata ?? {}),
             upsellStatus: 'redeemed',
             upsellPaymentIntent: intent.id,
+            // The packing list reads this: the box now holds more than the
+            // original standCount.
+            standCount: String(
+              Number(session.metadata?.standCount ?? 0) + tier.qty,
+            ),
           },
         });
         return NextResponse.json({ ok: true, charged: true });
@@ -148,12 +193,20 @@ export async function POST(request: Request) {
           },
         },
       ],
+      // This session is a top-up, not an order. `upsellFor` points at the order
+      // the stands belong to and `upsellStands` says how many — together they
+      // are what lets the webhook append to the original order instead of
+      // creating a second, disconnected one with its own dashboard and codes.
       metadata: {
         kind: 'post-purchase-upsell',
         checkoutSession: session.id,
+        upsellFor: session.id,
+        upsellStands: String(tier.qty),
         sku: tier.id,
       },
-      success_url: `${origin}/thank-you?session_id=${session.id}&upsell=done`,
+      // Must be this session's own id. It previously interpolated the original
+      // session id, so the page never saw the session that was actually paid.
+      success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}&upsell=done`,
       cancel_url: `${origin}/thank-you?session_id=${session.id}`,
     });
 

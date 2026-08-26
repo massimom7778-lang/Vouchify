@@ -22,9 +22,27 @@ export function getStripe(): Stripe {
   return client;
 }
 
+/**
+ * The origin every Stripe redirect, dashboard link and forwarder redirect is
+ * built from.
+ *
+ * In production a missing NEXT_PUBLIC_SITE_URL used to fall through to
+ * localhost, which does not error anywhere: paying customers get redirected to
+ * a machine that is not theirs, and the dashboard link in their confirmation
+ * email points at the same place. A misconfigured deploy has to fail loudly
+ * instead, so this throws.
+ */
 export function siteOrigin(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ??
-    'http://localhost:3000'
-  );
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
+  if (configured) return configured;
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'NEXT_PUBLIC_SITE_URL is not set. Stripe redirects, dashboard links and ' +
+        'forwarder redirects would all point at localhost. Set it to the ' +
+        'production origin (e.g. https://www.vouchify.ca) and redeploy.',
+    );
+  }
+
+  return 'http://localhost:3000';
 }
