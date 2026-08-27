@@ -9,7 +9,12 @@ import type {
   ShippingAddress,
   StandInput,
 } from '@/lib/store/types';
-import { PLACEMENTS_PER_LOCATION, getStandTier, placements } from '@/data/products';
+import {
+  PLACEMENTS_PER_LOCATION,
+  getStandTier,
+  placements,
+  platePlacements,
+} from '@/data/products';
 
 /**
  * Turns a paid order into physical stand records.
@@ -27,6 +32,21 @@ function placementFor(index: number): { number: number; label: string } {
   const round = Math.floor(index / placements.length);
   const suffix = round > 0 ? ` (location ${round + 1})` : '';
   return { number: index + 1, label: `${placement.label}${suffix}` };
+}
+
+/**
+ * Same idea as `placementFor`, cycling the plate's own placement list. `index`
+ * here is the plate's position among plates only (0 = the first plate in the
+ * order), never the order's combined stand+plate position — a plate-only
+ * order's first plate must read `platePlacements[0]` ("Inside the front
+ * window") whether or not the same order also has three stands ahead of it.
+ */
+function platePlacementFor(index: number): { label: string } {
+  const placement = platePlacements[index % platePlacements.length];
+  if (!placement) return { label: `Review plate ${index + 1}` };
+  const round = Math.floor(index / platePlacements.length);
+  const suffix = round > 0 ? ` (location ${round + 1})` : '';
+  return { label: `${placement.label}${suffix}` };
 }
 
 /**
@@ -77,26 +97,38 @@ function platesFromSession(session: Stripe.Checkout.Session): number {
 /**
  * Builds `count` plate inputs starting at `startIndex`.
  *
- * Plates don't have a position in the shop-placement sequence the way stands
- * do — a plate goes on a window, a POS terminal, a menu board, wherever a
- * stand cannot sit — so this doesn't call placementFor. It just numbers them
- * so they sort predictably after the order's stands, and labels the first
- * one plainly rather than always appending a redundant "1".
+ * Plates have their own placement vocabulary (window, door, POS terminal,
+ * menu board, table edge) instead of the stand's counter/terminal/waiting-area
+ * sequence, so labelling reads from `platePlacements` via `platePlacementFor`
+ * rather than the stand's `placementFor`.
+ *
+ * Two separate index concepts are threaded through on purpose: `startIndex`
+ * (plus `offset`) still numbers `placementNumber` sequentially across the
+ * *whole order* — stands first, then plates — so plates keep sorting after
+ * an order's stands on the dashboard and packing list exactly as before.
+ * `plateIndexStart` (plus `offset`) is the plate's own position among plates
+ * only, used solely to pick the label — it defaults to 0 for a fresh order's
+ * first batch of plates, and would be passed as "how many plates already
+ * exist on this order" by a future plate-append path, so the placement cycle
+ * continues rather than restarting at "Inside the front window" every time.
  */
 export function buildPlates({
   count,
   targetUrl,
   startIndex = 0,
+  plateIndexStart = 0,
 }: {
   count: number;
   targetUrl: string;
   startIndex?: number;
+  plateIndexStart?: number;
 }): StandInput[] {
   return Array.from({ length: count }, (_, offset) => {
     const n = startIndex + offset + 1;
+    const placement = platePlacementFor(plateIndexStart + offset);
     return {
       placementNumber: n,
-      placementLabel: count > 1 ? `Review plate ${offset + 1}` : 'Review plate',
+      placementLabel: placement.label,
       // Unused for a plate — every plate ships in the same fixed blue and
       // white finish, and every reader branches on `kind` before ever
       // looking at this field.

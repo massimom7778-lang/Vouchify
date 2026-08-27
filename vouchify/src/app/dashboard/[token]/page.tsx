@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { StandEditor } from './StandEditor';
-import { PlanDrawing } from '@/components/ShopPlan';
+import { PlanDrawing, PlatePlanDrawing } from '@/components/ShopPlan';
 import { Badge, Eyebrow, Grid, Section } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { describeCounts, pluralize } from '@/lib/format';
 import { getStore, isStorePersistent, type StandWithCounts } from '@/lib/store';
-import { PLACEMENTS_PER_LOCATION } from '@/data/products';
+import { PLACEMENTS_PER_LOCATION, PLATE_PLACEMENTS_PER_LOCATION } from '@/data/products';
 import { site } from '@/data/site';
 
 export const dynamic = 'force-dynamic';
@@ -57,6 +57,7 @@ export default async function DashboardPage({
     .filter((stand) => stand.targetUrl)
     .sort((a, b) => a.recentTaps - b.recentTaps)[0];
   const standsPlaced = standRows.length;
+  const platesPlaced = plateRows.length;
 
   return (
     <main id="main">
@@ -157,6 +158,37 @@ export default async function DashboardPage({
                 </div>
               ) : null}
             </div>
+
+            {/* The plan the plates were packed against. A plate has no
+                position in the stand's counter/terminal/waiting-area
+                sequence, so it gets its own drawing rather than sharing
+                the one above — a mixed order shows both. */}
+            {platesPlaced > 0 ? (
+              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <p className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                    Plate placements
+                  </p>
+                  <PlatePlanDrawing
+                    location={1}
+                    count={Math.min(platesPlaced, PLATE_PLACEMENTS_PER_LOCATION)}
+                    title="Plate placements"
+                  />
+                </div>
+                {platesPlaced > PLATE_PLACEMENTS_PER_LOCATION ? (
+                  <div>
+                    <p className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                      Second location plates
+                    </p>
+                    <PlatePlanDrawing
+                      location={2}
+                      count={platesPlaced}
+                      title="Second location plates"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </Grid>
       </Section>

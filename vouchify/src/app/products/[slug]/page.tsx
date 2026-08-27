@@ -128,8 +128,15 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
 
             {/* The other, real way to buy this: alongside a stand order, where
                 it is a genuine bundle discount rather than a marketing label —
-                the same price the checkout order bump actually charges. */}
-            {orderBump.addOnId === addOn.id && addOn.bumpPriceCents !== undefined ? (
+                the same price the checkout order bump actually charges.
+                TODO(plate-tier migration): orderBump.sku now points at a
+                plate-tier SKU ('plate-1'), never an AddOnId, so this
+                condition is permanently false on this route — it's dead
+                code left compiling on purpose. The equivalent "also buying
+                a stand?" bump callout belongs on the plate's own dedicated
+                page (see PLATE_SLUG in products.ts) once that page exists;
+                remove this block from here when that lands. */}
+            {(orderBump.sku as string) === addOn.id && addOn.bumpPriceCents !== undefined ? (
               <div className="mt-6 rounded-md border border-gold bg-gold-tint p-4">
                 <p className="text-sm font-semibold text-ink">Also buying a stand?</p>
                 <p className="mt-1 text-sm text-warm-700">

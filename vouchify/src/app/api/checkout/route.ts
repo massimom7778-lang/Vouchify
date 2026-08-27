@@ -108,7 +108,7 @@ export async function POST(request: Request) {
         // Provisioning reads this to label and colour the stand records.
         color: order.lines.find((line) => line.color)?.color ?? 'black',
         linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',
-        orderBump: parsed.data.bump ? orderBump.addOnId : '',
+        orderBump: parsed.data.bump ? orderBump.sku : '',
       },
       success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout?cancelled=1`,

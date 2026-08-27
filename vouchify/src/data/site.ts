@@ -5,6 +5,8 @@
  * headless CMS payload later means matching this shape and nothing else, * no component reads a hardcoded brand string.
  */
 
+import { PLATE_SLUG } from './products';
+
 export interface NavLink {
   readonly href: string;
   readonly label: string;
@@ -45,7 +47,7 @@ export const site = {
 
 export const primaryNav: readonly NavLink[] = [
   { href: '/products/nfc-review-stand', label: 'The Stand' },
-  { href: '/products/sticker', label: 'Review plate' },
+  { href: `/products/${PLATE_SLUG}`, label: 'Review plate' },
   { href: '/bundles', label: 'Bundles' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/faq', label: 'FAQ' },
@@ -58,7 +60,7 @@ export const footerNav: readonly { heading: string; links: readonly NavLink[] }[
     links: [
       { href: '/products/nfc-review-stand', label: 'The Stand' },
       { href: '/bundles', label: 'Bundles' },
-      { href: '/products/sticker', label: 'Review plate' },
+      { href: `/products/${PLATE_SLUG}`, label: 'Review plate' },
     ],
   },
   {

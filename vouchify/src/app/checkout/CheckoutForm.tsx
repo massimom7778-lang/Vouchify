@@ -15,7 +15,7 @@ import {
   useCart,
   useCartReady,
 } from '@/lib/cart';
-import { coreProduct, getAddOn, orderBump } from '@/data/products';
+import { coreProduct, getCatalogItem, orderBump } from '@/data/products';
 import { site } from '@/data/site';
 
 export function CheckoutForm() {
@@ -29,11 +29,11 @@ export function CheckoutForm() {
   const [status, setStatus] = useState<'idle' | 'starting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  const bumpItem = getAddOn(orderBump.addOnId);
+  const bumpItem = getCatalogItem(orderBump.sku);
   const bumpPrice = bumpItem?.bumpPriceCents ?? 0;
   // The bump offers the same SKU at a discount, so it makes no sense once
   // the customer has already added it at full price.
-  const bumpAlreadyInCart = lines.some((line) => line.sku === orderBump.addOnId);
+  const bumpAlreadyInCart = lines.some((line) => line.sku === orderBump.sku);
 
   // `bump_shown` has to be emitted from above the early returns below, because
   // a hook cannot sit after them. It re-derives the same condition the JSX uses
@@ -46,7 +46,7 @@ export function CheckoutForm() {
     const visible = resolveLines(lines).length > 0 && Boolean(bumpItem) && !bumpAlreadyInCart;
     if (!visible) return;
     bumpTracked.current = true;
-    emit(EVENTS.bumpShown, { sku: orderBump.addOnId });
+    emit(EVENTS.bumpShown, { sku: orderBump.sku });
   }, [ready, lines, bumpItem, bumpAlreadyInCart]);
 
   if (!ready) {
@@ -76,7 +76,7 @@ export function CheckoutForm() {
   const itemsTotal = resolved.reduce((sum, line) => sum + line.totalCents, 0);
   const withBump = itemsTotal + (bump ? bumpPrice : 0);
   const shipping = shippingState(
-    bump ? [...lines, { sku: orderBump.addOnId, qty: 1 }] : lines,
+    bump ? [...lines, { sku: orderBump.sku, qty: 1 }] : lines,
   );
   const shippingAmount = withBump >= site.freeShippingThresholdCents ? 0 : site.flatShippingCents;
   const total = withBump + shippingAmount;
@@ -226,7 +226,7 @@ export function CheckoutForm() {
                   onChange={(event) => {
                     setBump(event.target.checked);
                     emit(EVENTS.bumpToggled, {
-                      sku: orderBump.addOnId,
+                      sku: orderBump.sku,
                       accepted: event.target.checked,
                     });
                   }}

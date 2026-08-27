@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { addOns, standTiers } from '@/data/products';
+import { addOns, plateTiers, standTiers } from '@/data/products';
 
 const standTierIds = standTiers.map((tier) => tier.id) as [string, ...string[]];
+const plateTierIds = plateTiers.map((tier) => tier.id) as [string, ...string[]];
 const addOnIds = addOns.map((addOn) => addOn.id) as [string, ...string[]];
-const skuIds = [...standTierIds, ...addOnIds] as [string, ...string[]];
+const skuIds = [...standTierIds, ...plateTierIds, ...addOnIds] as [string, ...string[]];
 
 /**
  * The client sends what was chosen. It never sends a price — every amount is

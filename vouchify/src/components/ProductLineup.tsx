@@ -1,7 +1,15 @@
 
 import { Price } from '@/components/ui';
 import { FlipCard } from '@/components/FlipCard';
-import { CORE_SLUG, coreProduct, getAddOn, lineupBackFaces, UNIT_PRICE_CENTS } from '@/data/products';
+import {
+  CORE_SLUG,
+  PLATE_SLUG,
+  coreProduct,
+  plateProduct,
+  plateTiers,
+  lineupBackFaces,
+  UNIT_PRICE_CENTS,
+} from '@/data/products';
 import { cn } from '@/lib/cn';
 
 /**
@@ -219,8 +227,10 @@ interface LineupItem {
 }
 
 function items(): readonly [LineupItem, LineupItem] {
-  const plate = getAddOn('sticker');
-  if (!plate) throw new Error('The review plate is missing from the catalog.');
+  // The cheapest rung of the plate's own bundle ladder — the plate is no
+  // longer a single flat-priced add-on, so the lineup card quotes its entry
+  // price the same way the stand card quotes UNIT_PRICE_CENTS for one stand.
+  const plateEntry = plateTiers[0]!;
   return [
     {
       href: `/products/${CORE_SLUG}`,
@@ -235,14 +245,14 @@ function items(): readonly [LineupItem, LineupItem] {
         'Drawing of the black review stand, 76 millimetres wide by 127.5 millimetres tall, with the chip behind the upper face and a QR code printed below it.',
     },
     {
-      href: `/products/${plate.slug}`,
+      href: `/products/${PLATE_SLUG}`,
       kind: 'plate',
-      name: plate.name,
+      name: plateProduct.name,
       finish: 'Blue and white',
       size: '100 × 100 mm',
-      priceCents: plate.priceCents,
-      priceSuffix: 'each',
-      line: plate.shortLine,
+      priceCents: plateEntry.priceCents,
+      priceSuffix: 'for one',
+      line: 'Sticks flat to glass, counters, and menu boards. Sold in packs, from one to ten.',
       ariaLabel:
         'Drawing of the blue and white square review plate, 100 millimetres square, with the chip behind the centre of the face and a QR code printed below it.',
     },

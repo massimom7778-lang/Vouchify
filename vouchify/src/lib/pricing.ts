@@ -1,8 +1,6 @@
 import {
   getCatalogItem,
   orderBump,
-  getAddOn,
-  PLATE_SKU,
   type CatalogItem,
   type LinkMode,
 } from '@/data/products';
@@ -53,7 +51,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     const linkMode = item.kind === 'stand-tier' ? requested.linkMode : undefined;
 
     if (item.kind === 'stand-tier') standCount += item.qty * qty;
-    if (item.id === PLATE_SKU) plateCount += qty;
+    if (item.kind === 'plate-tier') plateCount += item.qty * qty;
     if (linkMode === 'per-unit') needsPerUnitLinks = true;
 
     lines.push({
@@ -73,7 +71,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
   }
 
   if (request.bump) {
-    const bumpItem = getAddOn(orderBump.addOnId);
+    const bumpItem = getCatalogItem(orderBump.sku);
     // The bump price lives in the catalog too — the client cannot name a price.
     if (bumpItem?.bumpPriceCents !== undefined) {
       lines.push({
@@ -83,7 +81,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
         totalCents: bumpItem.bumpPriceCents,
         label: `${bumpItem.name} (added at checkout)`,
       });
-      if (bumpItem.id === PLATE_SKU) plateCount += 1;
+      if (bumpItem.kind === 'plate-tier') plateCount += bumpItem.qty;
     }
   }
 
