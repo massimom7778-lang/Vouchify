@@ -315,7 +315,7 @@ export const addOns: readonly AddOn[] = [
     id: 'sticker',
     slug: 'sticker',
     name: 'Review plate',
-    priceCents: 1500,
+    priceCents: 2500,
     bumpPriceCents: 1100,
     slot: 'picker',
     hasPage: true,
