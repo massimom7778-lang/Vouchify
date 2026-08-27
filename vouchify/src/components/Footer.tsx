@@ -41,8 +41,8 @@ export function Footer() {
               Multi-location
             </h2>
             <p className="mt-4 text-sm text-warm-300">
-              Ten stands or more, or more than one address? We price the whole group and program each
-              location to its own review page.
+              More than {site.multiLocationMinUnits} stands, or more than one address? We price the
+              whole group and program each location to its own review page.
             </p>
             <Link
               href="/multi-location"

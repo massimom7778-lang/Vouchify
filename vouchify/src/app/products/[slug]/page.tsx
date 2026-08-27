@@ -11,7 +11,7 @@ import {
   Price,
   Section,
 } from '@/components/ui';
-import { addOnPages, coreProduct, orderBump, getAddOnBySlug } from '@/data/products';
+import { addOnPages, coreProduct, orderBump, priceRangeCents, getAddOnBySlug } from '@/data/products';
 import { site } from '@/data/site';
 import { formatMoney, priceForSchema } from '@/lib/format';
 
@@ -179,8 +179,8 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
             >
               <div>
                 <p className="font-display text-lg font-bold tracking-tight">The Stand</p>
-                <p className="mt-1 text-xs text-warm-400">
-                  The one that sits on the counter. From $39.
+                <p data-numeric className="mt-1 text-xs text-warm-400">
+                  The one that sits on the counter. From {formatMoney(priceRangeCents.low, { compact: true })}.
                 </p>
               </div>
               <span className="mt-6 text-sm font-semibold text-gold">Choose a bundle</span>

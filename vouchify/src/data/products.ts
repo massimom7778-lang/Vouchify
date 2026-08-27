@@ -8,7 +8,14 @@
  *    one-unit price at render time; there is no crossed-out MSRP anywhere.
  */
 
-export type StandTierId = 'stand-1' | 'stand-2' | 'stand-3' | 'stand-5' | 'stand-10';
+export type StandTierId =
+  | 'stand-1'
+  | 'stand-2'
+  | 'stand-3'
+  | 'stand-5'
+  | 'stand-10'
+  | 'stand-25'
+  | 'stand-50';
 export type AddOnId = 'sticker' | 'custom-print' | 'rush';
 export type Sku = StandTierId | AddOnId;
 
@@ -225,7 +232,7 @@ export const standTiers: readonly StandTier[] = [
     id: 'stand-5',
     name: '5 stands',
     qty: 5,
-    priceCents: 13900,
+    priceCents: 12900,
     shortLine: 'One per chair, bay, or table section.',
     rationale:
       'If your work happens at a station, a chair, a bay, a treatment room, the ask lands best right there, while the result is still in front of them. Five covers a typical floor with one spare.',
@@ -242,7 +249,7 @@ export const standTiers: readonly StandTier[] = [
     id: 'stand-10',
     name: '10 stands',
     qty: 10,
-    priceCents: 24900,
+    priceCents: 17900,
     shortLine: 'Two locations, fully covered, with spares.',
     rationale:
       'Each location can point at its own review page, we program them per location and label the boxes so your staff put the right ones out.',
@@ -251,6 +258,40 @@ export const standTiers: readonly StandTier[] = [
       id: 'tier-10',
       todo: 'Product photo, ten black stands in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review stands',
+      aspect: 'square',
+    },
+  },
+  {
+    kind: 'stand-tier',
+    id: 'stand-25',
+    name: '25 stands',
+    qty: 25,
+    priceCents: 39900,
+    shortLine: 'Several locations, fully covered.',
+    rationale:
+      'Several locations, each covered the way one location would be on its own, counter, terminal and waiting area, with spares left over. We program every stand to its own location’s link and label the boxes so the right ones land at the right address without anyone on your end double-checking.',
+    coverage: 'Several locations, per-location links, labelled boxes, with spares.',
+    photo: {
+      id: 'tier-25',
+      todo: 'Product photo, twenty-five black stands arranged in a grid, flat lay on off-white, overhead',
+      alt: 'Twenty-five NFC review stands',
+      aspect: 'square',
+    },
+  },
+  {
+    kind: 'stand-tier',
+    id: 'stand-50',
+    name: '50 stands',
+    qty: 50,
+    priceCents: 74900,
+    shortLine: 'A small chain, one rollout.',
+    rationale:
+      'A small chain, covered floor by floor rather than location by location. Every stand still gets its own location’s link and every box still arrives labelled, the difference at this size is that we plan the whole rollout as one order instead of coordinating several.',
+    coverage: 'A small chain, per-location links, labelled boxes, one rollout.',
+    photo: {
+      id: 'tier-50',
+      todo: 'Product photo, fifty black stands arranged in a grid, flat lay on off-white, overhead',
+      alt: 'Fifty NFC review stands',
       aspect: 'square',
     },
   },
@@ -610,9 +651,17 @@ export function tierEconomics(tier: StandTier): TierEconomics {
   };
 }
 
-/** Which numbered placements a tier actually fills. Replaces the badges. */
-export function coveredPositions(tier: StandTier): { from: number; to: number } {
-  return { from: 1, to: Math.min(tier.qty, placements.length) };
+/**
+ * Which numbered placements a tier actually fills, for the "01–10" badge next
+ * to a tier row. Null past `placements.length`: that list only names ten real
+ * positions across two locations, so a 25- or 50-stand tier has nothing
+ * distinct left to number, and showing "01–10" on all three of the 10-, 25-
+ * and 50-stand tiers would make the badge actively misleading rather than
+ * merely uninformative. Those tiers rely on `tier.coverage` alone.
+ */
+export function coveredPositions(tier: StandTier): { from: number; to: number } | null {
+  if (tier.qty > placements.length) return null;
+  return { from: 1, to: tier.qty };
 }
 
 export const priceRangeCents = {

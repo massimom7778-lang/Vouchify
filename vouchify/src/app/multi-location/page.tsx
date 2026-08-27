@@ -6,7 +6,7 @@ import { site } from '@/data/site';
 export const metadata: Metadata = {
   title: 'Multi-location quote',
   description:
-    'Ten stands or more, or more than one address: per-location review links, labelled boxes, and group pricing. Written quote within one business day.',
+    `More than ${site.multiLocationMinUnits} stands, or more than one address: per-location review links, labelled boxes, and group pricing. Written quote within one business day.`,
   alternates: { canonical: '/multi-location' },
 };
 

@@ -216,7 +216,9 @@ export default async function ProductPage({
       <Section tone="ink" rhythm="tight">
         <Grid className="items-center gap-y-6">
           <div className="col-span-4 md:col-span-7">
-            <h2 className="text-xl md:text-2xl">Ten or more, or more than one address?</h2>
+            <h2 className="text-xl md:text-2xl">
+              More than {site.multiLocationMinUnits}, or more than one address?
+            </h2>
             <p className="mt-3 max-w-prose text-base text-warm-300">
               We price the whole group, program each location to its own review page, and label the
               boxes so your staff put the right ones out.

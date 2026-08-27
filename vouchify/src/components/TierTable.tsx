@@ -48,6 +48,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
         <tbody>
           {standTiers.map((tier) => {
             const economics = tierEconomics(tier);
+            const coverage = coveredPositions(tier);
             const highlight = tier.id === DEFAULT_TIER_ID;
             return (
               <tr
@@ -65,7 +66,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                     >
                       {tier.qty}
                     </span>
-                    <Coverage {...coveredPositions(tier)} tone={onInk ? 'dark' : 'light'} />
+                    {coverage ? <Coverage {...coverage} tone={onInk ? 'dark' : 'light'} /> : null}
                   </span>
                 </th>
                 <td className="py-5 pr-4 align-top">
@@ -101,10 +102,11 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
         </tbody>
       </table>
 
-      {/* Mobile: the same five rows as stacked cards */}
+      {/* Mobile: the same rows as stacked cards */}
       <div className="flex flex-col gap-3 md:hidden">
         {standTiers.map((tier) => {
           const economics = tierEconomics(tier);
+          const coverage = coveredPositions(tier);
           const highlight = tier.id === DEFAULT_TIER_ID;
           return (
             <Link
@@ -131,9 +133,11 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                   </span>
                 </span>
               </span>
-              <span className="mt-2 block">
-                <Coverage {...coveredPositions(tier)} tone={onInk ? 'dark' : 'light'} />
-              </span>
+              {coverage ? (
+                <span className="mt-2 block">
+                  <Coverage {...coverage} tone={onInk ? 'dark' : 'light'} />
+                </span>
+              ) : null}
               <span className={cn('mt-2 block text-xs', muted)}>{tier.coverage}</span>
               {economics.savingsCents > 0 ? (
                 <span data-numeric className={cn('mt-1 block text-xs font-semibold', savings)}>

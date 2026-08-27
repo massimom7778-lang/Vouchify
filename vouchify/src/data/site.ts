@@ -24,8 +24,11 @@ export const site = {
   freeShippingThresholdCents: 7500,
   /** Flat shipping charged below the threshold, in cents. */
   flatShippingCents: 900,
-  /** Orders at or above this unit count are routed to the quote form, not checkout. */
-  multiLocationMinUnits: 10,
+  /** Orders above this unit count are routed to the quote form, not checkout.
+   *  Set to the qty of the largest purchasable stand tier, so that tier itself
+   *  still checks out normally and only a cart totalling more than it nudges
+   *  toward a quote. */
+  multiLocationMinUnits: 50,
   /** Post-purchase upsell window, in minutes. Validated server-side against the
    *  Stripe session's created timestamp, never against a client clock. */
   upsellWindowMinutes: 15,

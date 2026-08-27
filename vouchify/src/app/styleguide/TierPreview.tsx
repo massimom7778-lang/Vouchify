@@ -47,6 +47,7 @@ export function TierPreview() {
         <div className="flex flex-col gap-2">
           {standTiers.map((t) => {
             const economics = tierEconomics(t);
+            const coverage = coveredPositions(t);
             const selected = t.id === tierId;
             return (
               <label
@@ -79,7 +80,7 @@ export function TierPreview() {
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="font-display text-lg font-bold tracking-tight">{t.name}</span>
-                    <Coverage {...coveredPositions(t)} />
+                    {coverage ? <Coverage {...coverage} /> : null}
                   </span>
                   <span className="mt-0.5 block text-xs text-warm-600">
                     {economics.savingsCents > 0 ? (

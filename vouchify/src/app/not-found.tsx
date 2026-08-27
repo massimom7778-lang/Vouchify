@@ -55,7 +55,11 @@ export default function NotFound() {
                 { href: '/bundles', label: 'Bundles', note: 'Every size drawn on the same floor plan.' },
                 { href: '/how-it-works', label: 'How it works', note: 'What happens when a customer taps.' },
                 { href: '/faq', label: 'FAQ', note: 'Phones, shipping, and Google’s review policy.' },
-                { href: '/multi-location', label: 'Multi-location quote', note: 'Ten stands or more.' },
+                {
+                  href: '/multi-location',
+                  label: 'Multi-location quote',
+                  note: `More than ${site.multiLocationMinUnits} stands.`,
+                },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="group block py-4">

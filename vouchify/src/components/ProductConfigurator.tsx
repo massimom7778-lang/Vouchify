@@ -37,6 +37,7 @@ function TierRow({
   onSelect: () => void;
 }) {
   const economics = tierEconomics(tier);
+  const coverage = coveredPositions(tier);
   return (
     // Two rows rather than three columns: at 375px a narrow middle column made
     // the reasoning wrap to three lines while the price column sat half empty.
@@ -55,9 +56,10 @@ function TierRow({
         className="sr-only"
       />
 
-      {/* Line 1 is always [select] [quantity] ... [price]. The badge sits with
-          the reasoning on line 2 so that "10 stands / For multi-location / $249"
-          cannot overflow a 375px row. */}
+      {/* Line 1 is always [select] [quantity] ... [price]. The coverage badge
+          and reasoning sit on line 2 so a long combination, e.g. "50 stands
+          / A small chain, several floors covered with spares / $749", wraps
+          onto its own line instead of overflowing a 375px row. */}
       <span className="flex items-center gap-3">
         <span
           aria-hidden="true"
@@ -80,7 +82,7 @@ function TierRow({
       </span>
 
       <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 pl-8">
-        <Coverage {...coveredPositions(tier)} />
+        {coverage ? <Coverage {...coverage} /> : null}
         <span className="min-w-0 text-xs text-warm-700">{tier.coverage}</span>
         {economics.savingsCents > 0 ? (
           <span data-numeric className="basis-full text-xs font-semibold text-gold-deep">

@@ -4,6 +4,8 @@
  * and the rendered page can never say different things.
  */
 
+import { site } from './site';
+
 export type FaqTopic = 'phones' | 'setup' | 'shipping' | 'policy' | 'product';
 
 export interface FaqEntry {
@@ -141,7 +143,7 @@ export const faqs: readonly FaqEntry[] = [
     question: 'Can each location point at its own review page?',
     answer: [
       'Yes. We program each location’s stands to its own review link and label the boxes, so staff put the right ones out without checking with you.',
-      'For ten or more, ask for a multi-location quote instead of ordering through checkout, it is priced for the whole group.',
+      `For more than ${site.multiLocationMinUnits}, ask for a multi-location quote instead of ordering through checkout, it is priced for the whole group.`,
     ],
     topics: ['setup'],
   },

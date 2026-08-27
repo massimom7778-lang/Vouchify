@@ -55,6 +55,7 @@ export default function BundlesPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {standTiers.map((tier) => {
             const economics = tierEconomics(tier);
+            const coverage = coveredPositions(tier);
             const highlight = tier.id === DEFAULT_TIER_ID;
             return (
               <div
@@ -95,9 +96,11 @@ export default function BundlesPage() {
                 <p className="mt-4 text-xs text-warm-700">{tier.coverage}</p>
 
                 <div className="mt-auto pt-4">
-                  <div className="mb-3">
-                    <Coverage {...coveredPositions(tier)} />
-                  </div>
+                  {coverage ? (
+                    <div className="mb-3">
+                      <Coverage {...coverage} />
+                    </div>
+                  ) : null}
                   <ButtonLink
                     href={`/products/${coreProduct.slug}?tier=${tier.id}`}
                     variant={highlight ? 'primary' : 'outline'}
@@ -112,8 +115,8 @@ export default function BundlesPage() {
           })}
         </div>
         <p className="mt-4 text-xs text-warm-600">
-          Numbered dots are placement positions, filled in the order they earn their keep. The 10-pack
-          fills a second floor plan because that is what it is for.
+          Numbered dots are placement positions, filled in the order they earn their keep. From the
+          10-pack up, both floor plans fill, because two locations is what that many stands are for.
         </p>
       </Section>
 
@@ -132,14 +135,14 @@ export default function BundlesPage() {
       <Section tone="ink" bordered>
         <Grid className="gap-y-8">
           <div className="col-span-4 md:col-span-6">
-            <Eyebrow tone="onDark">Past ten</Eyebrow>
+            <Eyebrow tone="onDark">Past {site.multiLocationMinUnits}</Eyebrow>
             <h2 className="mt-4 text-2xl md:text-3xl">
               More than {site.multiLocationMinUnits} stands is a quote, not a checkout.
             </h2>
             <p className="mt-5 max-w-prose text-base text-warm-300">
-              Above ten the order stops being a shopping cart problem. Each location needs its own
-              review link, the boxes need labelling so staff put the right ones out, and the price
-              should reflect the whole group rather than the biggest listed bundle.
+              Above {site.multiLocationMinUnits} the order stops being a shopping cart problem. Each
+              location needs its own review link, the boxes need labelling so staff put the right ones
+              out, and the price should reflect the whole group rather than the biggest listed bundle.
             </p>
             <p className="mt-4 max-w-prose text-base text-warm-300">
               Tell us how many addresses and how many stands per address. You get a written quote
