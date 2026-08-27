@@ -68,6 +68,45 @@ function standsFromSession(session: Stripe.Checkout.Session): {
   return { count, color };
 }
 
+/** How many review plates a paid session bought. */
+function platesFromSession(session: Stripe.Checkout.Session): number {
+  const fromMetadata = Number(session.metadata?.plateCount ?? 0);
+  return Number.isFinite(fromMetadata) && fromMetadata > 0 ? fromMetadata : 0;
+}
+
+/**
+ * Builds `count` plate inputs starting at `startIndex`.
+ *
+ * Plates don't have a position in the shop-placement sequence the way stands
+ * do — a plate goes on a window, a POS terminal, a menu board, wherever a
+ * stand cannot sit — so this doesn't call placementFor. It just numbers them
+ * so they sort predictably after the order's stands, and labels the first
+ * one plainly rather than always appending a redundant "1".
+ */
+export function buildPlates({
+  count,
+  targetUrl,
+  startIndex = 0,
+}: {
+  count: number;
+  targetUrl: string;
+  startIndex?: number;
+}): StandInput[] {
+  return Array.from({ length: count }, (_, offset) => {
+    const n = startIndex + offset + 1;
+    return {
+      placementNumber: n,
+      placementLabel: count > 1 ? `Review plate ${offset + 1}` : 'Review plate',
+      // Unused for a plate — every plate ships in the same fixed blue and
+      // white finish, and every reader branches on `kind` before ever
+      // looking at this field.
+      color: 'white' as const,
+      targetUrl,
+      kind: 'plate' as const,
+    };
+  });
+}
+
 /**
  * The shipping address Stripe collected at checkout.
  *
@@ -119,18 +158,20 @@ export async function provisionFromCheckoutSession(
   if (existing) return { order: existing, created: false };
 
   const { count, color } = standsFromSession(session);
-  // `count` can legitimately be 0 — an order for a review plate with no stand
-  // tier in it, say. Every paid Checkout Session had a non-empty cart
-  // (enforced client- and server-side before Stripe was ever called), so an
-  // order record is created here regardless of what was bought. Bailing out
-  // on count === 0 used to mean a paid, stand-less order left no trace
-  // anywhere but Stripe: no row in the store, no dashboard token, no
-  // confirmation email, nothing to look up if the customer wrote in asking
-  // where their order was.
+  const plateCount = platesFromSession(session);
+  // `count` (and `plateCount`) can legitimately be 0 — an order for a review
+  // plate with no stand tier in it, say. Every paid Checkout Session had a
+  // non-empty cart (enforced client- and server-side before Stripe was ever
+  // called), so an order record is created here regardless of what was
+  // bought. Bailing out used to mean a paid order with nothing bought that
+  // this function recognised left no trace anywhere but Stripe: no row in
+  // the store, no dashboard token, no confirmation email, nothing to look up
+  // if the customer wrote in asking where their order was.
 
   // A shared link plan points every stand at the one link the customer gave us.
   // A per-unit plan leaves the targets blank on purpose: the owner fills them in
-  // from the dashboard, or replies to the email asking for them.
+  // from the dashboard, or replies to the email asking for them. Plates are
+  // never offered a per-unit link plan today, so they always take this target.
   const perUnit = session.metadata?.linkPlan === 'per-unit';
   const sharedTarget = perUnit ? '' : (session.metadata?.reviewLink ?? '').trim();
 
@@ -138,7 +179,13 @@ export async function provisionFromCheckoutSession(
     checkoutSessionId: session.id,
     email: session.customer_details?.email ?? null,
     shipping: shippingFromSession(session),
-    stands: buildStands({ count, color, targetUrl: sharedTarget }),
+    // Plates are numbered to sort after the order's stands, not interleaved
+    // with them — the packing list and dashboard read top to bottom as
+    // "stands, then plates".
+    stands: [
+      ...buildStands({ count, color, targetUrl: sharedTarget }),
+      ...buildPlates({ count: plateCount, targetUrl: sharedTarget, startIndex: count }),
+    ],
   };
 
   return store.provisionOrder(input);

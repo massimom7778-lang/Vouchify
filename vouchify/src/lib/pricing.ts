@@ -2,6 +2,7 @@ import {
   getCatalogItem,
   orderBump,
   getAddOn,
+  PLATE_SKU,
   type CatalogItem,
   type LinkMode,
 } from '@/data/products';
@@ -24,6 +25,10 @@ export interface PricedOrder {
   readonly shippingCents: number;
   readonly totalCents: number;
   readonly standCount: number;
+  /** Review plates in the order — the checkout order-bump line included.
+   *  Tracked separately from standCount because a plate is provisioned as
+   *  its own trackable unit, not folded into a stand pack. */
+  readonly plateCount: number;
   /** True when any pack in the order needs a link encoded per stand. */
   readonly needsPerUnitLinks: boolean;
 }
@@ -36,6 +41,7 @@ export interface PricedOrder {
 export function priceOrder(request: CheckoutRequest): PricedOrder {
   const lines: PricedLine[] = [];
   let standCount = 0;
+  let plateCount = 0;
   let needsPerUnitLinks = false;
 
   for (const requested of request.lines) {
@@ -47,6 +53,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     const linkMode = item.kind === 'stand-tier' ? requested.linkMode : undefined;
 
     if (item.kind === 'stand-tier') standCount += item.qty * qty;
+    if (item.id === PLATE_SKU) plateCount += qty;
     if (linkMode === 'per-unit') needsPerUnitLinks = true;
 
     lines.push({
@@ -76,6 +83,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
         totalCents: bumpItem.bumpPriceCents,
         label: `${bumpItem.name} (added at checkout)`,
       });
+      if (bumpItem.id === PLATE_SKU) plateCount += 1;
     }
   }
 
@@ -89,6 +97,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     shippingCents: shipping,
     totalCents: subtotal + shipping,
     standCount,
+    plateCount,
     needsPerUnitLinks,
   };
 }

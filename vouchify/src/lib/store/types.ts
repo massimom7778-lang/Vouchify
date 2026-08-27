@@ -10,15 +10,31 @@
  * privacy page promises.
  */
 
+/**
+ * A stand is the physical counter unit; a plate is the flat NFC square that
+ * mounts where a stand cannot. Both are one NTAG215 chip, one short code, and
+ * one row in this table — a plate is not a lesser thing tracked elsewhere, it
+ * is the same kind of record with a different label and no shop-placement
+ * position. `kind` is what every reader (the dashboard, the packing list,
+ * the CSV export) branches on to tell them apart.
+ */
+export type StandKind = 'stand' | 'plate';
+
 export interface Stand {
   /** The short code printed on the chip and the QR. Immutable. */
   readonly code: string;
   readonly orderId: string;
-  /** Which placement this stand was packed for, e.g. "Checkout counter". */
+  readonly kind: StandKind;
+  /** Which placement this stand was packed for, e.g. "Checkout counter".
+   *  For a plate this is just "Review plate" (or numbered, past the first) —
+   *  plates do not have a position in the shop-placement sequence. */
   readonly placementLabel: string;
   readonly placementNumber: number;
   /** Where a tap goes. Empty until the owner supplies a review link. */
   readonly targetUrl: string;
+  /** Meaningful for a stand's actual finish. A plate ships in one fixed blue
+   *  and white finish regardless of this value — readers branch on `kind`
+   *  before ever looking at `color`. */
   readonly color: 'black' | 'white';
   readonly createdAt: string;
   readonly targetUpdatedAt: string | null;
@@ -78,12 +94,15 @@ export interface StandWithCounts extends Stand {
   readonly lastTapDay: string | null;
 }
 
-/** One physical stand to create. Shared by the initial order and later appends. */
+/** One physical stand or plate to create. Shared by the initial order and
+ *  later appends. `kind` defaults to 'stand' when omitted, so every existing
+ *  call site that only ever built stands keeps compiling unchanged. */
 export interface StandInput {
   readonly placementNumber: number;
   readonly placementLabel: string;
   readonly color: 'black' | 'white';
   readonly targetUrl: string;
+  readonly kind?: StandKind;
 }
 
 export interface ProvisionInput {

@@ -58,15 +58,17 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
     // Provisioning is idempotent on the session id, so a refresh is harmless.
     // The webhook calls the same function; whichever arrives first creates the
     // order, and whichever created it sends the confirmation. A session with
-    // no stand tier in it (a review-plate-only order, say) still gets
-    // provisioned — it just has nothing for a dashboard to show, so the card
-    // below stays hidden rather than linking to an empty one.
+    // nothing trackable in it still gets provisioned — it just has nothing
+    // for a dashboard to show, so the card below stays hidden rather than
+    // linking to an empty one. A plate-only order does have a dashboard: a
+    // plate is provisioned as its own trackable unit, same as a stand.
     const sessionStandCount = Number(session.metadata?.standCount ?? 0) || 0;
+    const sessionPlateCount = Number(session.metadata?.plateCount ?? 0) || 0;
     let dashboardUrl: string | null = null;
     try {
       const result = await provisionFromCheckoutSession(session);
       if (result) {
-        if (sessionStandCount > 0) {
+        if (sessionStandCount > 0 || sessionPlateCount > 0) {
           dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
         }
         // This page creating the order used to mean no confirmation was ever

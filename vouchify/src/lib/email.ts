@@ -1,5 +1,6 @@
 import 'server-only';
 import { site } from '@/data/site';
+import { describeCounts } from '@/lib/format';
 
 /**
  * 'email'  — accepted by Resend.
@@ -85,17 +86,19 @@ export async function sendEmail(message: OutboundEmail): Promise<Delivery> {
 export function orderConfirmationText({
   dashboardUrl,
   standCount,
+  plateCount,
   reviewLink,
   perUnitLinks,
 }: {
   /** Null when there is nothing to manage from a dashboard yet — an order
-   *  with no stand tier in it, for instance. */
+   *  with no stand or plate in it, for instance. */
   dashboardUrl: string | null;
   standCount: number;
+  plateCount: number;
   reviewLink: string;
   perUnitLinks: boolean;
 }): string {
-  const stands = `${standCount} stand${standCount === 1 ? '' : 's'}`;
+  const items = describeCounts(standCount, plateCount);
 
   const body: string[] = [
     `Thanks, your order is in.`,
@@ -109,13 +112,13 @@ export function orderConfirmationText({
       `YOUR DASHBOARD`,
       dashboardUrl,
       ``,
-      `That link changes where each stand points and shows how many taps each one is getting. It is also printed on a card in your box. Anyone who has it can re-point your stands, so keep it somewhere only staff you trust can reach.`,
+      `That link changes where each stand or plate points and shows how many taps each one is getting. It is also printed on a card in your box. Anyone who has it can re-point them, so keep it somewhere only staff you trust can reach.`,
       ``,
       perUnitLinks
         ? `You asked for a separate link per stand. Open the dashboard and set each one, or reply to this email with the links and we will do it before we program them.`
         : reviewLink
-          ? `We are programming all ${stands} to:\n${reviewLink}`
-          : `We do not have your Google review link yet. Reply to this email with it, or paste it into the dashboard, and we will program ${stands} to it.`,
+          ? `We are programming ${items} to:\n${reviewLink}`
+          : `We do not have your Google review link yet. Reply to this email with it, or paste it into the dashboard, and we will program ${items} to it.`,
     );
   } else {
     body.push(

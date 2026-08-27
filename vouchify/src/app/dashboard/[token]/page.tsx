@@ -4,7 +4,7 @@ import { StandEditor } from './StandEditor';
 import { PlanDrawing } from '@/components/ShopPlan';
 import { Badge, Eyebrow, Grid, Section } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { pluralize } from '@/lib/format';
+import { describeCounts, pluralize } from '@/lib/format';
 import { getStore, isStorePersistent, type StandWithCounts } from '@/lib/store';
 import { PLACEMENTS_PER_LOCATION } from '@/data/products';
 import { site } from '@/data/site';
@@ -44,6 +44,11 @@ export default async function DashboardPage({
   if (!order) notFound();
 
   const stands = await store.listStands(order.id, RECENT_DAYS);
+  // Plates are provisioned as trackable units too, but they have no position
+  // in the shop-placement drawing the way a stand does, so the plan below
+  // counts only real stands. The list further down shows everything.
+  const standRows = stands.filter((stand) => stand.kind !== 'plate');
+  const plateRows = stands.filter((stand) => stand.kind === 'plate');
   const recentTotal = stands.reduce((sum, stand) => sum + stand.recentTaps, 0);
   const allTime = stands.reduce((sum, stand) => sum + stand.totalTaps, 0);
   const unset = stands.filter((stand) => !stand.targetUrl).length;
@@ -51,7 +56,7 @@ export default async function DashboardPage({
   const quietest = [...stands]
     .filter((stand) => stand.targetUrl)
     .sort((a, b) => a.recentTaps - b.recentTaps)[0];
-  const standsPlaced = stands.length;
+  const standsPlaced = standRows.length;
 
   return (
     <main id="main">
@@ -62,7 +67,7 @@ export default async function DashboardPage({
           <div className="col-span-4 md:col-span-7">
             <Eyebrow>Your stands</Eyebrow>
             <h1 className="mt-4 text-2xl md:text-3xl">
-              {standsPlaced} {pluralize(standsPlaced, 'stand')}, and where each one points.
+              {describeCounts(standRows.length, plateRows.length)}, and where each one points.
             </h1>
           </div>
           <div className="col-span-4 self-end md:col-span-4 md:col-start-9">
@@ -99,7 +104,9 @@ export default async function DashboardPage({
               </div>
               {unset > 0 ? (
                 <div className="flex items-baseline justify-between gap-4 py-4">
-                  <dt className="text-sm text-warm-700">Stands with no link yet</dt>
+                  <dt className="text-sm text-warm-700">
+                    {plateRows.length > 0 ? 'With no link yet' : 'Stands with no link yet'}
+                  </dt>
                   <dd>
                     <Badge tone="popular">{unset}</Badge>
                   </dd>
@@ -123,8 +130,8 @@ export default async function DashboardPage({
             )}
 
             <p className="mt-5 text-xs text-warm-600">
-              A tap increments a counter for one stand, for one day. Nothing about the customer is
-              recorded, no address, no agent, no cookie.
+              A tap increments a counter for one stand or plate, for one day. Nothing about the
+              customer is recorded, no address, no agent, no cookie.
             </p>
           </div>
 
@@ -155,10 +162,12 @@ export default async function DashboardPage({
       </Section>
 
       <Section bordered>
-        <h2 className="text-xl md:text-2xl">Every stand</h2>
+        <h2 className="text-xl md:text-2xl">
+          {plateRows.length > 0 ? 'Every stand and plate' : 'Every stand'}
+        </h2>
         <p className="mt-3 max-w-prose text-sm text-warm-700">
-          The code is printed on the back of each stand, so you can match a row here to the one on
-          the counter without guessing.
+          The code is printed on the back of each one, so you can match a row here to the one on
+          the counter or the window without guessing.
         </p>
 
         <ul className="mt-8 divide-y divide-warm-300 border-y border-warm-300">
@@ -177,7 +186,11 @@ export default async function DashboardPage({
                       {stand.code}
                     </span>
                     <span className="text-2xs uppercase tracking-wide text-warm-600">
-                      {stand.color === 'white' ? 'White' : 'Black'}
+                      {stand.kind === 'plate'
+                        ? 'Review plate'
+                        : stand.color === 'white'
+                          ? 'White'
+                          : 'Black'}
                     </span>
                     <span className="text-2xs text-warm-600">
                       {site.url.replace(/^https?:\/\//, '')}/r/{stand.code}
@@ -223,8 +236,8 @@ export default async function DashboardPage({
             <h2 className="text-lg">Keep this link private</h2>
             <p className="mt-3 text-sm text-warm-700">
               This page has no password on purpose, the link on the card in your box is the key.
-              Anyone who has it can re-point your stands, so treat it like the key to the till and do
-              not post it anywhere public.
+              Anyone who has it can re-point your stands and plates, so treat it like the key to the
+              till and do not post it anywhere public.
             </p>
           </div>
           <div className="col-span-4 md:col-span-5 md:col-start-8">
@@ -237,8 +250,8 @@ export default async function DashboardPage({
               >
                 {site.supportEmail}
               </a>{' '}
-              with a stand code and we will look at that exact one. If a chip has failed we ship a
-              programmed replacement free.
+              with a stand or plate code and we will look at that exact one. If a chip has failed we
+              ship a programmed replacement free.
             </p>
           </div>
         </Grid>

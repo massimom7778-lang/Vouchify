@@ -304,6 +304,11 @@ export const DEFAULT_TIER_ID: StandTierId = 'stand-3';
 /* Add-ons                                                                     */
 /* -------------------------------------------------------------------------- */
 
+/** The one add-on that is itself an NFC chip, provisioned and tracked exactly
+ *  like a stand rather than as a plain accessory line. If a second plate-like
+ *  SKU is ever added, this becomes the set to check against instead. */
+export const PLATE_SKU: AddOnId = 'sticker';
+
 export const addOns: readonly AddOn[] = [
   {
     kind: 'add-on',

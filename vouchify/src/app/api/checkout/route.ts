@@ -4,6 +4,7 @@ import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
 import { priceOrder, type PricedOrder } from '@/lib/pricing';
 import { checkoutRequestSchema } from '@/lib/schemas';
 import { orderBump } from '@/data/products';
+import { describeCounts } from '@/lib/format';
 import { site } from '@/data/site';
 
 export const runtime = 'nodejs';
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
       customer_creation: 'always',
       payment_intent_data: {
         setup_future_usage: 'off_session',
-        description: `${site.name} order — ${order.standCount} stands`,
+        description: `${site.name} order — ${describeCounts(order.standCount, order.plateCount)}`,
       },
       shipping_address_collection: { allowed_countries: ['CA', 'US'] },
       shipping_options: [
@@ -98,6 +99,9 @@ export async function POST(request: Request) {
       metadata: {
         reviewLink: parsed.data.reviewLink ?? '',
         standCount: String(order.standCount),
+        // Read by provisioning to give every plate its own trackable code,
+        // exactly like a stand — see plateCount in provision.ts.
+        plateCount: String(order.plateCount),
         // The largest pack in the order, carried through so the thank-you page
         // can attribute the purchase to a tier without re-expanding line items.
         tierId: primaryTierId(order),

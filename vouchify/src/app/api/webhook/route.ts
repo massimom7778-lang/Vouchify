@@ -92,6 +92,7 @@ async function fulfil(session: Stripe.Checkout.Session): Promise<void> {
           `Email: ${session.customer_details?.email ?? 'unknown'}`,
           `Amount: ${session.amount_total ?? 'unknown'} ${session.currency ?? ''}`,
           `standCount metadata: ${session.metadata?.standCount ?? '(missing)'}`,
+          `plateCount metadata: ${session.metadata?.plateCount ?? '(missing)'}`,
         ],
       });
     } else {

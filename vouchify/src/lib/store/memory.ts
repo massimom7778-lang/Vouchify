@@ -69,6 +69,7 @@ function insertStands(
     const record: Stand = {
       code,
       orderId,
+      kind: stand.kind ?? 'stand',
       placementLabel: stand.placementLabel,
       placementNumber: stand.placementNumber,
       targetUrl: stand.targetUrl,

@@ -83,18 +83,23 @@ export async function sendOrderConfirmation({
   }
 
   const standCount = Number(session.metadata?.standCount ?? 0);
+  const plateCount = Number(session.metadata?.plateCount ?? 0);
 
   const delivery = await sendEmail({
     to,
     subject: `Your ${site.name} order`,
     replyTo: site.supportEmail,
     text: orderConfirmationText({
-      // No stand tier in this order means there is nothing to manage from a
-      // dashboard yet — a review-plate-only order, say — so the email skips
-      // the dashboard block rather than pointing at one with nothing in it.
+      // Nothing trackable in this order — a per-order service bought with no
+      // stand or plate, which the current UI never actually produces on its
+      // own — means there's nothing to manage from a dashboard, so the email
+      // skips that block rather than pointing at one with nothing in it.
       dashboardUrl:
-        standCount > 0 ? `${siteOrigin()}/dashboard/${order.dashboardToken}` : null,
+        standCount > 0 || plateCount > 0
+          ? `${siteOrigin()}/dashboard/${order.dashboardToken}`
+          : null,
       standCount,
+      plateCount,
       reviewLink: session.metadata?.reviewLink ?? '',
       perUnitLinks: session.metadata?.linkPlan === 'per-unit',
     }),

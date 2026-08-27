@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { checkAdmin } from '@/lib/admin-auth';
 import { getStore, isStorePersistent, type FulfillmentOrder } from '@/lib/store';
+import { describeCounts } from '@/lib/format';
 import { site } from '@/data/site';
 
 export const runtime = 'nodejs';
@@ -65,6 +66,18 @@ function sharedTarget(order: FulfillmentOrder): string {
   return targets.size === 1 ? (order.stands[0]?.targetUrl ?? '') : '';
 }
 
+/** Plates have no shop-placement position and a fixed finish, so several
+ *  facts on this page (colour, the shared "stand_count" column) only make
+ *  sense computed over the stand-kind rows. */
+function splitByKind(order: FulfillmentOrder): {
+  standItems: FulfillmentOrder['stands'][number][];
+  plateItems: FulfillmentOrder['stands'][number][];
+} {
+  const standItems = order.stands.filter((stand) => stand.kind !== 'plate');
+  const plateItems = order.stands.filter((stand) => stand.kind === 'plate');
+  return { standItems, plateItems };
+}
+
 function addressLines(order: FulfillmentOrder): string[] {
   const { shipping } = order;
   const region = [shipping.city, shipping.region, shipping.postalCode]
@@ -87,6 +100,7 @@ function toCsv(orders: FulfillmentOrder[]): string {
     'fulfilled_at',
     'email',
     'stand_count',
+    'plate_count',
     'colour',
     'link_plan',
     'shared_target',
@@ -98,6 +112,7 @@ function toCsv(orders: FulfillmentOrder[]): string {
     'ship_postal',
     'ship_country',
     'ship_phone',
+    'item_kind',
     'stand_code',
     'placement_number',
     'placement_label',
@@ -106,13 +121,15 @@ function toCsv(orders: FulfillmentOrder[]): string {
 
   const rows: string[] = [header.join(',')];
   for (const order of orders) {
+    const { standItems } = splitByKind(order);
     const base = [
       order.id,
       order.createdAt,
       order.fulfilledAt ?? '',
       order.email ?? '',
-      order.stands.length,
-      order.stands[0]?.color ?? '',
+      standItems.length,
+      order.stands.length - standItems.length,
+      standItems[0]?.color ?? '',
       linkPlan(order),
       sharedTarget(order),
       order.shipping.name ?? '',
@@ -124,14 +141,21 @@ function toCsv(orders: FulfillmentOrder[]): string {
       order.shipping.country ?? '',
       order.shipping.phone ?? '',
     ];
-    // One row per stand: the encoding bench works stand by stand.
+    // One row per stand or plate: the encoding bench works unit by unit.
     if (order.stands.length === 0) {
-      rows.push([...base, '', '', '', ''].map(csvCell).join(','));
+      rows.push([...base, '', '', '', '', ''].map(csvCell).join(','));
       continue;
     }
     for (const stand of order.stands) {
       rows.push(
-        [...base, stand.code, stand.placementNumber, stand.placementLabel, stand.targetUrl]
+        [
+          ...base,
+          stand.kind,
+          stand.code,
+          stand.placementNumber,
+          stand.placementLabel,
+          stand.targetUrl,
+        ]
           .map(csvCell)
           .join(','),
       );
@@ -142,13 +166,21 @@ function toCsv(orders: FulfillmentOrder[]): string {
 
 function renderHtml(orders: FulfillmentOrder[], days: number, token: string): string {
   const pending = orders.filter((order) => !order.fulfilledAt);
-  const standsToEncode = pending.reduce((sum, order) => sum + order.stands.length, 0);
+  const pendingStandCount = pending.reduce(
+    (sum, order) => sum + splitByKind(order).standItems.length,
+    0,
+  );
+  const pendingPlateCount = pending.reduce(
+    (sum, order) => sum + splitByKind(order).plateItems.length,
+    0,
+  );
 
   const cards = orders
     .map((order) => {
       const done = Boolean(order.fulfilledAt);
       const address = addressLines(order);
       const target = sharedTarget(order);
+      const { standItems, plateItems } = splitByKind(order);
 
       const standRows = order.stands
         .map(
@@ -181,8 +213,8 @@ function renderHtml(orders: FulfillmentOrder[], days: number, token: string): st
         </header>
 
         <dl class="facts">
-          <div><dt>Quantity</dt><dd>${order.stands.length} stands</dd></div>
-          <div><dt>Colour</dt><dd>${escapeHtml(order.stands[0]?.color ?? '—')}</dd></div>
+          <div><dt>Quantity</dt><dd>${escapeHtml(describeCounts(standItems.length, plateItems.length))}</dd></div>
+          <div><dt>Colour</dt><dd>${escapeHtml(standItems[0]?.color ?? (plateItems.length ? 'n/a (plate only)' : '—'))}</dd></div>
           <div><dt>Link plan</dt><dd>${escapeHtml(linkPlan(order))}</dd></div>
           <div><dt>Shared link</dt><dd class="wrap">${target ? escapeHtml(target) : '—'}</dd></div>
         </dl>
@@ -192,7 +224,7 @@ function renderHtml(orders: FulfillmentOrder[], days: number, token: string): st
             <h3>Encode</h3>
             <table>
               <thead><tr><th>Code</th><th>Placement</th><th>Points at</th></tr></thead>
-              <tbody>${standRows || '<tr><td colspan="3" class="muted">No stands on this order.</td></tr>'}</tbody>
+              <tbody>${standRows || '<tr><td colspan="3" class="muted">Nothing to encode on this order.</td></tr>'}</tbody>
             </table>
           </section>
           <section>
@@ -263,7 +295,7 @@ function renderHtml(orders: FulfillmentOrder[], days: number, token: string): st
       <h1>Fulfillment</h1>
       <p class="muted">
         Last ${days} days · ${orders.length} orders ·
-        <strong>${pending.length} to pack (${standsToEncode} stands)</strong>
+        <strong>${pending.length} to pack (${escapeHtml(describeCounts(pendingStandCount, pendingPlateCount))})</strong>
       </p>
     </div>
     <p class="muted">

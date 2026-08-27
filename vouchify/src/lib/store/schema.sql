@@ -45,6 +45,11 @@ CREATE TABLE IF NOT EXISTS stands (
   target_updated_at  TIMESTAMPTZ
 );
 
+-- 'stand' or 'plate'. Both are one NTAG215 chip and one row here; this is the
+-- only thing that tells a reader which physical product a row is. Existing
+-- rows backfill to 'stand', which is what every one of them actually is.
+ALTER TABLE stands ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'stand';
+
 CREATE INDEX IF NOT EXISTS stands_order_id_idx ON stands (order_id);
 
 -- Every append of extra stands to an existing order, keyed by the thing that

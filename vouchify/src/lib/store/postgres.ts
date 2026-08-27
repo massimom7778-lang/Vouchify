@@ -61,6 +61,7 @@ interface StandRow {
   placement_label: string;
   target_url: string;
   color: string;
+  kind: string;
   created_at: Date;
   target_updated_at: Date | null;
 }
@@ -90,6 +91,7 @@ function toStand(row: StandRow): Stand {
   return {
     code: row.code,
     orderId: row.order_id,
+    kind: row.kind === 'plate' ? 'plate' : 'stand',
     placementLabel: row.placement_label,
     placementNumber: row.placement_number,
     targetUrl: row.target_url,
@@ -119,9 +121,9 @@ async function insertStands(
     for (let attempt = 0; attempt < 5 && !placed; attempt += 1) {
       const code = newStandCode();
       const rows = await tx<StandRow[]>`
-        INSERT INTO stands (code, order_id, placement_number, placement_label, target_url, color)
+        INSERT INTO stands (code, order_id, placement_number, placement_label, target_url, color, kind)
         VALUES (${code}, ${orderId}, ${stand.placementNumber}, ${stand.placementLabel},
-                ${stand.targetUrl}, ${stand.color})
+                ${stand.targetUrl}, ${stand.color}, ${stand.kind ?? 'stand'})
         ON CONFLICT (code) DO NOTHING
         RETURNING *
       `;
