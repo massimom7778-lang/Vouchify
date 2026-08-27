@@ -119,7 +119,14 @@ export async function provisionFromCheckoutSession(
   if (existing) return { order: existing, created: false };
 
   const { count, color } = standsFromSession(session);
-  if (count === 0) return null;
+  // `count` can legitimately be 0 — an order for a review plate with no stand
+  // tier in it, say. Every paid Checkout Session had a non-empty cart
+  // (enforced client- and server-side before Stripe was ever called), so an
+  // order record is created here regardless of what was bought. Bailing out
+  // on count === 0 used to mean a paid, stand-less order left no trace
+  // anywhere but Stripe: no row in the store, no dashboard token, no
+  // confirmation email, nothing to look up if the customer wrote in asking
+  // where their order was.
 
   // A shared link plan points every stand at the one link the customer gave us.
   // A per-unit plan leaves the targets blank on purpose: the owner fills them in

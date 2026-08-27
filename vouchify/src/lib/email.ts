@@ -88,32 +88,51 @@ export function orderConfirmationText({
   reviewLink,
   perUnitLinks,
 }: {
-  dashboardUrl: string;
+  /** Null when there is nothing to manage from a dashboard yet — an order
+   *  with no stand tier in it, for instance. */
+  dashboardUrl: string | null;
   standCount: number;
   reviewLink: string;
   perUnitLinks: boolean;
 }): string {
   const stands = `${standCount} stand${standCount === 1 ? '' : 's'}`;
 
-  return [
+  const body: string[] = [
     `Thanks, your order is in.`,
     ``,
-    `We program and pack in ${site.shipping.processing}. Every stand is tapped on both an iPhone and an Android handset before it goes in the box.`,
-    ``,
-    `YOUR DASHBOARD`,
-    dashboardUrl,
-    ``,
-    `That link changes where each stand points and shows how many taps each one is getting. It is also printed on a card in your box. Anyone who has it can re-point your stands, so keep it somewhere only staff you trust can reach.`,
-    ``,
-    perUnitLinks
-      ? `You asked for a separate link per stand. Open the dashboard and set each one, or reply to this email with the links and we will do it before we program them.`
-      : reviewLink
-        ? `We are programming all ${stands} to:\n${reviewLink}`
-        : `We do not have your Google review link yet. Reply to this email with it, or paste it into the dashboard, and we will program ${stands} to it.`,
+    `We program and pack in ${site.shipping.processing}. Everything with a chip in it is tapped on both an iPhone and an Android handset before it goes in the box.`,
+  ];
+
+  if (dashboardUrl) {
+    body.push(
+      ``,
+      `YOUR DASHBOARD`,
+      dashboardUrl,
+      ``,
+      `That link changes where each stand points and shows how many taps each one is getting. It is also printed on a card in your box. Anyone who has it can re-point your stands, so keep it somewhere only staff you trust can reach.`,
+      ``,
+      perUnitLinks
+        ? `You asked for a separate link per stand. Open the dashboard and set each one, or reply to this email with the links and we will do it before we program them.`
+        : reviewLink
+          ? `We are programming all ${stands} to:\n${reviewLink}`
+          : `We do not have your Google review link yet. Reply to this email with it, or paste it into the dashboard, and we will program ${stands} to it.`,
+    );
+  } else {
+    body.push(
+      ``,
+      reviewLink
+        ? `We are programming your order to:\n${reviewLink}`
+        : `We do not have your Google review link yet. Reply to this email with it and we will program your order to it before it ships.`,
+    );
+  }
+
+  body.push(
     ``,
     `Questions about this order? Reply to this email, a person answers.`,
     ``,
     `${site.name}`,
     site.url,
-  ].join('\n');
+  );
+
+  return body.join('\n');
 }

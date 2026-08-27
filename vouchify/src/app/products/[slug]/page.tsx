@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { AddToCartButton } from '@/components/AddToCartButton';
+import { AddOnBuyBox } from './AddOnBuyBox';
 import { JsonLd } from '@/components/JsonLd';
 import {
   ButtonLink,
@@ -11,9 +11,9 @@ import {
   Price,
   Section,
 } from '@/components/ui';
-import { addOnPages, coreProduct, getAddOnBySlug } from '@/data/products';
+import { addOnPages, coreProduct, orderBump, getAddOnBySlug } from '@/data/products';
 import { site } from '@/data/site';
-import { priceForSchema } from '@/lib/format';
+import { formatMoney, priceForSchema } from '@/lib/format';
 
 export function generateStaticParams() {
   return addOnPages.map((addOn) => ({ slug: addOn.slug }));
@@ -91,31 +91,21 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
           </div>
 
           <div className="col-span-4 md:col-span-5 md:col-start-8">
-            <Eyebrow>Add-on</Eyebrow>
+            <Eyebrow>{addOn.perOrder ? 'Order option' : 'Product'}</Eyebrow>
             <h1 className="mt-4 text-2xl md:text-3xl">{addOn.name}</h1>
             <p className="mt-5 text-base text-warm-700">{addOn.summary}</p>
 
             <div className="mt-8 flex items-baseline gap-4 border-y border-warm-300 py-5">
               <Price cents={addOn.priceCents} size="xl" />
               <span className="text-sm text-warm-600">
-                {addOn.perOrder ? 'Once per order' : 'Ships with your stands'}
+                {addOn.perOrder ? 'Once per order' : 'Each'}
               </span>
             </div>
 
-            <div className="mt-6">
-              <AddToCartButton sku={addOn.id} block>
-                Add to cart
-              </AddToCartButton>
-              <p className="mt-3 text-xs text-warm-600">
-                Works best alongside the stands.{' '}
-                <Link
-                  href={`/products/${coreProduct.slug}`}
-                  className="font-semibold text-gold-deep underline underline-offset-4"
-                >
-                  See The Stand
-                </Link>
-              </p>
-            </div>
+            {/* A real buy box: this is a product in its own right, bought on
+                its own, in whatever quantity a shop needs, not an accessory
+                that only exists inside a stand order. */}
+            <AddOnBuyBox addOn={addOn} />
 
             <ul className="mt-8 space-y-3">
               {addOn.details.map((detail) => (
@@ -135,6 +125,29 @@ export default async function AddOnPage({ params }: { params: Promise<{ slug: st
                 </div>
               ))}
             </dl>
+
+            {/* The other, real way to buy this: alongside a stand order, where
+                it is a genuine bundle discount rather than a marketing label —
+                the same price the checkout order bump actually charges. */}
+            {orderBump.addOnId === addOn.id && addOn.bumpPriceCents !== undefined ? (
+              <div className="mt-6 rounded-md border border-gold bg-gold-tint p-4">
+                <p className="text-sm font-semibold text-ink">Also buying a stand?</p>
+                <p className="mt-1 text-sm text-warm-700">
+                  Add {addOn.name.toLowerCase()} at checkout alongside any stand order and it drops
+                  from {formatMoney(addOn.priceCents, { compact: true })} to{' '}
+                  <span className="font-semibold">
+                    {formatMoney(addOn.bumpPriceCents, { compact: true })}
+                  </span>
+                  . Same plate, same link, one order.
+                </p>
+                <Link
+                  href={`/products/${coreProduct.slug}`}
+                  className="mt-2 inline-block text-sm font-semibold text-gold-deep underline underline-offset-4"
+                >
+                  Shop stands
+                </Link>
+              </div>
+            ) : null}
           </div>
         </Grid>
       </Section>
