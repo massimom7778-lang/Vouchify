@@ -27,6 +27,9 @@ export const dynamic = 'force-dynamic';
 const HANDLED = new Set<string>([
   'checkout.session.completed',
   'checkout.session.async_payment_succeeded',
+  'checkout.session.async_payment_failed',
+  'charge.refunded',
+  'charge.dispute.created',
 ]);
 
 /**
@@ -105,6 +108,100 @@ async function fulfil(session: Stripe.Checkout.Session): Promise<void> {
   await sendOrderConfirmation({ order: result.order, session });
 }
 
+/**
+ * A delayed-notification payment method (the async twin of the succeeded
+ * event this endpoint already handles) resolved to a failure. Nothing was
+ * ever provisioned for this session — provisioning only runs once payment
+ * is confirmed — so there is nothing to undo. This exists purely so support
+ * can follow up with a customer who is expecting stands that are not coming.
+ */
+async function handleAsyncPaymentFailed(session: Stripe.Checkout.Session): Promise<void> {
+  await alertOperator({
+    subject: 'Order payment failed',
+    lines: [
+      'A checkout session using a delayed payment method did not complete.',
+      'Nothing was charged and nothing was provisioned. The customer may be',
+      'expecting an order that is not coming unless they try again.',
+      `Session: ${session.id}`,
+      `Email: ${session.customer_details?.email ?? 'unknown'}`,
+      `Amount: ${session.amount_total ?? 'unknown'} ${session.currency ?? ''}`,
+    ],
+  });
+}
+
+/**
+ * Finds the order a Charge belongs to by following its PaymentIntent back to
+ * the Checkout Session that created it. Charge events carry a PaymentIntent
+ * id, never a Checkout Session id directly, and the store only indexes
+ * orders by session — this is the one hop between them Stripe's API allows.
+ */
+async function findOrderByCharge(charge: Stripe.Charge) {
+  const paymentIntentId =
+    typeof charge.payment_intent === 'string' ? charge.payment_intent : charge.payment_intent?.id;
+  if (!paymentIntentId) return null;
+
+  const sessions = await getStripe().checkout.sessions.list({
+    payment_intent: paymentIntentId,
+    limit: 1,
+  });
+  const session = sessions.data[0];
+  if (!session) return null;
+
+  return getStore().getOrderByCheckoutSession(session.id);
+}
+
+/**
+ * A refund never un-provisions anything automatically. Stand codes may
+ * already be encoded, packed, or in a box on a truck by the time this
+ * arrives, and reversing that is a physical action, not a database one.
+ * This alert exists so a human decides whether the order still ships.
+ */
+async function handleChargeRefunded(charge: Stripe.Charge): Promise<void> {
+  const order = await findOrderByCharge(charge);
+  await alertOperator({
+    subject: order?.fulfilledAt
+      ? 'Refund issued on an order already marked fulfilled'
+      : 'Refund issued on an order',
+    lines: [
+      `Charge: ${charge.id}`,
+      `Amount refunded: ${charge.amount_refunded} ${charge.currency}`,
+      order
+        ? `Order: ${order.id} (${order.fulfilledAt ? `fulfilled ${order.fulfilledAt}` : 'not yet marked fulfilled'})`
+        : 'Order: could not be matched to a stored order — check by hand.',
+      `Email: ${order?.email ?? charge.billing_details?.email ?? 'unknown'}`,
+      'This charge was refunded in Stripe. Nothing here was changed automatically —',
+      'decide by hand whether the stands should still ship, and update the dashboard',
+      'or fulfillment record accordingly.',
+    ],
+  });
+}
+
+/** A chargeback is time-sensitive and often has a response deadline in
+ *  Stripe, so this alerts unconditionally rather than only on a mismatch. */
+async function handleChargeDispute(dispute: Stripe.Dispute): Promise<void> {
+  const chargeId = typeof dispute.charge === 'string' ? dispute.charge : dispute.charge.id;
+  const order =
+    typeof dispute.charge !== 'string'
+      ? await findOrderByCharge(dispute.charge)
+      : await (async () => {
+          const charge = await getStripe().charges.retrieve(chargeId);
+          return findOrderByCharge(charge);
+        })();
+
+  await alertOperator({
+    subject: 'Dispute opened on an order',
+    lines: [
+      `Dispute: ${dispute.id} (reason: ${dispute.reason})`,
+      `Charge: ${chargeId}`,
+      `Amount: ${dispute.amount} ${dispute.currency}`,
+      order
+        ? `Order: ${order.id} (${order.fulfilledAt ? `fulfilled ${order.fulfilledAt}` : 'not yet marked fulfilled'})`
+        : 'Order: could not be matched to a stored order — check by hand.',
+      'Respond in the Stripe dashboard before the evidence deadline shown there.',
+    ],
+  });
+}
+
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
     return NextResponse.json({ ok: false, error: 'Stripe is not configured.' }, { status: 503 });
@@ -138,10 +235,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, ignored: event.type });
   }
 
-  const session = event.data.object as Stripe.Checkout.Session;
-
   try {
-    await fulfil(session);
+    switch (event.type) {
+      case 'checkout.session.completed':
+      case 'checkout.session.async_payment_succeeded':
+        await fulfil(event.data.object as Stripe.Checkout.Session);
+        break;
+      case 'checkout.session.async_payment_failed':
+        await handleAsyncPaymentFailed(event.data.object as Stripe.Checkout.Session);
+        break;
+      case 'charge.refunded':
+        await handleChargeRefunded(event.data.object as Stripe.Charge);
+        break;
+      case 'charge.dispute.created':
+        await handleChargeDispute(event.data.object as Stripe.Dispute);
+        break;
+    }
   } catch (error) {
     // A 500 asks Stripe to retry, which is what we want for a transient
     // database or mail failure — provisioning is idempotent, so a retry is safe.
@@ -149,11 +258,9 @@ export async function POST(request: Request) {
     await alertOperator({
       subject: 'Webhook handler threw',
       lines: [
-        'A paid Stripe event could not be handled. Stripe will retry, but if the',
-        'retries also fail this order will need provisioning by hand.',
+        'A Stripe event could not be handled. Stripe will retry, but if the retries',
+        'also fail this will need to be handled by hand.',
         `Event: ${event.id} (${event.type})`,
-        `Session: ${session.id}`,
-        `Email: ${session.customer_details?.email ?? 'unknown'}`,
         '',
         String(error instanceof Error ? error.stack ?? error.message : error),
       ],

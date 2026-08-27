@@ -18,7 +18,14 @@ export function getStripe(): Stripe {
       'STRIPE_SECRET_KEY is not set. Copy .env.example to .env.local and add your keys.',
     );
   }
-  if (!client) client = new Stripe(key);
+  if (!client) {
+    client = new Stripe(key, {
+      // Pinned rather than left to the SDK default. That default moves when
+      // this package is upgraded, which would change response shapes and
+      // webhook payloads on a routine `npm update`, not a deliberate change.
+      apiVersion: '2025-08-27.basil',
+    });
+  }
   return client;
 }
 
