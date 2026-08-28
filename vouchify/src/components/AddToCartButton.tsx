@@ -15,6 +15,7 @@ export function AddToCartButton({
   block?: boolean;
 }) {
   const add = useCart((s) => s.add);
+  const openDrawer = useCart((s) => s.openDrawer);
   return (
     <Button
       size="lg"
@@ -26,6 +27,7 @@ export function AddToCartButton({
           qty: 1,
           value: dollars(getCatalogItem(sku)?.priceCents ?? 0),
         });
+        openDrawer();
       }}
     >
       {children}

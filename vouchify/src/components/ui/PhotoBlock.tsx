@@ -65,11 +65,13 @@ export function PhotoBlock({
       aria-label={photo.alt}
       className={cn(shape, 'flex items-end', vignette ? 'vignette' : 'bg-warm-200')}
     >
-      <figcaption className="w-full p-4">
-        <span className="inline-block max-w-full rounded-sm border border-warm-400 bg-warm-100/80 px-2 py-1 text-2xs font-semibold uppercase tracking-wide text-warm-700">
-          TODO: {photo.todo}
-        </span>
-      </figcaption>
+      {process.env.NODE_ENV !== 'production' ? (
+        <figcaption className="w-full p-4">
+          <span className="inline-block max-w-full rounded-sm border border-warm-400 bg-warm-100/80 px-2 py-1 text-2xs font-semibold uppercase tracking-wide text-warm-700">
+            TODO: {photo.todo}
+          </span>
+        </figcaption>
+      ) : null}
     </figure>
   );
 }

@@ -187,6 +187,7 @@ export function TierTable({
         Savings are measured against buying the same number of {unitWordPlural} one at a time at{' '}
         {formatMoney(unitPriceCents, { compact: true })} each. There is no list price we discount from.
       </p>
+      <p className={cn('mt-1 text-xs', muted)}>All prices in CAD</p>
     </>
   );
 }

@@ -280,6 +280,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, one black stand, straight-on, off-white seamless',
       alt: 'One NFC review stand',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -297,6 +299,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, two black stands, one slightly behind the other, off-white seamless',
       alt: 'Two NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -314,6 +318,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, three black stands in a loose row, off-white seamless',
       alt: 'Three NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -331,6 +337,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, five black stands in two rows, off-white seamless, slight overhead angle',
       alt: 'Five NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -348,6 +356,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, ten black stands in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -365,6 +375,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, twenty-five black stands arranged in a grid, flat lay on off-white, overhead',
       alt: 'Twenty-five NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -382,6 +394,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, fifty black stands arranged in a grid, flat lay on off-white, overhead',
       alt: 'Fifty NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
 ];
@@ -410,6 +424,7 @@ export const plateTiers: readonly PlateTier[] = [
       todo: 'Product photo, one blue and white review plate, straight-on, off-white seamless',
       alt: 'One NFC review plate',
       aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
     },
   },
   {
@@ -427,6 +442,7 @@ export const plateTiers: readonly PlateTier[] = [
       todo: 'Product photo, three blue and white review plates in a loose row, off-white seamless',
       alt: 'Three NFC review plates',
       aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
     },
   },
   {
@@ -444,6 +460,7 @@ export const plateTiers: readonly PlateTier[] = [
       todo: 'Product photo, five blue and white review plates in two rows, off-white seamless, slight overhead angle',
       alt: 'Five NFC review plates',
       aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
     },
   },
   {
@@ -461,6 +478,7 @@ export const plateTiers: readonly PlateTier[] = [
       todo: 'Product photo, ten blue and white review plates in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review plates',
       aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
     },
   },
 ];
@@ -713,6 +731,10 @@ export const PLATE_PLACEMENTS_PER_LOCATION = 5;
  *  add-on. Priced from that SKU's own bumpPriceCents. */
 export const orderBump = {
   sku: 'plate-1' as const,
+  /** Used in "Add a {bumpLabel}" — the SKU's own name ("1 review plate")
+   *  reads grammatically broken lowercased inline, so this is worded for
+   *  that sentence specifically rather than derived from it. */
+  bumpLabel: 'review plate',
   copy: 'Add a review plate for your window or counter, same link as your stands, at a discount for adding it now.',
 } as const;
 

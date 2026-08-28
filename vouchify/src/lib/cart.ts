@@ -57,6 +57,10 @@ export const useCart = create<CartState>()(
       reviewLink: '',
       drawerOpen: false,
 
+      // Does not open the drawer itself — a caller on /cart adding a
+      // shipping-gap suggestion does not want the drawer popping open over
+      // the page it is already looking at. Callers that do want it call
+      // openDrawer() themselves after add().
       add: (sku, qty = 1, options) =>
         set((state) => {
           const item = getCatalogItem(sku);
@@ -68,10 +72,9 @@ export const useCart = create<CartState>()(
           const key = lineKey({ sku, color, linkMode });
           const existing = state.lines.find((line) => lineKey(line) === key);
           if (existing) {
-            if (perOrder) return { ...state, drawerOpen: true };
+            if (perOrder) return state;
             return {
               ...state,
-              drawerOpen: true,
               lines: state.lines.map((line) =>
                 lineKey(line) === key ? { ...line, qty: line.qty + qty } : line,
               ),
@@ -79,7 +82,6 @@ export const useCart = create<CartState>()(
           }
           return {
             ...state,
-            drawerOpen: true,
             lines: [...state.lines, { sku, qty: perOrder ? 1 : qty, color, linkMode }],
           };
         }),

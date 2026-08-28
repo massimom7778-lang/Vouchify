@@ -80,11 +80,25 @@ export default async function DashboardPage({
         </Grid>
 
         {!isStorePersistent() ? (
-          <p className="mt-8 rounded-md border-2 border-gold bg-gold-tint p-4 text-sm text-ink">
-            <span className="font-semibold">This deployment has no database attached.</span> Stands
-            are being held in memory and will disappear. Set <code>DATABASE_URL</code> and apply{' '}
-            <code>src/lib/store/schema.sql</code> before this is real.
-          </p>
+          process.env.NODE_ENV !== 'production' ? (
+            <p className="mt-8 rounded-md border-2 border-gold bg-gold-tint p-4 text-sm text-ink">
+              <span className="font-semibold">This deployment has no database attached.</span> Stands
+              are being held in memory and will disappear. Set <code>DATABASE_URL</code> and apply{' '}
+              <code>src/lib/store/schema.sql</code> before this is real.
+            </p>
+          ) : (
+            <p className="mt-8 rounded-md border-2 border-warm-400 bg-warm-100 p-4 text-sm text-warm-700">
+              <span className="font-semibold">We are having trouble loading saved stand data.</span>{' '}
+              Nothing here is lost, email{' '}
+              <a
+                href={`mailto:${site.supportEmail}`}
+                className="font-semibold text-gold-deep underline underline-offset-4"
+              >
+                {site.supportEmail}
+              </a>{' '}
+              and we will sort it out.
+            </p>
+          )
         ) : null}
 
         <Grid className="mt-10 gap-y-10 md:mt-14">

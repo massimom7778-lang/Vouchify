@@ -153,7 +153,12 @@ export function CheckoutForm() {
     <form onSubmit={handleSubmit}>
       <Grid className="gap-y-10">
         <div className="col-span-4 md:col-span-6">
-          <h2 className="text-xl">Your order</h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-xl">Your order</h2>
+            <Link href="/cart" className="text-xs font-semibold underline underline-offset-4">
+              Edit order
+            </Link>
+          </div>
           <ul className="mt-5 divide-y divide-warm-300 border-y border-warm-300">
             {resolved.map(({ key, line, item, totalCents }) => (
               <li key={key} className="flex items-baseline justify-between gap-4 py-4">
@@ -237,6 +242,7 @@ export function CheckoutForm() {
                 </dd>
               </div>
             </dl>
+            <p className="mt-1 text-right text-xs text-warm-600">All prices in CAD</p>
 
             {shippingAmount > 0 ? (
               <p data-numeric className="mt-3 text-xs text-warm-600">
@@ -267,7 +273,7 @@ export function CheckoutForm() {
                   />
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="text-sm font-semibold">Add a {bumpItem.name.toLowerCase()}</span>
+                      <span className="text-sm font-semibold">Add a {orderBump.bumpLabel}</span>
                       <span data-numeric className="text-sm">
                         <span className="text-warm-600 line-through">
                           {formatMoney(bumpItem.priceCents, { compact: true })}

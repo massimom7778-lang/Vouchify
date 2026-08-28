@@ -14,8 +14,10 @@ import {
 } from '@/components/ui';
 import { productFaqs } from '@/data/faq';
 import {
-  addOnPages,
+  PLATE_SLUG,
   coreProduct,
+  platePriceRangeCents,
+  plateProduct,
   priceRangeCents,
   standTiers,
 } from '@/data/products';
@@ -166,27 +168,24 @@ export default async function ProductPage({
             <Eyebrow>Also useful</Eyebrow>
             <h2 className="mt-3 text-2xl md:text-2xl">For the customers who never reach the counter.</h2>
             <p className="mt-4 text-sm text-warm-700">
-              Delivery orders, tableside payments, and anyone who walks straight out. All three carry
+              Delivery orders, tableside payments, and anyone who walks straight out. The plate carries
               the same link as your stands.
             </p>
           </div>
-          <div className="col-span-4 grid grid-cols-1 gap-4 sm:grid-cols-3 md:col-span-8 md:col-start-5">
-            {addOnPages.map((addOn) => (
-              <Link
-                key={addOn.id}
-                href={`/products/${addOn.slug}`}
-                className="group rounded-md border border-warm-300 bg-paper p-4 hover:border-ink"
-              >
-                <PhotoBlock photo={addOn.photo} className="mb-4" />
-                <p className="font-display text-lg font-bold tracking-tight group-hover:text-gold-deep">
-                  {addOn.name}
-                </p>
-                <p className="mt-1 text-xs text-warm-600">{addOn.shortLine}</p>
-                <p className="mt-3">
-                  <Price cents={addOn.priceCents} size="sm" display={false} />
-                </p>
-              </Link>
-            ))}
+          <div className="col-span-4 grid grid-cols-1 gap-4 sm:max-w-xs md:col-span-8 md:col-start-5">
+            <Link
+              href={`/products/${PLATE_SLUG}`}
+              className="group rounded-md border border-warm-300 bg-paper p-4 hover:border-ink"
+            >
+              <PhotoBlock photo={plateProduct.photos.hero} className="mb-4" />
+              <p className="font-display text-lg font-bold tracking-tight group-hover:text-gold-deep">
+                {plateProduct.name}
+              </p>
+              <p className="mt-1 text-xs text-warm-600">For the window and the places a stand will not sit.</p>
+              <p className="mt-3">
+                <Price cents={platePriceRangeCents.low} size="sm" display={false} />
+              </p>
+            </Link>
           </div>
         </Grid>
       </Section>

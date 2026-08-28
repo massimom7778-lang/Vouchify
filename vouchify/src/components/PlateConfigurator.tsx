@@ -97,6 +97,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
   const [barVisible, setBarVisible] = useState(false);
 
   const add = useCart((s) => s.add);
+  const openDrawer = useCart((s) => s.openDrawer);
   const buyButtonRef = useRef<HTMLDivElement>(null);
 
   const tier = plateTiers.find((t) => t.id === tierId) ?? plateTiers[0]!;
@@ -130,6 +131,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
     // the same way a stand pack works — there is no free-quantity stepper.
     add(tier.id, 1);
     emit(EVENTS.addToCart, { sku: tier.id, qty: 1, value: dollars(tier.priceCents) });
+    openDrawer();
   }
 
   return (
@@ -208,6 +210,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
                 </span>
                 <AnimatedTotal cents={total} className="text-2xl" />
               </div>
+              <p className="mt-1 text-right text-xs text-warm-600">All prices in CAD</p>
               <Button block size="lg" className="mt-3" onClick={addToCart}>
                 Add to cart
               </Button>
