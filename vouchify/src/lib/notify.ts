@@ -2,6 +2,7 @@ import 'server-only';
 import type Stripe from 'stripe';
 import { orderConfirmationText, sendEmail } from '@/lib/email';
 import { siteOrigin } from '@/lib/stripe';
+import { getStore } from '@/lib/store';
 import type { OrderRecord } from '@/lib/store/types';
 import { site } from '@/data/site';
 
@@ -53,13 +54,26 @@ export async function alertOperator({
 }
 
 /**
- * The order confirmation, sent from whichever path actually created the order.
+ * The order confirmation. Both the thank-you page and the webhook call this
+ * unconditionally on every visit/delivery, not just the one that created the
+ * order.
  *
- * This used to live only in the webhook, gated on `created`. When the thank-you
- * page won the race it created the order, the webhook then saw `created: false`
- * and returned early, and no confirmation was ever sent — leaving the customer
- * with the dashboard link on a page they were about to navigate away from.
- * Both callers now go through here.
+ * This used to be gated on `created`: only the path that created the order
+ * sent the email. That meant a customer whose browser died right after the
+ * thank-you page's server render created the order — but before this
+ * function finished — got nothing: the webhook arrived later, saw
+ * `created: false`, and (under the old rule) skipped sending too. The
+ * dashboard link, the only credential for what they just paid for, was gone
+ * for good.
+ *
+ * `markConfirmationSent` is what makes calling this unconditionally safe: it
+ * atomically flips `orders.confirmation_sent_at` from null to now() and
+ * reports whether THIS call won that flip. Only the winner sends. Whichever
+ * path runs — the thank-you request, a retry of it, or the webhook arriving
+ * seconds or minutes later — gets a real chance to be the one that does,
+ * which is what makes the webhook the durable path: Stripe keeps retrying it
+ * until it succeeds, independent of whether the customer's browser ever
+ * loads the thank-you page again.
  */
 export async function sendOrderConfirmation({
   order,
@@ -81,6 +95,9 @@ export async function sendOrderConfirmation({
     });
     return;
   }
+
+  const claimed = await getStore().markConfirmationSent(order.id);
+  if (!claimed) return; // Already sent — by the other path, or a previous call.
 
   const standCount = Number(session.metadata?.standCount ?? 0);
   const plateCount = Number(session.metadata?.plateCount ?? 0);

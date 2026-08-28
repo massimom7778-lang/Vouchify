@@ -52,6 +52,7 @@ interface OrderRow {
   ship_country: string | null;
   ship_phone: string | null;
   fulfilled_at: Date | null;
+  confirmation_sent_at: Date | null;
 }
 
 interface StandRow {
@@ -84,6 +85,7 @@ function toOrder(row: OrderRow): OrderRecord {
       phone: row.ship_phone,
     },
     fulfilledAt: row.fulfilled_at ? row.fulfilled_at.toISOString() : null,
+    confirmationSentAt: row.confirmation_sent_at ? row.confirmation_sent_at.toISOString() : null,
   };
 }
 
@@ -281,6 +283,18 @@ export function createPostgresStore(): StandStore {
       const rows = fulfilled
         ? await client`UPDATE orders SET fulfilled_at = now() WHERE id = ${orderId} RETURNING id`
         : await client`UPDATE orders SET fulfilled_at = NULL WHERE id = ${orderId} RETURNING id`;
+      return rows.length > 0;
+    },
+
+    async markConfirmationSent(orderId) {
+      // The WHERE clause is the claim: only a row that is still null can be
+      // flipped, so of two concurrent callers exactly one gets a row back.
+      const rows = await db()<{ id: string }[]>`
+        UPDATE orders
+        SET confirmation_sent_at = now()
+        WHERE id = ${orderId} AND confirmation_sent_at IS NULL
+        RETURNING id
+      `;
       return rows.length > 0;
     },
 

@@ -80,6 +80,9 @@ export interface OrderRecord {
   readonly shipping: ShippingAddress;
   /** Set when the operator marks the order packed and encoded. */
   readonly fulfilledAt: string | null;
+  /** Set the first time the order confirmation email is actually sent. Null
+   *  means no one has sent it yet — see `markConfirmationSent`. */
+  readonly confirmationSentAt: string | null;
 }
 
 export interface DailyCount {
@@ -167,6 +170,16 @@ export interface StandStore {
   listRecentOrders(sinceDays: number): Promise<FulfillmentOrder[]>;
   /** Marks an order packed and encoded, or clears the mark. */
   setFulfilled(orderId: string, fulfilled: boolean): Promise<boolean>;
+  /**
+   * Atomically claims the right to send this order's confirmation email:
+   * flips `confirmation_sent_at` from null to now() and reports whether THIS
+   * call was the one that did it. Two callers racing on the same order (the
+   * thank-you page's server render and the Stripe webhook) can both ask at
+   * nearly the same moment — only one may win, so the email goes out once
+   * regardless of which path actually created the order, or whether the
+   * other path's request was killed before it got this far.
+   */
+  markConfirmationSent(orderId: string): Promise<boolean>;
   /** Rejected unless the stand belongs to the order the token opens. */
   updateTarget(orderId: string, code: string, targetUrl: string): Promise<boolean>;
   /** Increments the stand's total for the given UTC day. */

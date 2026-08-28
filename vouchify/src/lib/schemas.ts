@@ -21,7 +21,19 @@ export const checkoutRequestSchema = z.object({
   lines: z.array(cartLineSchema).min(1).max(20),
   /** The checkout order bump, at its bump price. */
   bump: z.boolean().default(false),
-  reviewLink: z.string().trim().max(500).optional(),
+  // Same rule the dashboard's own link editor enforces
+  // (dashboard/[token]/actions.ts) — a bare domain with no scheme parses as
+  // "valid" by nothing downstream, gets stored as the target verbatim, and
+  // every physical tap on it lands on /stand/not-set-up. Blank is still
+  // allowed: the customer may not have the link yet.
+  reviewLink: z
+    .string()
+    .trim()
+    .max(500)
+    .refine((value) => value === '' || /^https?:\/\/\S+$/i.test(value), {
+      message: 'Paste a review link starting with https://, or leave it blank.',
+    })
+    .optional(),
   email: z.string().trim().email().max(254).optional(),
 });
 

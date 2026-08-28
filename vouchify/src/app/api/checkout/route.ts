@@ -40,10 +40,16 @@ export async function POST(request: Request) {
 
   const parsed = checkoutRequestSchema.safeParse(payload);
   if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: 'That cart could not be read. Refresh and try again.' },
-      { status: 400 },
-    );
+    // Mirrors /api/quote's shape: every zod failure used to collapse into one
+    // generic "cart could not be read" message, so a typo'd email or a
+    // scheme-less review link — both real, fixable mistakes — read as if the
+    // whole cart were corrupt.
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path[0];
+      if (typeof key === 'string' && !fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return NextResponse.json({ ok: false, fieldErrors }, { status: 400 });
   }
 
   const order = priceOrder(parsed.data);

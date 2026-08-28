@@ -27,6 +27,12 @@ interface OrderView {
   reviewLink: string;
   minutesLeft: number;
   upsellRedeemed: boolean;
+  /** True once the upsell can no longer be offered — either genuinely
+   *  redeemed, or its 3-D Secure fallback checkout is already open. Distinct
+   *  from upsellRedeemed so the messaging below never claims "Extra stands
+   *  added" for a fallback purchase that may still be in flight or may have
+   *  been abandoned; it only stops the offer being shown a second time. */
+  upsellClosed: boolean;
   /** The tokenised dashboard link. Also printed on a card in the box. */
   dashboardUrl: string | null;
   perUnitLinks: boolean;
@@ -72,12 +78,12 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
         if (sessionStandCount > 0 || sessionPlateCount > 0) {
           dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
         }
-        // This page creating the order used to mean no confirmation was ever
-        // sent: the webhook would arrive later, see `created: false` and return
-        // early, leaving the dashboard link only on a page about to be closed.
-        if (result.created) {
-          await sendOrderConfirmation({ order: result.order, session });
-        }
+        // Called on every load, not only when this request created the order.
+        // sendOrderConfirmation claims atomically on confirmation_sent_at, so
+        // this cannot double-send — it can only ever be the one that closes
+        // the gap left when the request that created the order (this one, on
+        // a previous load, or the webhook) died before the email went out.
+        await sendOrderConfirmation({ order: result.order, session });
       }
     } catch (error) {
       console.error('[thank-you] provisioning failed', error);
@@ -98,6 +104,9 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
       reviewLink: session.metadata?.reviewLink ?? '',
       minutesLeft: Math.max(0, Math.ceil(remaining / 60)),
       upsellRedeemed: session.metadata?.upsellStatus === 'redeemed',
+      upsellClosed:
+        session.metadata?.upsellStatus === 'redeemed' ||
+        session.metadata?.upsellStatus === 'pending',
     };
   } catch {
     return null;
@@ -116,7 +125,7 @@ export default async function ThankYouPage({
   const offerOpen =
     Boolean(sessionId) &&
     order !== null &&
-    !order.upsellRedeemed &&
+    !order.upsellClosed &&
     order.minutesLeft > 0 &&
     upsell !== 'done' &&
     tier !== undefined;

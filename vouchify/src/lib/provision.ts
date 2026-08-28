@@ -252,9 +252,13 @@ export async function appendStandsToOrder({
   const store = getStore();
   const existing = await store.listStands(order.id, 1);
 
-  // Continue the placement sequence, and inherit colour and target from the
-  // stands already on the order so the new ones match what is being packed.
-  const last = existing[existing.length - 1];
+  // This upsell only ever sells stands, so it must only continue the STAND
+  // placement sequence and inherit a STAND's finish. A plate on this order
+  // sorts after the stands (see buildPlates) and always ships white — taking
+  // the plate as "the last one" would number new stands into the plate's
+  // slots and write them white, a finish that is not stocked.
+  const existingStands = existing.filter((stand) => stand.kind !== 'plate');
+  const last = existingStands[existingStands.length - 1];
   const inheritedColor = color ?? last?.color ?? 'black';
   const inheritedTarget = targetUrl ?? last?.targetUrl ?? '';
 
@@ -265,7 +269,7 @@ export async function appendStandsToOrder({
       count,
       color: inheritedColor,
       targetUrl: inheritedTarget,
-      startIndex: existing.length,
+      startIndex: existingStands.length,
     }),
   );
 }

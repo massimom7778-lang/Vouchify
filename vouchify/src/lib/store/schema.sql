@@ -32,6 +32,14 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS ship_phone       TEXT;
 -- Set when the operator has encoded and packed the order.
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfilled_at TIMESTAMPTZ;
 
+-- Set the first time the order confirmation (the customer's only copy of the
+-- dashboard link) is actually sent. Both the thank-you page and the webhook
+-- can provision this order, and either can be the one whose request dies
+-- before the email goes out — this is what lets whichever of them runs next
+-- notice nothing was sent yet and try again, instead of the two paths racing
+-- on `created` and the loser silently sending nothing.
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS confirmation_sent_at TIMESTAMPTZ;
+
 CREATE INDEX IF NOT EXISTS orders_created_at_idx ON orders (created_at DESC);
 
 CREATE TABLE IF NOT EXISTS stands (

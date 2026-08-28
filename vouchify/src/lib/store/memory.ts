@@ -100,6 +100,7 @@ export function createMemoryStore(): StandStore {
         createdAt: new Date().toISOString(),
         shipping: input.shipping ?? EMPTY_ADDRESS,
         fulfilledAt: null,
+        confirmationSentAt: null,
       };
       store.orders.set(order.id, order);
       insertStands(store, order.id, order.createdAt, input.stands);
@@ -178,6 +179,17 @@ export function createMemoryStore(): StandStore {
         ...order,
         fulfilledAt: fulfilled ? new Date().toISOString() : null,
       });
+      return true;
+    },
+
+    async markConfirmationSent(orderId) {
+      const store = state();
+      const order = store.orders.get(orderId);
+      // A single-threaded process means this read-then-write is already
+      // atomic with respect to any other call in the same process — the
+      // Postgres adapter is what actually needs a real database-level claim.
+      if (!order || order.confirmationSentAt) return false;
+      store.orders.set(orderId, { ...order, confirmationSentAt: new Date().toISOString() });
       return true;
     },
 

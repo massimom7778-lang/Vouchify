@@ -60,7 +60,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'That order has not been paid.' }, { status: 409 });
   }
 
-  if (session.metadata?.upsellStatus === 'redeemed') {
+  // 'redeemed' means it was already charged. 'pending' means the card
+  // needed authentication and a fallback Checkout Session is already open
+  // for it — closing the offer here too is what stops that fallback session
+  // (its own id, so appendStands' idempotency does not cover it) being
+  // followed by a second, independent purchase of the same upsell.
+  if (session.metadata?.upsellStatus === 'redeemed' || session.metadata?.upsellStatus === 'pending') {
     return NextResponse.json(
       { ok: false, error: 'This offer has already been added to your order.' },
       { status: 409 },
@@ -211,6 +216,23 @@ export async function POST(request: Request) {
     });
 
     if (fallback.url) {
+      // Closes the window between here and the fallback's own webhook-driven
+      // 'redeemed' stamp. Without this, the original session still reads as
+      // not-yet-redeemed, so a customer who returns to /thank-you before
+      // completing (or abandoning) the fallback checkout sees the offer
+      // again and can start a second, fully independent purchase — the
+      // fallback session has its own id, so appendStands' ref-based
+      // idempotency does nothing to stop it.
+      try {
+        await stripe.checkout.sessions.update(session.id, {
+          metadata: {
+            ...(session.metadata ?? {}),
+            upsellStatus: 'pending',
+          },
+        });
+      } catch (error) {
+        console.error('[upsell] could not mark the original session pending', error);
+      }
       return NextResponse.json({ ok: true, charged: false, url: fallback.url });
     }
   } catch (error) {
