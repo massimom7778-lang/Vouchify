@@ -103,16 +103,17 @@ export default function HomePage() {
                 </span>
               </p>
 
-              {/* Two lines, as directed. At the 84px step the first line wrapped
-                  and made it three, so the hero sets one step down and tight. */}
-              <h1 className="mt-7 text-balance text-2xl md:text-3xl">
+              {/* Two lines. The hero is the one headline on the site that
+                  earns the 84px step — every mid-page H2 and every other
+                  page's H1 sits at or below it, never above. */}
+              <h1 className="mt-7 text-balance text-2xl md:text-3xl lg:text-4xl">
                 Ask for the review.
                 <br />
                 Or don&rsquo;t.
               </h1>
 
-              <p className="mt-5 max-w-[34ch] text-lg text-ink-soft md:mt-6">
-                Tap. Page opens. Five stars, no small talk.
+              <p className="mt-5 max-w-[38ch] text-lg text-ink-soft md:mt-6">
+                {site.description}
               </p>
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-10">
@@ -139,6 +140,12 @@ export default function HomePage() {
               {/* The stage runs a little wider than its column on a phone so the
                   product reads at a real size on a 375px screen. */}
               <TapStage className="-mx-2 w-[calc(100%+1rem)] md:mx-0 md:w-full" />
+              {/* Third thing someone needs, not the second: the subhead above
+                  already says what this is, so this caption just names the
+                  mechanic the animation is showing. */}
+              <p className="mt-4 text-center font-mono text-2xs font-medium uppercase tracking-[0.12em] text-ink-soft md:text-left">
+                Tap. Page opens.
+              </p>
             </div>
           </Grid>
         </Container>
@@ -321,7 +328,7 @@ export default function HomePage() {
       <Section rhythm="loose">
         <Grid>
           <div className="col-span-4 md:col-span-9 md:col-start-2">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl">
+            <h2 className="text-2xl md:text-3xl">
               Happy customers forget.
               <br />A tap does not.
             </h2>
@@ -479,7 +486,10 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="col-span-4 md:col-span-12 lg:col-span-7 lg:col-start-6">
+          {/* Its own full-width row rather than a lg:col-span-7 well: at
+              1024px that well is only ~540px for a six-column table whose
+              coverage cell and placement badge do not compress. */}
+          <div className="col-span-4 md:col-span-12">
             <TierTable tone="ink" />
           </div>
         </Grid>

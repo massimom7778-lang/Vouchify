@@ -15,6 +15,7 @@ import {
   coreProduct,
   linkModes,
   orderOptions,
+  priceRangeCents,
   standTiers,
   tierEconomics,
   type AddOn,
@@ -167,6 +168,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
 
   const tier = standTiers.find((t) => t.id === tierId) ?? standTiers[0]!;
   const economics = tierEconomics(tier);
+  const threeTier = standTiers.find((t) => t.qty === 3);
 
   const selectedAddOns = useMemo(
     () => [...buyBoxAddOns, ...orderOptions].filter((addOn) => picked.has(addOn.id)),
@@ -220,13 +222,19 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
         <div className="col-span-4 md:col-span-7">
           <Eyebrow>The Stand</Eyebrow>
           <h1 className="mt-4 text-2xl md:text-3xl">{coreProduct.headline}</h1>
+          <p data-numeric className="mt-3 text-sm font-semibold text-warm-700">
+            from {formatMoney(priceRangeCents.low, { compact: true })}
+            {threeTier ? ` · 3 for ${formatMoney(threeTier.priceCents, { compact: true })}` : ''}
+          </p>
         </div>
         <div className="col-span-4 self-end md:col-span-4 md:col-start-9">
           <p className="text-base text-warm-700">{coreProduct.summary}</p>
         </div>
 
-        {/* Gallery */}
-        <div className="col-span-4 md:col-span-7">
+        {/* Gallery. Below the buy box on a phone, so the price and the Add to
+            cart button are reachable without scrolling past three photos and a
+            spec list first; back to its usual place at md, beside the buy box. */}
+        <div className="order-2 col-span-4 md:order-1 md:col-span-7">
           <PhotoBlock photo={coreProduct.photos.hero} vignette />
           <PhotoBlock photo={coreProduct.photos.inHand} className="mt-4" />
 
@@ -246,8 +254,10 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
           </dl>
         </div>
 
-        {/* Buy box */}
-        <div className="col-span-4 md:col-span-5 lg:sticky lg:top-24 lg:self-start">
+        {/* Buy box. Ordered first on a phone, so what it costs and the Add to
+            cart button are above the fold instead of below three photos and a
+            spec table. */}
+        <div className="order-1 col-span-4 md:order-2 md:col-span-5 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-md border border-warm-300 bg-warm-50 p-5 md:p-6">
             <div className="flex items-baseline justify-between gap-4">
               <div>
@@ -334,7 +344,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
                 <legend className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
                   Where these {tier.qty} stands point
                 </legend>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {linkModes.map((option) => {
                     const active = option.id === linkMode;
                     return (

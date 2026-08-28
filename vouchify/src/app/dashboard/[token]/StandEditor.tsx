@@ -3,7 +3,6 @@
 import { useActionState } from 'react';
 import { updateStandTarget, type UpdateResult } from './actions';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/cn';
 
 /**
  * One stand, one form. Deliberately not a modal and not an autosave: an owner
@@ -45,15 +44,18 @@ export function StandEditor({
         </Button>
       </div>
       {result ? (
-        <p
-          role="status"
-          className={cn(
-            'mt-2 text-xs font-semibold',
-            result.ok ? 'text-gold-deep' : 'text-ink',
-          )}
-        >
-          {result.message}
-        </p>
+        result.ok ? (
+          <p role="status" className="mt-2 text-xs font-semibold text-gold-deep">
+            {result.message}
+          </p>
+        ) : (
+          <p
+            role="alert"
+            className="mt-2 rounded-sm border border-warm-300 bg-warm-100 px-3 py-2 text-xs font-semibold text-ink"
+          >
+            {result.message}
+          </p>
+        )
       ) : null}
     </form>
   );

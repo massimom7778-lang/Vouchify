@@ -15,7 +15,7 @@ export interface NavLink {
 export const site = {
   name: 'Vouchify',
   legalEntity: 'Vouchify Supply Co.',
-  tagline: 'NFC review cards for counters that get busy.',
+  tagline: 'NFC review stands and plates for counters that get busy.',
   description:
     'A stand that sits on your counter. Customers tap their phone. Your Google review page opens. That is it.',
   supportEmail: 'support@vouchify.ca',

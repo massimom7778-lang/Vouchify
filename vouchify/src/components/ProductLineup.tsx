@@ -1,4 +1,5 @@
 
+import Link from 'next/link';
 import { Price } from '@/components/ui';
 import { FlipCard } from '@/components/FlipCard';
 import {
@@ -280,56 +281,55 @@ export function ProductLineup({
           name={item.name}
           href={item.href}
           rows={lineupBackFaces[item.kind]}
-          front={
-            <>
-              <div
+          frontMedia={
+            <div
+              className={cn(
+                'rounded-md border px-2 pb-1 pt-3 transition-colors',
+                onInk
+                  ? 'border-warm-800 bg-warm-900 group-hover:border-warm-700'
+                  : 'border-warm-300 bg-paper group-hover:border-warm-400',
+              )}
+            >
+              <Panel kind={item.kind} tone={tone} ariaLabel={item.ariaLabel} />
+            </div>
+          }
+          frontBody={
+            <div className={cn('mt-5 border-t pt-4', onInk ? 'border-warm-800' : 'border-warm-300')}>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <h3 className={cn('text-lg font-semibold', onInk ? 'text-paper' : 'text-ink')}>
+                  {/* A real link now, not a heading styled to look like one:
+                      the drawing above carries the flip, so this is free to
+                      go straight to the product page. */}
+                  <Link href={item.href} className="underline-offset-4 hover:underline">
+                    {item.name}
+                  </Link>
+                </h3>
+                <Price
+                  cents={item.priceCents}
+                  size="md"
+                  tone={onInk ? 'onDark' : 'ink'}
+                  suffix={item.priceSuffix}
+                />
+              </div>
+
+              <p
+                data-numeric
                 className={cn(
-                  'rounded-md border px-2 pb-1 pt-3 transition-colors',
-                  onInk
-                    ? 'border-warm-800 bg-warm-900 group-hover:border-warm-700'
-                    : 'border-warm-300 bg-paper group-hover:border-warm-400',
+                  'mt-1.5 font-sans text-2xs font-semibold uppercase tracking-[0.14em]',
+                  onInk ? 'text-gold' : 'text-gold-deep',
                 )}
               >
-                <Panel kind={item.kind} tone={tone} ariaLabel={item.ariaLabel} />
-              </div>
+                {item.finish}
+                <span className={onInk ? 'text-warm-500' : 'text-warm-600'}>
+                  {' \u00b7 '}
+                  {item.size}
+                </span>
+              </p>
 
-              <div className={cn('mt-5 border-t pt-4', onInk ? 'border-warm-800' : 'border-warm-300')}>
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                  <h3
-                    className={cn(
-                      'text-lg font-semibold underline-offset-4 group-hover:underline',
-                      onInk ? 'text-paper' : 'text-ink',
-                    )}
-                  >
-                    {item.name}
-                  </h3>
-                  <Price
-                    cents={item.priceCents}
-                    size="md"
-                    tone={onInk ? 'onDark' : 'ink'}
-                    suffix={item.priceSuffix}
-                  />
-                </div>
-
-                <p
-                  data-numeric
-                  className={cn(
-                    'mt-1.5 font-sans text-2xs font-semibold uppercase tracking-[0.14em]',
-                    onInk ? 'text-gold' : 'text-gold-deep',
-                  )}
-                >
-                  {item.finish}
-                  <span className={onInk ? 'text-warm-500' : 'text-warm-600'}>
-                    {' \u00b7 '}
-                    {item.size}
-                  </span>
-                </p>
-
-                <p className={cn('mt-3 text-sm', onInk ? 'text-warm-300' : 'text-warm-700')}>
-                  {item.line}
-                </p>
-              </div>
-            </>
+              <p className={cn('mt-3 text-sm', onInk ? 'text-warm-300' : 'text-warm-700')}>
+                {item.line}
+              </p>
+            </div>
           }
         />
       ))}

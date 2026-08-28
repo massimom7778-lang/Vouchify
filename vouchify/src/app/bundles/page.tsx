@@ -52,7 +52,7 @@ export default function BundlesPage() {
 
       {/* Side-by-side coverage comparison */}
       <Section rhythm="tight">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {standTiers.map((tier) => {
             const economics = tierEconomics(tier);
             const coverage = coveredPositions(tier);
@@ -82,9 +82,12 @@ export default function BundlesPage() {
                     title={`${tier.qty} ${pluralize(tier.qty, 'stand')}`}
                   />
                   {/* The second plan is drawn in every column, dimmed until the
-                      bundle reaches it. Columns stay the same height, and the
-                      floor a bundle does not cover is visible rather than absent. */}
-                  <div className="mt-2">
+                      bundle reaches it, so the floor a bundle does not cover is
+                      visible rather than absent. Below lg the card itself is too
+                      narrow for the numbered dots on one drawing to read, so a
+                      second one would only add noise — it appears once there is
+                      room for it to mean something. */}
+                  <div className="mt-2 hidden lg:block">
                     <PlanDrawing
                       location={2}
                       count={tier.qty}

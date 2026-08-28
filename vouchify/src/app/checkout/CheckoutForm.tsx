@@ -17,6 +17,23 @@ import {
 import { coreProduct, getCatalogItem, orderBump } from '@/data/products';
 import { site } from '@/data/site';
 
+/** A field-specific message (see schemas.ts — an unparsable email, a review
+ *  link with no scheme) already reads like a person wrote it for the customer
+ *  who typed it, and is used untouched. A generic server error is a fact
+ *  about our infrastructure, not the customer's mistake — "Payments are not
+ *  configured on this deployment yet." should never reach a buyer — so it is
+ *  replaced with one honest line. Either way, none of these three call sites
+ *  used to offer a way to still get the order in, so every path ends with one
+ *  now. */
+const knownCustomerSafeErrors = new Set(['The cart is empty.']);
+
+function checkoutErrorMessage(fieldMessage: string | undefined, serverError?: string): string {
+  const headline =
+    fieldMessage ??
+    (serverError && knownCustomerSafeErrors.has(serverError) ? serverError : 'Checkout could not start.');
+  return `${headline} If this keeps happening, email ${site.supportEmail} and we will take the order by hand.`;
+}
+
 export function CheckoutForm() {
   const lines = useCart((s) => s.lines);
   const reviewLink = useCart((s) => s.reviewLink);
@@ -126,13 +143,13 @@ export function CheckoutForm() {
           result.fieldErrors?.reviewLink ??
           result.fieldErrors?.lines ??
           Object.values(result.fieldErrors ?? {})[0];
-        setError(fieldMessage ?? result.error ?? 'Checkout could not start.');
+        setError(checkoutErrorMessage(fieldMessage, result.error));
         setStatus('error');
         return;
       }
       window.location.href = result.url;
     } catch {
-      setError('Checkout could not start. Check your connection and try again.');
+      setError(checkoutErrorMessage('Checkout could not start. Check your connection and try again.'));
       setStatus('error');
     }
   }

@@ -18,23 +18,36 @@ import { cn } from '@/lib/cn';
  * Height. Both faces share one grid cell, so the card is always as tall as the
  * taller face and turning it never moves anything else on the page.
  *
- * The hit area. The whole face is a button, because a tap anywhere should turn
- * the card. That rules out the card being a link, so the link to the product
- * page lives on the back and sits above the button.
+ * The hit area. On the back there is nothing else to protect, so the whole
+ * face is a button and the link to the product page sits layered above it.
+ * The front is different: it carries the product's own name and price, which
+ * have to stay real, independently clickable content rather than text sitting
+ * over a full-face button that swallows the tap. So the front is split in
+ * two: `frontMedia` (the drawing) gets its own hit area and turns the card,
+ * `frontBody` (name, price, description) sits below it as ordinary content.
+ * Both stay plain ReactNode — a render-prop function was tried here first,
+ * but this card also renders from a server component, and a function cannot
+ * cross that boundary the way JSX can.
  *
  * The face that is turned away. It is still in the layout, so it is marked
  * inert: without that, a keyboard tabs into a link nobody can see and a screen
  * reader reads out both sides of the card at once.
  */
 export function FlipCard({
-  front,
+  frontMedia,
+  frontBody,
   rows,
   name,
   href,
   tone = 'paper',
   className,
 }: {
-  front: ReactNode;
+  /** The part of the front that turns the card — the drawing, not the name
+   *  or price. Gets its own hit area rather than a button covering the
+   *  whole face. */
+  frontMedia: ReactNode;
+  /** Everything else on the front. Ordinary content, outside the hit area. */
+  frontBody: ReactNode;
   rows: readonly BackFaceRow[];
   name: string;
   href: string;
@@ -51,9 +64,22 @@ export function FlipCard({
       data-flipped={flipped ? '' : undefined}
     >
       <div className='flip__inner'>
-        {/* ---- front: passed in exactly as it was ---- */}
+        {/* ---- front ---- */}
         <div className='flip__face group' inert={flipped}>
-          {front}
+          <div className='relative'>
+            {frontMedia}
+            <button
+              type='button'
+              className='flip__hit'
+              aria-expanded={flipped}
+              aria-controls={backId}
+              onClick={() => setFlipped(true)}
+            >
+              <span className='sr-only'>{`Show the specifications for the ${name}`}</span>
+            </button>
+          </div>
+
+          {frontBody}
 
           {/* The affordance. A hover state would leave a phone with no clue
               the card does anything, so it is always visible. */}
@@ -88,16 +114,6 @@ export function FlipCard({
               Specs
             </span>
           </span>
-
-          <button
-            type='button'
-            className='flip__hit'
-            aria-expanded={flipped}
-            aria-controls={backId}
-            onClick={() => setFlipped(true)}
-          >
-            <span className='sr-only'>{`Show the specifications for the ${name}`}</span>
-          </button>
         </div>
 
         {/* ---- back: the specifications ---- */}

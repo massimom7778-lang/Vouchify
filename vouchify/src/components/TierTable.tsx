@@ -20,9 +20,10 @@ function defaultTierHref(id: string) {
 }
 
 /**
- * The price ladder as an actual table, because it is actual tabular data: five
- * rows, five comparable columns. Every saving is computed from the one-unit
- * price at render time, so the table cannot disagree with the product page.
+ * The price ladder as an actual table, because it is actual tabular data: one
+ * row per tier, with price, per-unit cost, savings and coverage as comparable
+ * columns. Every saving is computed from the one-unit price at render time,
+ * so the table cannot disagree with the product page.
  *
  * Shared by both bundle ladders: every prop defaults to the stand's own
  * values, so `<TierTable />` renders the stand table exactly as before, and

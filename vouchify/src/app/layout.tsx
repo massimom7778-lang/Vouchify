@@ -32,9 +32,11 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  // Matches --color-paper / --color-ink in globals.css exactly — any drift
+  // here shows as a seam of the wrong colour under mobile Safari's address bar.
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F6F4F0' },
-    { media: '(prefers-color-scheme: dark)', color: '#0B0B0C' },
+    { media: '(prefers-color-scheme: light)', color: '#FAFAF8' },
+    { media: '(prefers-color-scheme: dark)', color: '#15151A' },
   ],
 };
 
