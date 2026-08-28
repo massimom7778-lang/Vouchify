@@ -17,6 +17,7 @@ import {
 } from "@/components/ui";
 import { homepageFaqs } from "@/data/faq";
 import {
+  PLATE_SLUG,
   coreProduct,
   placements,
   plateInPlace,
@@ -178,7 +179,7 @@ export default function HomePage() {
                     sit, the blue and white square plate sticks flat and carries
                     the same link.{" "}
                     <Link
-                      href="/products/sticker"
+                      href={`/products/${PLATE_SLUG}`}
                       className="font-medium text-ink underline decoration-line underline-offset-4 hover:decoration-brass"
                     >
                       See the plate

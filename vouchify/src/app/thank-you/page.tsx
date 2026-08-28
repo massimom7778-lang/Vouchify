@@ -4,6 +4,7 @@ import { PurchaseTracker } from './PurchaseTracker';
 import { UpsellOffer } from './UpsellOffer';
 import { ButtonLink, Eyebrow, Grid, Price, Section } from '@/components/ui';
 import {
+  PLATE_SLUG,
   getStandTier,
   postPurchaseUpsell,
   coreProduct,
@@ -237,7 +238,7 @@ export default async function ThankYouPage({
                 <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
                   The Stand
                 </ButtonLink>
-                <ButtonLink href="/products/sticker" variant="outline" size="md">
+                <ButtonLink href={`/products/${PLATE_SLUG}`} variant="outline" size="md">
                   Review plates
                 </ButtonLink>
               </div>

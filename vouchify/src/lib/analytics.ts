@@ -1,7 +1,7 @@
 'use client';
 
 import { track } from '@vercel/analytics';
-import type { Sku, StandTierId } from '@/data/products';
+import type { PlateTierId, Sku, StandTierId } from '@/data/products';
 
 /**
  * Every custom event the storefront emits, in one place.
@@ -49,7 +49,7 @@ export function dollars(cents: number): number {
 }
 
 export interface EventPayloads {
-  [EVENTS.tierSelected]: { tierId: StandTierId };
+  [EVENTS.tierSelected]: { tierId: StandTierId | PlateTierId };
   [EVENTS.addToCart]: { sku: Sku; qty: number; value: number };
   [EVENTS.cartOpened]: { itemCount: number; subtotal: number };
   [EVENTS.beginCheckout]: { value: number; standCount: number };
