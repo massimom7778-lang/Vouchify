@@ -13,6 +13,7 @@ import {
   PLATE_UNIT_PRICE_CENTS,
   coreProduct,
   coveredPositions,
+  getAddOn,
   getPlateTier,
   orderBump,
   plateProduct,
@@ -23,6 +24,12 @@ import {
   type PlateTierId,
 } from '@/data/products';
 import { site } from '@/data/site';
+
+// Rush processing is a genuine per-order service regardless of what is in
+// the cart, so it belongs here too. Custom printing is not offered here:
+// its copy is specifically about a stand's printed face ("Your logo on the
+// stand"), which a 100mm blue and white plate does not have.
+const rush = getAddOn('rush');
 
 /* -------------------------------------------------------------------------- */
 
@@ -94,6 +101,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
     plateTiers.find((tier) => tier.id === initialTierId)?.id ?? DEFAULT_PLATE_TIER_ID;
 
   const [tierId, setTierId] = useState<PlateTierId>(startingTier);
+  const [rushPicked, setRushPicked] = useState(false);
   const [barVisible, setBarVisible] = useState(false);
 
   const add = useCart((s) => s.add);
@@ -102,7 +110,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
 
   const tier = plateTiers.find((t) => t.id === tierId) ?? plateTiers[0]!;
   const economics = tierEconomics(tier, PLATE_UNIT_PRICE_CENTS);
-  const total = tier.priceCents;
+  const total = tier.priceCents + (rushPicked && rush ? rush.priceCents : 0);
 
   // The checkout order bump discounts one plate for a customer also buying a
   // stand — shown here as the reason to buy alongside a stand order instead
@@ -131,6 +139,10 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
     // the same way a stand pack works — there is no free-quantity stepper.
     add(tier.id, 1);
     emit(EVENTS.addToCart, { sku: tier.id, qty: 1, value: dollars(tier.priceCents) });
+    if (rushPicked && rush) {
+      add(rush.id, 1);
+      emit(EVENTS.addToCart, { sku: rush.id, qty: 1, value: dollars(rush.priceCents) });
+    }
     openDrawer();
   }
 
@@ -202,6 +214,31 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
               </div>
               <p className="mt-3 text-xs text-warm-600">{tier.rationale}</p>
             </fieldset>
+
+            {/* Order options. Just rush — see the module-level comment on
+                `rush` for why custom printing has no place here. */}
+            {rush ? (
+              <fieldset className="mt-6 border-0 p-0">
+                <legend className="mb-1 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                  Add to the order
+                </legend>
+                <div className="divide-y divide-warm-300 border-y border-warm-300">
+                  <label className="flex cursor-pointer items-center gap-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={rushPicked}
+                      onChange={() => setRushPicked((prev) => !prev)}
+                      className="h-4 w-4 shrink-0 accent-[#C9A961]"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="text-sm font-medium">{rush.name}</span>
+                      <span className="ml-2 text-xs text-warm-600">{rush.shortLine}</span>
+                    </span>
+                    <Price cents={rush.priceCents} size="xs" display={false} />
+                  </label>
+                </div>
+              </fieldset>
+            ) : null}
 
             <div ref={buyButtonRef} className="mt-6">
               <div className="flex items-baseline justify-between">
@@ -293,6 +330,7 @@ export function PlateConfigurator({ initialTierId }: { initialTierId?: string })
           <div className="min-w-0 flex-1">
             <p className="truncate text-2xs uppercase tracking-wide text-warm-600">
               {tier.qty} {pluralize(tier.qty, 'plate')}
+              {rushPicked ? ' + rush' : ''}
             </p>
             <AnimatedTotal cents={total} className="text-xl" />
           </div>
