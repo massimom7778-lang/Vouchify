@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { JsonLd } from '@/components/JsonLd';
 import { PlateConfigurator } from '@/components/PlateConfigurator';
+import { PlateConfiguratorWithTier } from '@/components/PlateConfiguratorWithTier';
 import { TierTable } from '@/components/TierTable';
 import {
   ButtonLink,
@@ -40,6 +42,8 @@ const productSchema = {
   '@type': 'Product',
   name: plateProduct.fullName,
   description: plateProduct.summary,
+  image: [`${site.url}/product/plate-storefront-window.webp`],
+  sku: plateProduct.slug,
   brand: { '@type': 'Brand', name: site.name },
   offers: {
     '@type': 'AggregateOffer',
@@ -60,20 +64,20 @@ const productSchema = {
   },
 };
 
-export default async function ReviewPlatePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tier?: string }>;
-}) {
-  const { tier } = await searchParams;
-
+export default function ReviewPlatePage() {
   return (
     // Bottom padding keeps the sticky mobile buy bar off the footer.
     <main id="main" className="pb-[calc(5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
       <JsonLd data={productSchema} />
 
       <Section rhythm="tight" className="pb-0">
-        <PlateConfigurator initialTierId={tier} />
+        {/* ?tier= is read client-side (PlateConfiguratorWithTier), so this
+            route prerenders statically instead of paying for an SSR
+            invocation on every visit just to await an empty searchParams
+            object. */}
+        <Suspense fallback={<PlateConfigurator />}>
+          <PlateConfiguratorWithTier />
+        </Suspense>
       </Section>
 
       {/* Grid break: full-bleed studio photograph */}

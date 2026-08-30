@@ -19,7 +19,11 @@ export const site = {
   description:
     'A stand that sits on your counter. Customers tap their phone. Your Google review page opens. That is it.',
   supportEmail: 'support@vouchify.ca',
-  url: 'https://www.vouchify.ca',
+  // NEXT_PUBLIC_SITE_URL also drives siteOrigin() in lib/stripe.ts (Stripe
+  // redirects, dashboard links); this is the same origin used for canonicals,
+  // OpenGraph, and the sitemap, so a domain change only has to happen once,
+  // here and in the env var, rather than in this literal too.
+  url: (process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.vouchify.ca'),
   currency: 'CAD',
   locale: 'en-CA',
   /** Free shipping kicks in at this subtotal, in cents. Drives the cart drawer bar. */

@@ -290,16 +290,15 @@
   height: 100%;
 }
 
-/* The photograph, painted over the drawing. A background does not render a
-   broken-image box or spill alt text into the layout when it fails. */
+/* The photograph, painted over the drawing via next/image (see
+   StandCutout.tsx). Position and sizing come from the component's own
+   `fill` mode, inline, so this class only sets how the image sits within
+   its box and gives it its own compositor layer, so the shadow pass below
+   does not force it to be re-rasterised along with everything around it on
+   every frame. */
 .tap-stage__photo {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  /* Its own layer, so the shadow pass below does not force the product to be
-     re-rasterised along with everything around it on every frame. */
+  object-fit: contain;
+  object-position: center;
   transform: translateZ(0);
 }
 

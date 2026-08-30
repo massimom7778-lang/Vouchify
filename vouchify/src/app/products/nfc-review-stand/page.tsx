@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { FaqList } from '@/components/FaqList';
 import { JsonLd } from '@/components/JsonLd';
 import { ProductConfigurator } from '@/components/ProductConfigurator';
+import { ProductConfiguratorWithTier } from '@/components/ProductConfiguratorWithTier';
 import {
   ButtonLink,
   Eyebrow,
@@ -42,6 +44,8 @@ const productSchema = {
   '@type': 'Product',
   name: coreProduct.fullName,
   description: coreProduct.summary,
+  image: [`${site.url}/product/stand-hero.webp`],
+  sku: coreProduct.slug,
   brand: { '@type': 'Brand', name: site.name },
   material: 'Cast acrylic',
   size: coreProduct.dimensions,
@@ -65,20 +69,21 @@ const productSchema = {
   },
 };
 
-export default async function ProductPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tier?: string }>;
-}) {
-  const { tier } = await searchParams;
-
+export default function ProductPage() {
   return (
     // Bottom padding keeps the sticky mobile buy bar off the footer.
     <main id="main" className="pb-[calc(5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
       <JsonLd data={productSchema} />
 
       <Section rhythm="tight" className="pb-0">
-        <ProductConfigurator initialTierId={tier} />
+        {/* ?tier= is read client-side (ProductConfiguratorWithTier), so this
+            route prerenders statically instead of every visit paying for an
+            SSR invocation just to await an empty searchParams object. The
+            fallback is the default-tier configurator, which is also what
+            renders for the common case of no ?tier= at all. */}
+        <Suspense fallback={<ProductConfigurator />}>
+          <ProductConfiguratorWithTier />
+        </Suspense>
       </Section>
 
       {/* Grid break: full-bleed counter photograph */}

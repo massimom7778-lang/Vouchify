@@ -26,11 +26,10 @@ export function TapStage({ className }: { className?: string }) {
   return (
     <div className={cn('tap-stage', className)}>
       {/* ---- the real product, hovering ---- */}
-      {/* The photograph is a background image rather than an <img> on purpose:
-          if the CDN ever fails, a background simply does not paint, while a
-          broken <img> renders its alt text as a wall of copy in the middle of
-          the hero. The drawn stand underneath is what shows instead, so the
-          hero is complete either way. */}
+      {/* The photograph (StandCutout) is self-hosted and decorative — see that
+          file for why alt="" is what actually keeps a failed load silent, not
+          which element type renders it. The drawn stand underneath is what
+          shows instead, so the hero is complete either way. */}
       <div
         className="tap-stage__product"
         role="img"

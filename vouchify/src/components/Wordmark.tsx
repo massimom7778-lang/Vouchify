@@ -56,7 +56,7 @@ export function Wordmark({
       </span>
       {descriptor ? (
         <span className="mt-2 font-sans text-2xs font-semibold uppercase tracking-[0.22em] text-gold">
-          NFC review cards
+          NFC review stands &amp; plates
         </span>
       ) : null}
     </span>
