@@ -7,7 +7,10 @@ type Tone = 'paper' | 'ink' | 'warm';
 const tones: Record<Tone, string> = {
   paper: 'bg-paper text-ink',
   warm: 'bg-warm-100 text-ink',
-  ink: 'bg-ink text-paper',
+  // on-ink swaps the focus-visible ring to full-brightness gold: gold-deep,
+  // the default ring colour, is tuned for small text on paper and measures
+  // well under 3:1 against ink.
+  ink: 'bg-ink text-paper on-ink',
 };
 
 type Rhythm = 'tight' | 'default' | 'loose';

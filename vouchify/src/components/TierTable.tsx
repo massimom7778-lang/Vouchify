@@ -2,18 +2,53 @@ import Link from 'next/link';
 import { ButtonLink, Coverage, Price } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { formatMoney, pluralize } from '@/lib/format';
-import { DEFAULT_TIER_ID, coreProduct, coveredPositions, standTiers, tierEconomics, UNIT_PRICE_CENTS } from '@/data/products';
+import {
+  DEFAULT_TIER_ID,
+  coreProduct,
+  coveredPositions,
+  placements,
+  standTiers,
+  tierEconomics,
+  UNIT_PRICE_CENTS,
+  type Placement,
+  type PlateTier,
+  type StandTier,
+} from '@/data/products';
 
-function tierHref(id: string) {
+function defaultTierHref(id: string) {
   return `/products/${coreProduct.slug}?tier=${id}`;
 }
 
 /**
- * The price ladder as an actual table, because it is actual tabular data: five
- * rows, five comparable columns. Every saving is computed from the one-unit
- * price at render time, so the table cannot disagree with the product page.
+ * The price ladder as an actual table, because it is actual tabular data: one
+ * row per tier, with price, per-unit cost, savings and coverage as comparable
+ * columns. Every saving is computed from the one-unit price at render time,
+ * so the table cannot disagree with the product page.
+ *
+ * Shared by both bundle ladders: every prop defaults to the stand's own
+ * values, so `<TierTable />` renders the stand table exactly as before, and
+ * the plate page passes its own tiers, placements and unit price instead.
  */
-export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
+export function TierTable({
+  tone = 'paper',
+  tiers = standTiers,
+  unitWord = 'stand',
+  unitPriceCents = UNIT_PRICE_CENTS,
+  defaultTierId = DEFAULT_TIER_ID,
+  placementList = placements,
+  hrefFor = defaultTierHref,
+  caption = 'Vouchify stand bundles, prices and per-unit savings',
+}: {
+  tone?: 'paper' | 'ink';
+  tiers?: readonly (StandTier | PlateTier)[];
+  /** Singular, e.g. "stand" or "plate". Pluralized with a trailing "s". */
+  unitWord?: string;
+  unitPriceCents?: number;
+  defaultTierId?: string;
+  placementList?: readonly Placement[];
+  hrefFor?: (id: string) => string;
+  caption?: string;
+}) {
   const onInk = tone === 'ink';
   const rule = onInk ? 'border-warm-800' : 'border-warm-300';
   const divide = onInk ? 'divide-warm-800' : 'divide-warm-300';
@@ -24,17 +59,17 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
   const savings = onInk ? 'text-gold' : 'text-gold-deep';
   const cardBase = onInk ? 'border-warm-800 bg-warm-900' : 'border-warm-300 bg-paper';
   const cardHi = onInk ? 'border-gold bg-warm-900' : 'border-gold bg-gold-tint';
+  const unitWordPlural = `${unitWord}s`;
+  const unitWordPluralCapitalized = unitWordPlural[0]!.toUpperCase() + unitWordPlural.slice(1);
 
   return (
     <>
       {/* Desktop: a dense spec table */}
       <table className={cn('hidden w-full border-collapse text-left md:table', divide)}>
-        <caption className="sr-only">
-          Vouchify stand bundles, prices and per-unit savings
-        </caption>
+        <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className={cn('border-y', rule)}>
-            {['Stands', 'Price', 'Per stand', 'You save', 'What it covers', ''].map((heading) => (
+            {[unitWordPluralCapitalized, 'Price', `Per ${unitWord}`, 'You save', 'What it covers', ''].map((heading) => (
               <th
                 key={heading}
                 scope="col"
@@ -46,10 +81,10 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
           </tr>
         </thead>
         <tbody>
-          {standTiers.map((tier) => {
-            const economics = tierEconomics(tier);
-            const coverage = coveredPositions(tier);
-            const highlight = tier.id === DEFAULT_TIER_ID;
+          {tiers.map((tier) => {
+            const economics = tierEconomics(tier, unitPriceCents);
+            const coverage = coveredPositions(tier, placementList);
+            const highlight = tier.id === defaultTierId;
             return (
               <tr
                 key={tier.id}
@@ -89,7 +124,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                 </td>
                 <td className="py-5 align-top text-right">
                   <ButtonLink
-                    href={tierHref(tier.id)}
+                    href={hrefFor(tier.id)}
                     variant={highlight ? 'primary' : onInk ? 'onDark' : 'outline'}
                     size="sm"
                   >
@@ -104,14 +139,14 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
 
       {/* Mobile: the same rows as stacked cards */}
       <div className="flex flex-col gap-3 md:hidden">
-        {standTiers.map((tier) => {
-          const economics = tierEconomics(tier);
-          const coverage = coveredPositions(tier);
-          const highlight = tier.id === DEFAULT_TIER_ID;
+        {tiers.map((tier) => {
+          const economics = tierEconomics(tier, unitPriceCents);
+          const coverage = coveredPositions(tier, placementList);
+          const highlight = tier.id === defaultTierId;
           return (
             <Link
               key={tier.id}
-              href={tierHref(tier.id)}
+              href={hrefFor(tier.id)}
               className={cn(
                 'block rounded-md border p-4',
                 highlight ? cardHi : cardBase,
@@ -124,7 +159,7 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
                     onInk && 'text-paper',
                   )}
                 >
-                  {tier.qty} {pluralize(tier.qty, 'stand')}
+                  {tier.qty} {pluralize(tier.qty, unitWord)}
                 </span>
                 <span className="ml-auto shrink-0 text-right">
                   <Price cents={tier.priceCents} size="md" tone={onInk ? 'onDark' : 'ink'} />
@@ -150,9 +185,10 @@ export function TierTable({ tone = 'paper' }: { tone?: 'paper' | 'ink' }) {
       </div>
 
       <p data-numeric className={cn('mt-4 text-xs', head)}>
-        Savings are measured against buying the same number of stands one at a time at{' '}
-        {formatMoney(UNIT_PRICE_CENTS, { compact: true })} each. There is no list price we discount from.
+        Savings are measured against buying the same number of {unitWordPlural} one at a time at{' '}
+        {formatMoney(unitPriceCents, { compact: true })} each. There is no list price we discount from.
       </p>
+      <p className={cn('mt-1 text-xs', muted)}>All prices in CAD</p>
     </>
   );
 }

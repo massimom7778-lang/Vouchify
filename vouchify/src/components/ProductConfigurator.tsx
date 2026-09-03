@@ -15,6 +15,7 @@ import {
   coreProduct,
   linkModes,
   orderOptions,
+  priceRangeCents,
   standTiers,
   tierEconomics,
   type AddOn,
@@ -111,10 +112,9 @@ function AddOnRow({
         onChange={onToggle}
         className="h-4 w-4 shrink-0 accent-[#C9A961]"
       />
-      <span
-        aria-hidden="true"
-        className="h-11 w-11 shrink-0 rounded-sm border border-warm-300 bg-warm-200"
-      />
+      <span className="h-11 w-11 shrink-0 overflow-hidden rounded-sm">
+        <PhotoBlock photo={addOn.photo} className="h-full w-full" />
+      </span>
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold">{addOn.name}</span>
         <span className="block text-xs text-warm-600">{addOn.shortLine}</span>
@@ -163,10 +163,12 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
   const [barVisible, setBarVisible] = useState(false);
 
   const add = useCart((s) => s.add);
+  const openDrawer = useCart((s) => s.openDrawer);
   const buyButtonRef = useRef<HTMLDivElement>(null);
 
   const tier = standTiers.find((t) => t.id === tierId) ?? standTiers[0]!;
   const economics = tierEconomics(tier);
+  const threeTier = standTiers.find((t) => t.qty === 3);
 
   const selectedAddOns = useMemo(
     () => [...buyBoxAddOns, ...orderOptions].filter((addOn) => picked.has(addOn.id)),
@@ -210,6 +212,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
       add(addOn.id, 1);
       emit(EVENTS.addToCart, { sku: addOn.id, qty: 1, value: dollars(addOn.priceCents) });
     }
+    openDrawer();
   }
 
   return (
@@ -219,13 +222,19 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
         <div className="col-span-4 md:col-span-7">
           <Eyebrow>The Stand</Eyebrow>
           <h1 className="mt-4 text-2xl md:text-3xl">{coreProduct.headline}</h1>
+          <p data-numeric className="mt-3 text-sm font-semibold text-warm-700">
+            from {formatMoney(priceRangeCents.low, { compact: true })}
+            {threeTier ? ` · 3 for ${formatMoney(threeTier.priceCents, { compact: true })}` : ''}
+          </p>
         </div>
         <div className="col-span-4 self-end md:col-span-4 md:col-start-9">
           <p className="text-base text-warm-700">{coreProduct.summary}</p>
         </div>
 
-        {/* Gallery */}
-        <div className="col-span-4 md:col-span-7">
+        {/* Gallery. Below the buy box on a phone, so the price and the Add to
+            cart button are reachable without scrolling past three photos and a
+            spec list first; back to its usual place at md, beside the buy box. */}
+        <div className="order-2 col-span-4 md:order-1 md:col-span-7">
           <PhotoBlock photo={coreProduct.photos.hero} vignette />
           <PhotoBlock photo={coreProduct.photos.inHand} className="mt-4" />
 
@@ -245,8 +254,10 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
           </dl>
         </div>
 
-        {/* Buy box */}
-        <div className="col-span-4 md:col-span-5 lg:sticky lg:top-24 lg:self-start">
+        {/* Buy box. Ordered first on a phone, so what it costs and the Add to
+            cart button are above the fold instead of below three photos and a
+            spec table. */}
+        <div className="order-1 col-span-4 md:order-2 md:col-span-5 lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-md border border-warm-300 bg-warm-50 p-5 md:p-6">
             <div className="flex items-baseline justify-between gap-4">
               <div>
@@ -263,41 +274,45 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
               </div>
             </div>
 
-            {/* Colour */}
-            <fieldset className="mt-6 border-0 p-0">
-              <legend className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
-                Colour
-              </legend>
-              <div className="flex gap-2">
-                {coreProduct.colors.map((option) => {
-                  const active = color === option.id;
-                  return (
-                    <label
-                      key={option.id}
-                      className={cn(
-                        'flex flex-1 cursor-pointer items-center gap-2 rounded-sm border px-3 py-2',
-                        active ? 'border-ink bg-paper' : 'border-warm-300 bg-paper hover:border-warm-500',
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="stand-color"
-                        value={option.id}
-                        checked={active}
-                        onChange={() => setColor(option.id as StandColor)}
-                        className="sr-only"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="h-4 w-4 rounded-full border border-warm-400"
-                        style={{ backgroundColor: option.swatch }}
-                      />
-                      <span className="text-sm font-medium">{option.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+            {/* Colour. Only one option exists today (black); the fieldset is
+                withheld until white ships rather than showing a picker with
+                nothing to pick. State and plumbing stay wired for that day. */}
+            {coreProduct.colors.length > 1 ? (
+              <fieldset className="mt-6 border-0 p-0">
+                <legend className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
+                  Colour
+                </legend>
+                <div className="flex gap-2">
+                  {coreProduct.colors.map((option) => {
+                    const active = color === option.id;
+                    return (
+                      <label
+                        key={option.id}
+                        className={cn(
+                          'flex flex-1 cursor-pointer items-center gap-2 rounded-sm border px-3 py-2',
+                          active ? 'border-ink bg-paper' : 'border-warm-300 bg-paper hover:border-warm-500',
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name="stand-color"
+                          value={option.id}
+                          checked={active}
+                          onChange={() => setColor(option.id as StandColor)}
+                          className="sr-only"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="h-4 w-4 rounded-full border border-warm-400"
+                          style={{ backgroundColor: option.swatch }}
+                        />
+                        <span className="text-sm font-medium">{option.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ) : null}
 
             {/* Tiers */}
             <fieldset className="mt-6 border-0 p-0">
@@ -329,7 +344,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
                 <legend className="mb-2 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
                   Where these {tier.qty} stands point
                 </legend>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {linkModes.map((option) => {
                     const active = option.id === linkMode;
                     return (
@@ -378,16 +393,18 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
               <legend className="mb-1 font-sans text-2xs font-semibold uppercase tracking-wide text-warm-600">
                 Add to the order
               </legend>
-              <div className="divide-y divide-warm-300 border-y border-warm-300">
-                {buyBoxAddOns.map((addOn) => (
-                  <AddOnRow
-                    key={addOn.id}
-                    addOn={addOn}
-                    checked={picked.has(addOn.id)}
-                    onToggle={() => toggle(addOn.id)}
-                  />
-                ))}
-              </div>
+              {buyBoxAddOns.length > 0 && (
+                <div className="divide-y divide-warm-300 border-y border-warm-300">
+                  {buyBoxAddOns.map((addOn) => (
+                    <AddOnRow
+                      key={addOn.id}
+                      addOn={addOn}
+                      checked={picked.has(addOn.id)}
+                      onToggle={() => toggle(addOn.id)}
+                    />
+                  ))}
+                </div>
+              )}
               <div className="divide-y divide-warm-300">
                 {orderOptions.map((addOn) => (
                   <OptionRow
@@ -407,6 +424,7 @@ export function ProductConfigurator({ initialTierId }: { initialTierId?: string 
                 </span>
                 <AnimatedTotal cents={total} className="text-2xl" />
               </div>
+              <p className="mt-1 text-right text-xs text-warm-600">All prices in CAD</p>
               <Button block size="lg" className="mt-3" onClick={addToCart}>
                 Add to cart
               </Button>

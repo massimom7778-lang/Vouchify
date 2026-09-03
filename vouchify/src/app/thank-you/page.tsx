@@ -4,6 +4,7 @@ import { PurchaseTracker } from './PurchaseTracker';
 import { UpsellOffer } from './UpsellOffer';
 import { ButtonLink, Eyebrow, Grid, Price, Section } from '@/components/ui';
 import {
+  PLATE_SLUG,
   getStandTier,
   postPurchaseUpsell,
   coreProduct,
@@ -26,6 +27,12 @@ interface OrderView {
   reviewLink: string;
   minutesLeft: number;
   upsellRedeemed: boolean;
+  /** True once the upsell can no longer be offered — either genuinely
+   *  redeemed, or its 3-D Secure fallback checkout is already open. Distinct
+   *  from upsellRedeemed so the messaging below never claims "Extra stands
+   *  added" for a fallback purchase that may still be in flight or may have
+   *  been abandoned; it only stops the offer being shown a second time. */
+  upsellClosed: boolean;
   /** The tokenised dashboard link. Also printed on a card in the box. */
   dashboardUrl: string | null;
   perUnitLinks: boolean;
@@ -58,23 +65,25 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
     // Provisioning is idempotent on the session id, so a refresh is harmless.
     // The webhook calls the same function; whichever arrives first creates the
     // order, and whichever created it sends the confirmation. A session with
-    // no stand tier in it (a review-plate-only order, say) still gets
-    // provisioned — it just has nothing for a dashboard to show, so the card
-    // below stays hidden rather than linking to an empty one.
+    // nothing trackable in it still gets provisioned — it just has nothing
+    // for a dashboard to show, so the card below stays hidden rather than
+    // linking to an empty one. A plate-only order does have a dashboard: a
+    // plate is provisioned as its own trackable unit, same as a stand.
     const sessionStandCount = Number(session.metadata?.standCount ?? 0) || 0;
+    const sessionPlateCount = Number(session.metadata?.plateCount ?? 0) || 0;
     let dashboardUrl: string | null = null;
     try {
       const result = await provisionFromCheckoutSession(session);
       if (result) {
-        if (sessionStandCount > 0) {
+        if (sessionStandCount > 0 || sessionPlateCount > 0) {
           dashboardUrl = `${siteOrigin()}/dashboard/${result.order.dashboardToken}`;
         }
-        // This page creating the order used to mean no confirmation was ever
-        // sent: the webhook would arrive later, see `created: false` and return
-        // early, leaving the dashboard link only on a page about to be closed.
-        if (result.created) {
-          await sendOrderConfirmation({ order: result.order, session });
-        }
+        // Called on every load, not only when this request created the order.
+        // sendOrderConfirmation claims atomically on confirmation_sent_at, so
+        // this cannot double-send — it can only ever be the one that closes
+        // the gap left when the request that created the order (this one, on
+        // a previous load, or the webhook) died before the email went out.
+        await sendOrderConfirmation({ order: result.order, session });
       }
     } catch (error) {
       console.error('[thank-you] provisioning failed', error);
@@ -95,6 +104,9 @@ async function loadOrder(sessionId: string): Promise<OrderView | null> {
       reviewLink: session.metadata?.reviewLink ?? '',
       minutesLeft: Math.max(0, Math.ceil(remaining / 60)),
       upsellRedeemed: session.metadata?.upsellStatus === 'redeemed',
+      upsellClosed:
+        session.metadata?.upsellStatus === 'redeemed' ||
+        session.metadata?.upsellStatus === 'pending',
     };
   } catch {
     return null;
@@ -113,7 +125,7 @@ export default async function ThankYouPage({
   const offerOpen =
     Boolean(sessionId) &&
     order !== null &&
-    !order.upsellRedeemed &&
+    !order.upsellClosed &&
     order.minutesLeft > 0 &&
     upsell !== 'done' &&
     tier !== undefined;
@@ -235,7 +247,7 @@ export default async function ThankYouPage({
                 <ButtonLink href={`/products/${coreProduct.slug}`} size="md">
                   The Stand
                 </ButtonLink>
-                <ButtonLink href="/products/sticker" variant="outline" size="md">
+                <ButtonLink href={`/products/${PLATE_SLUG}`} variant="outline" size="md">
                   Review plates
                 </ButtonLink>
               </div>

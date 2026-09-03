@@ -37,3 +37,17 @@ export function formatPercent(value: number): string {
 export function pluralize(count: number, singular: string, plural?: string): string {
   return count === 1 ? singular : (plural ?? `${singular}s`);
 }
+
+/**
+ * "3 stands", "2 plates", "3 stands and 2 plates", or "nothing to encode".
+ *
+ * The one place this sentence is built, so the confirmation email, the
+ * owner's dashboard, and the fulfillment packing list can never drift into
+ * describing the same order three different ways.
+ */
+export function describeCounts(standCount: number, plateCount: number): string {
+  const parts: string[] = [];
+  if (standCount > 0) parts.push(`${standCount} ${pluralize(standCount, 'stand')}`);
+  if (plateCount > 0) parts.push(`${plateCount} ${pluralize(plateCount, 'plate')}`);
+  return parts.length ? parts.join(' and ') : 'nothing to encode';
+}

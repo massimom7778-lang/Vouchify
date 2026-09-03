@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { EVENTS, dollars, emit, onceForKey } from '@/lib/analytics';
+import { useCart } from '@/lib/cart';
 import { postPurchaseUpsell } from '@/data/products';
 import type { StandTierId } from '@/data/products';
 
@@ -35,6 +36,12 @@ export function PurchaseTracker({
         standCount,
         tierId,
       });
+      // The customer just paid for everything currently in the cart. Left in
+      // place, those lines show "Cart 3" in the header on this very page and
+      // prime every product CTA to re-add what was just bought. The review
+      // link is kept — it is the customer's own value, not part of the order
+      // that just closed.
+      useCart.getState().clear();
     }
 
     // The upsell's card-authentication fallback leaves the page for Stripe and

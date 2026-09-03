@@ -1,9 +1,10 @@
 import { z } from 'zod';
-import { addOns, standTiers } from '@/data/products';
+import { addOns, plateTiers, standTiers } from '@/data/products';
 
 const standTierIds = standTiers.map((tier) => tier.id) as [string, ...string[]];
+const plateTierIds = plateTiers.map((tier) => tier.id) as [string, ...string[]];
 const addOnIds = addOns.map((addOn) => addOn.id) as [string, ...string[]];
-const skuIds = [...standTierIds, ...addOnIds] as [string, ...string[]];
+const skuIds = [...standTierIds, ...plateTierIds, ...addOnIds] as [string, ...string[]];
 
 /**
  * The client sends what was chosen. It never sends a price — every amount is
@@ -20,7 +21,19 @@ export const checkoutRequestSchema = z.object({
   lines: z.array(cartLineSchema).min(1).max(20),
   /** The checkout order bump, at its bump price. */
   bump: z.boolean().default(false),
-  reviewLink: z.string().trim().max(500).optional(),
+  // Same rule the dashboard's own link editor enforces
+  // (dashboard/[token]/actions.ts) — a bare domain with no scheme parses as
+  // "valid" by nothing downstream, gets stored as the target verbatim, and
+  // every physical tap on it lands on /stand/not-set-up. Blank is still
+  // allowed: the customer may not have the link yet.
+  reviewLink: z
+    .string()
+    .trim()
+    .max(500)
+    .refine((value) => value === '' || /^https?:\/\/\S+$/i.test(value), {
+      message: 'Paste a review link starting with https://, or leave it blank.',
+    })
+    .optional(),
   email: z.string().trim().email().max(254).optional(),
 });
 

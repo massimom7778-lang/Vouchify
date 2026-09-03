@@ -16,9 +16,13 @@ export const dynamic = 'force-dynamic';
  * existed that order had money against it, no stand records, and no way for
  * its owner to reach the dashboard link. Here that cannot happen.
  *
- * Both paths call the same idempotent function, so whichever arrives first
- * wins and the other is a no-op. Confirmation is sent by whichever path
- * actually created the order, not by this one specifically.
+ * Both paths call the same idempotent provisioning function, so whichever
+ * arrives first wins and the other is a no-op. Confirmation is separate: this
+ * route calls sendOrderConfirmation unconditionally, not only when it created
+ * the order, because that email has its own atomic claim
+ * (`confirmation_sent_at`) — so this is the durable path for it. If the
+ * thank-you page's request created the order but died before the email went
+ * out, the webhook still runs to completion (Stripe retries it) and sends it.
  *
  * Local testing:
  *   stripe listen --forward-to localhost:3000/api/webhook
@@ -71,6 +75,32 @@ async function appendUpsell(session: Stripe.Checkout.Session): Promise<boolean> 
       session.id,
     );
   }
+
+  // `result` is non-null whether this call just appended the stands or found
+  // them already applied (a retried event) — either way the append has
+  // happened, so the original session should read 'redeemed'. Without this,
+  // the fallback's own success_url sends the customer back to /thank-you
+  // reading the ORIGINAL session (see loadOrder's upsellFor redirect), and
+  // upsellStatus there is still whatever it was before this webhook ran —
+  // 'pending' at best — which would keep the offer looking re-purchasable.
+  if (result) {
+    try {
+      const original = await getStripe().checkout.sessions.retrieve(originalSessionId);
+      await getStripe().checkout.sessions.update(originalSessionId, {
+        metadata: {
+          ...(original.metadata ?? {}),
+          upsellStatus: 'redeemed',
+          upsellPaymentIntent: session.id,
+          // Mirrors the off-session success path in /api/upsell, so the
+          // packing list reads the same total however the charge went through.
+          standCount: String(Number(original.metadata?.standCount ?? 0) + count),
+        },
+      });
+    } catch (error) {
+      console.error('[webhook] could not mark the original session redeemed', error);
+    }
+  }
+
   return true;
 }
 
@@ -92,6 +122,7 @@ async function fulfil(session: Stripe.Checkout.Session): Promise<void> {
           `Email: ${session.customer_details?.email ?? 'unknown'}`,
           `Amount: ${session.amount_total ?? 'unknown'} ${session.currency ?? ''}`,
           `standCount metadata: ${session.metadata?.standCount ?? '(missing)'}`,
+          `plateCount metadata: ${session.metadata?.plateCount ?? '(missing)'}`,
         ],
       });
     } else {
@@ -100,11 +131,11 @@ async function fulfil(session: Stripe.Checkout.Session): Promise<void> {
     return;
   }
 
-  // Only the path that actually created the order sends the confirmation.
-  // A Stripe retry, or the thank-you page having got there first, must not
-  // send a second one.
-  if (!result.created) return;
-
+  // Called every time, whether or not this call created the order —
+  // sendOrderConfirmation's own atomic claim on confirmation_sent_at is what
+  // stops a Stripe retry, or the thank-you page having got there first, from
+  // sending a second one. This is the durable path: it runs to completion
+  // regardless of the customer's browser.
   await sendOrderConfirmation({ order: result.order, session });
 }
 

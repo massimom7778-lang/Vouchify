@@ -1,7 +1,6 @@
 import {
   getCatalogItem,
   orderBump,
-  getAddOn,
   type CatalogItem,
   type LinkMode,
 } from '@/data/products';
@@ -24,6 +23,10 @@ export interface PricedOrder {
   readonly shippingCents: number;
   readonly totalCents: number;
   readonly standCount: number;
+  /** Review plates in the order — the checkout order-bump line included.
+   *  Tracked separately from standCount because a plate is provisioned as
+   *  its own trackable unit, not folded into a stand pack. */
+  readonly plateCount: number;
   /** True when any pack in the order needs a link encoded per stand. */
   readonly needsPerUnitLinks: boolean;
 }
@@ -36,6 +39,7 @@ export interface PricedOrder {
 export function priceOrder(request: CheckoutRequest): PricedOrder {
   const lines: PricedLine[] = [];
   let standCount = 0;
+  let plateCount = 0;
   let needsPerUnitLinks = false;
 
   for (const requested of request.lines) {
@@ -47,6 +51,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     const linkMode = item.kind === 'stand-tier' ? requested.linkMode : undefined;
 
     if (item.kind === 'stand-tier') standCount += item.qty * qty;
+    if (item.kind === 'plate-tier') plateCount += item.qty * qty;
     if (linkMode === 'per-unit') needsPerUnitLinks = true;
 
     lines.push({
@@ -66,7 +71,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
   }
 
   if (request.bump) {
-    const bumpItem = getAddOn(orderBump.addOnId);
+    const bumpItem = getCatalogItem(orderBump.sku);
     // The bump price lives in the catalog too — the client cannot name a price.
     if (bumpItem?.bumpPriceCents !== undefined) {
       lines.push({
@@ -76,6 +81,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
         totalCents: bumpItem.bumpPriceCents,
         label: `${bumpItem.name} (added at checkout)`,
       });
+      if (bumpItem.kind === 'plate-tier') plateCount += bumpItem.qty;
     }
   }
 
@@ -89,6 +95,7 @@ export function priceOrder(request: CheckoutRequest): PricedOrder {
     shippingCents: shipping,
     totalCents: subtotal + shipping,
     standCount,
+    plateCount,
     needsPerUnitLinks,
   };
 }

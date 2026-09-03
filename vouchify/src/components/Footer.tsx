@@ -5,7 +5,7 @@ import { footerNav, googleDisclaimer, site } from '@/data/site';
 
 export function Footer() {
   return (
-    <footer className="border-t border-warm-800 bg-ink text-paper">
+    <footer className="on-ink border-t border-warm-800 bg-ink text-paper">
       <Container className="py-14 md:py-20">
         <div className="grid grid-cols-4 gap-x-6 gap-y-10 md:grid-cols-12">
           <div className="col-span-4 md:col-span-4">

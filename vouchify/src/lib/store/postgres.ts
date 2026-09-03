@@ -52,6 +52,7 @@ interface OrderRow {
   ship_country: string | null;
   ship_phone: string | null;
   fulfilled_at: Date | null;
+  confirmation_sent_at: Date | null;
 }
 
 interface StandRow {
@@ -61,6 +62,7 @@ interface StandRow {
   placement_label: string;
   target_url: string;
   color: string;
+  kind: string;
   created_at: Date;
   target_updated_at: Date | null;
 }
@@ -83,6 +85,7 @@ function toOrder(row: OrderRow): OrderRecord {
       phone: row.ship_phone,
     },
     fulfilledAt: row.fulfilled_at ? row.fulfilled_at.toISOString() : null,
+    confirmationSentAt: row.confirmation_sent_at ? row.confirmation_sent_at.toISOString() : null,
   };
 }
 
@@ -90,6 +93,7 @@ function toStand(row: StandRow): Stand {
   return {
     code: row.code,
     orderId: row.order_id,
+    kind: row.kind === 'plate' ? 'plate' : 'stand',
     placementLabel: row.placement_label,
     placementNumber: row.placement_number,
     targetUrl: row.target_url,
@@ -119,9 +123,9 @@ async function insertStands(
     for (let attempt = 0; attempt < 5 && !placed; attempt += 1) {
       const code = newStandCode();
       const rows = await tx<StandRow[]>`
-        INSERT INTO stands (code, order_id, placement_number, placement_label, target_url, color)
+        INSERT INTO stands (code, order_id, placement_number, placement_label, target_url, color, kind)
         VALUES (${code}, ${orderId}, ${stand.placementNumber}, ${stand.placementLabel},
-                ${stand.targetUrl}, ${stand.color})
+                ${stand.targetUrl}, ${stand.color}, ${stand.kind ?? 'stand'})
         ON CONFLICT (code) DO NOTHING
         RETURNING *
       `;
@@ -279,6 +283,18 @@ export function createPostgresStore(): StandStore {
       const rows = fulfilled
         ? await client`UPDATE orders SET fulfilled_at = now() WHERE id = ${orderId} RETURNING id`
         : await client`UPDATE orders SET fulfilled_at = NULL WHERE id = ${orderId} RETURNING id`;
+      return rows.length > 0;
+    },
+
+    async markConfirmationSent(orderId) {
+      // The WHERE clause is the claim: only a row that is still null can be
+      // flipped, so of two concurrent callers exactly one gets a row back.
+      const rows = await db()<{ id: string }[]>`
+        UPDATE orders
+        SET confirmation_sent_at = now()
+        WHERE id = ${orderId} AND confirmation_sent_at IS NULL
+        RETURNING id
+      `;
       return rows.length > 0;
     },
 

@@ -1,14 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
 
 /**
  * The product layer of the hero.
  *
- * The photograph is painted as a background rather than an <img> because a
- * broken <img> spills its alt text across the middle of the hero, which is
- * exactly what happened the first time the CDN was unreachable. A background
- * that fails simply does not paint.
+ * The photograph renders through next/image, decorative (alt="") rather than
+ * described, because an empty alt is exactly as silent as a background image
+ * when the file fails to load — nothing spills into the middle of the hero
+ * either way. `priority` gets it into the server-rendered <head> as a preload
+ * link, so the browser starts fetching it before hydration rather than after,
+ * which is what actually cost the LCP window when this was a background-image
+ * set from a useEffect.
  *
  * That leaves the question of what to show while it has not arrived, or if it
  * never does. The answer is a drawn stand underneath, and the answer to "why is
@@ -20,25 +24,15 @@ import { useEffect, useState } from 'react';
  * empty box, and swaps once the photograph is decoded.
  */
 
-/** TODO: self-host. This is Higgsfield's CDN, so the hero depends on it staying
- *  up. Download the file, drop it in public/product/, and change this to
- *  '/product/stand-cutout.png'. Nothing else has to change. */
-export const STAND_CUTOUT =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_3IONDmkNXNvYhapdG4wMa0XBoJD/hf_20260825_045738_1982ca91-1d7e-4a14-9fbb-a2d68d37c225.png';
+/** Self-hosted. This used to be a Higgsfield CDN URL — user-content, unversioned,
+ *  no SLA, and it had already gone unreachable once — so the single most
+ *  important image on the site was one purge away from a broken hero. Also used
+ *  as the CSS mask source for the glare below, which needs a direct, un-proxied
+ *  URL to the file rather than next/image's optimizer endpoint. */
+export const STAND_CUTOUT = '/product/stand-cutout.webp';
 
 export function StandCutout() {
   const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const img = new Image();
-    img.decoding = 'async';
-    img.onload = () => setLoaded(true);
-    img.src = STAND_CUTOUT;
-    if (img.complete && img.naturalWidth > 0) setLoaded(true);
-    return () => {
-      img.onload = null;
-    };
-  }, []);
 
   return (
     <>
@@ -60,11 +54,17 @@ export function StandCutout() {
         </svg>
       )}
 
-      <span
+      <Image
+        src={STAND_CUTOUT}
+        alt=""
         aria-hidden="true"
+        fill
+        priority
+        sizes="(min-width: 1024px) 420px, (min-width: 640px) 320px, 60vw"
         className="tap-stage__photo"
+        style={{ objectFit: 'contain', objectPosition: 'center' }}
         data-loaded={loaded ? '' : undefined}
-        style={{ backgroundImage: `url(${STAND_CUTOUT})` }}
+        onLoad={() => setLoaded(true)}
       />
 
       {/* The glare is clipped to the product's own silhouette by using the same

@@ -19,6 +19,7 @@ import type { AddOn } from '@/data/products';
 export function AddOnBuyBox({ addOn }: { addOn: AddOn }) {
   const [qty, setQty] = useState(1);
   const add = useCart((s) => s.add);
+  const openDrawer = useCart((s) => s.openDrawer);
   const stackable = !addOn.perOrder;
 
   function handleAdd() {
@@ -29,6 +30,7 @@ export function AddOnBuyBox({ addOn }: { addOn: AddOn }) {
       qty: addedQty,
       value: dollars(addOn.priceCents * addedQty),
     });
+    openDrawer();
     if (stackable) setQty(1);
   }
 

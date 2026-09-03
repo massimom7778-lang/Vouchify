@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Badge, Button, Price } from '@/components/ui';
 import { EVENTS, dollars, emit } from '@/lib/analytics';
-import { formatMoney, pluralize } from '@/lib/format';
+import { formatMoney } from '@/lib/format';
 import { postPurchaseUpsell, tierEconomics, type StandTier } from '@/data/products';
 
 type Status = 'idle' | 'working' | 'added' | 'expired' | 'error';
@@ -11,11 +11,15 @@ type Status = 'idle' | 'working' | 'added' | 'expired' | 'error';
 export function UpsellOffer({
   sessionId,
   tier,
-  minutesLeft,
 }: {
   sessionId: string;
   tier: StandTier;
-  /** Computed on the server from the Stripe session timestamp. */
+  /** Computed on the server from the Stripe session timestamp and used only
+   *  to decide, server-side, whether this component renders at all — see
+   *  offerOpen in thank-you/page.tsx. Not shown here: a number printed at
+   *  render time and never updated would still read "15 minutes left" to
+   *  someone on the page 20 minutes later, right up until they click it and
+   *  the server tells them otherwise. */
   minutesLeft: number;
 }) {
   const [status, setStatus] = useState<Status>('idle');
@@ -87,8 +91,8 @@ export function UpsellOffer({
     <div className="rounded-md border-2 border-gold bg-paper p-6">
       <div className="flex flex-wrap items-center gap-3">
         <Badge tone="popular">One-time offer</Badge>
-        <span data-numeric className="text-2xs font-semibold uppercase tracking-wide text-warm-600">
-          {minutesLeft} {pluralize(minutesLeft, 'minute')} left on this order
+        <span className="text-2xs font-semibold uppercase tracking-wide text-warm-600">
+          While your order is still unpacked, usually about 15 minutes
         </span>
       </div>
 

@@ -179,11 +179,17 @@
     border-radius: 1px;
   }
 
-  /* On a gold surface a gold ring is invisible; on ink it needs to be gold. */
-  .on-gold:focus-visible {
+  /* On a gold surface a gold ring is invisible; on ink it needs to be gold.
+     Two selectors each: the class marks either the focusable element itself
+     (the gold Button) or a section wrapping many focusable descendants (an
+     ink-toned Section, the footer) — without the descendant form, a class on
+     the wrapper never reached the links and buttons inside it. */
+  .on-gold:focus-visible,
+  .on-gold :focus-visible {
     outline-color: var(--color-ink);
   }
-  .on-ink:focus-visible {
+  .on-ink:focus-visible,
+  .on-ink :focus-visible {
     outline-color: var(--color-gold);
   }
 
@@ -284,16 +290,15 @@
   height: 100%;
 }
 
-/* The photograph, painted over the drawing. A background does not render a
-   broken-image box or spill alt text into the layout when it fails. */
+/* The photograph, painted over the drawing via next/image (see
+   StandCutout.tsx). Position and sizing come from the component's own
+   `fill` mode, inline, so this class only sets how the image sits within
+   its box and gives it its own compositor layer, so the shadow pass below
+   does not force it to be re-rasterised along with everything around it on
+   every frame. */
 .tap-stage__photo {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  /* Its own layer, so the shadow pass below does not force the product to be
-     re-rasterised along with everything around it on every frame. */
+  object-fit: contain;
+  object-position: center;
   transform: translateZ(0);
 }
 

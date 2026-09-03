@@ -16,8 +16,12 @@ export type StandTierId =
   | 'stand-10'
   | 'stand-25'
   | 'stand-50';
-export type AddOnId = 'sticker' | 'custom-print' | 'rush';
-export type Sku = StandTierId | AddOnId;
+/** The review plate's own bundle ladder — a first-class catalog kind, not an
+ *  add-on. A plate is a separate NFC chip in its own right, bought on its own
+ *  in whatever count a shop needs, exactly like a stand pack. */
+export type PlateTierId = 'plate-1' | 'plate-3' | 'plate-5' | 'plate-10';
+export type AddOnId = 'custom-print' | 'rush';
+export type Sku = StandTierId | PlateTierId | AddOnId;
 
 
 /**
@@ -49,6 +53,10 @@ interface CatalogItemBase {
   /** One line, benefit-first. Used in the buy box and cart rows. */
   readonly shortLine: string;
   readonly photo: PhotoSlot;
+  /** Price when offered as the checkout order bump, if this SKU is ever
+   *  bumped. Lives on the base type rather than just AddOn because the bump
+   *  now discounts a plate-tier SKU, not an add-on. */
+  readonly bumpPriceCents?: number;
 }
 
 export interface StandTier extends CatalogItemBase {
@@ -58,6 +66,17 @@ export interface StandTier extends CatalogItemBase {
   /** The reason a real owner would take this tier instead of the one below it. */
   readonly rationale: string;
   /** Where the extra units actually go. Shown in the tier comparison. */
+  readonly coverage: string;
+}
+
+/** The plate's own bundle ladder. Deliberately mirrors StandTier field for
+ *  field so tierEconomics/coveredPositions/TierTable can be shared rather
+ *  than duplicated for a second product line. */
+export interface PlateTier extends CatalogItemBase {
+  readonly kind: 'plate-tier';
+  readonly id: PlateTierId;
+  readonly qty: number;
+  readonly rationale: string;
   readonly coverage: string;
 }
 
@@ -79,17 +98,18 @@ export interface AddOn extends CatalogItemBase {
   readonly colorNote?: string;
   readonly details: readonly string[];
   readonly specs: readonly { readonly label: string; readonly value: string }[];
-  /** Price when offered as the checkout order bump, if it is ever bumped. */
-  readonly bumpPriceCents?: number;
 }
 
-export type CatalogItem = StandTier | AddOn;
+export type CatalogItem = StandTier | PlateTier | AddOn;
 
 /* -------------------------------------------------------------------------- */
 /* Core SKU                                                                    */
 /* -------------------------------------------------------------------------- */
 
 export const CORE_SLUG = 'nfc-review-stand';
+/** The plate's own dedicated page — a first-class product page, not the
+ *  generic /products/[slug] add-on route. */
+export const PLATE_SLUG = 'review-plate';
 
 export const coreProduct = {
   slug: CORE_SLUG,
@@ -172,6 +192,75 @@ export const coreProduct = {
   },
 } as const;
 
+/**
+ * The plate's own product-page copy, mirroring `coreProduct` field for field
+ * (rather than folding both into one array — see the plan note on why two
+ * named constants beat an array of two heterogeneous products). It has no
+ * `colors` array the way the stand does: it ships in one fixed finish, noted
+ * on each tier the same way `colorNote` already worked on the old add-on.
+ */
+export const plateProduct = {
+  slug: PLATE_SLUG,
+  name: 'The Plate',
+  fullName: 'NFC Review Plate',
+  headline: 'For the places a stand cannot stand.',
+  summary:
+    'A 100 mm square NFC plate for the inside of the front window, the front door, the side of a POS terminal, a menu board, a table edge. One chip, one short code, encoded to your review link before it ships.',
+  finish: 'Blue and white, the only finish stocked.',
+  specs: [
+    { label: 'Size', value: '100 × 100 mm, 1.5 mm thick' },
+    { label: 'Finish', value: 'Blue and white' },
+    { label: 'Adhesive', value: '3M backing, removable within 30 days' },
+    { label: 'Chip', value: 'NTAG215, encoded before shipping' },
+    { label: 'Link changes', value: 'Free, unlimited, from your dashboard' },
+  ],
+  inTheBox: [
+    'The plates, programmed to your review link and tested on both an iPhone and an Android handset',
+    'A placement card showing where the first few go, in order',
+    '3M adhesive backing, already applied, peel and stick',
+    'A card with your dashboard link for changing where the plates point',
+  ],
+  ownership: [
+    { label: 'Price', value: 'Paid once' },
+    { label: 'Monthly', value: '$0. There is no subscription and no plan to add one' },
+    { label: 'Taps', value: 'Unlimited, for as long as you own the plate' },
+    { label: 'Link changes', value: 'Free and unlimited' },
+    { label: 'Per review', value: 'Nothing. We do not charge on results' },
+  ],
+  photos: {
+    hero: {
+      id: 'plate-hero',
+      todo: 'Product photo, blue and white square NFC plate applied to the inside of a shop window, shot from inside at an angle with street visible but blurred',
+      alt: 'The blue and white review plate stuck to the inside of a shopfront window, with the street and passers-by out of focus beyond the glass',
+      aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
+    },
+    phoneTap: {
+      id: 'plate-phone-tap',
+      todo: 'Lifestyle photo, a phone held against the plate on a shop counter, mid-tap',
+      alt: 'A hand holding a phone against the plate on a wooden shop counter, the phone showing a contactless symbol and a confirmation tick',
+      aspect: 'portrait',
+      src: '/product/plate-phone-tap.webp',
+      focus: '50% 58%',
+    },
+    counter: {
+      id: 'plate-counter-pos',
+      todo: 'Lifestyle photo, plate lying flat on a wooden counter beside a till',
+      alt: 'The plate lying flat on a wooden shop counter beside a till screen, with clothing rails out of focus behind',
+      aspect: 'portrait',
+      src: '/product/plate-counter-pos.webp',
+      focus: '50% 60%',
+    },
+    plinth: {
+      id: 'plate-plinth',
+      todo: 'Product photo, plate on a stone plinth, studio, warm neutral ground',
+      alt: 'The blue and white review plate propped on a pale stone plinth in a studio, lit softly from the left',
+      aspect: 'wide',
+      src: '/product/plate-plinth.webp',
+    },
+  },
+} as const;
+
 /* -------------------------------------------------------------------------- */
 /* Tiers, the spine of the business                                           */
 /* -------------------------------------------------------------------------- */
@@ -191,6 +280,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, one black stand, straight-on, off-white seamless',
       alt: 'One NFC review stand',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -208,6 +299,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, two black stands, one slightly behind the other, off-white seamless',
       alt: 'Two NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -225,6 +318,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, three black stands in a loose row, off-white seamless',
       alt: 'Three NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -242,6 +337,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, five black stands in two rows, off-white seamless, slight overhead angle',
       alt: 'Five NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -259,6 +356,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, ten black stands in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -276,6 +375,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, twenty-five black stands arranged in a grid, flat lay on off-white, overhead',
       alt: 'Twenty-five NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
   {
@@ -293,6 +394,8 @@ export const standTiers: readonly StandTier[] = [
       todo: 'Product photo, fifty black stands arranged in a grid, flat lay on off-white, overhead',
       alt: 'Fifty NFC review stands',
       aspect: 'square',
+      src: '/product/stand-hero.webp',
+      focus: '50% 62%',
     },
   },
 ];
@@ -301,77 +404,95 @@ export const standTiers: readonly StandTier[] = [
 export const DEFAULT_TIER_ID: StandTierId = 'stand-3';
 
 /* -------------------------------------------------------------------------- */
-/* Add-ons                                                                     */
+/* Plate tiers — the plate's own bundle ladder                                */
 /* -------------------------------------------------------------------------- */
 
-export const addOns: readonly AddOn[] = [
+export const plateTiers: readonly PlateTier[] = [
   {
-    kind: 'add-on',
-    id: 'sticker',
-    slug: 'sticker',
-    name: 'Review plate',
-    priceCents: 1500,
-    bumpPriceCents: 1100,
-    slot: 'picker',
-    hasPage: true,
-    perOrder: false,
-    shortLine: 'Sticks flat to glass, counters, and menu boards.',
-    colorNote: 'Blue and white',
-    summary:
-      'A 100 mm square NFC plate for the places a stand cannot go, the inside of the front window, the side of a POS terminal, the edge of a menu board.',
-    details: [
-      'Peel-and-stick on a 3M backing, 100 mm square, 1.5 mm thick, rated for indoor glass, laminate, and painted metal.',
-      'Rigid face, so it stays flat instead of curling at the corners like a paper sticker.',
-      'Same link as your stands, same free link changes.',
-      'Printed QR code on the face for phones without NFC.',
-    ],
-    specs: [
-      { label: 'Size', value: '100 × 100 mm, 1.5 mm thick' },
-      { label: 'Finish', value: 'Blue and white' },
-      { label: 'Adhesive', value: '3M backing, removable within 30 days' },
-      { label: 'Chip', value: 'NTAG215, encoded before shipping' },
-    ],
-    gallery: [
-      {
-        id: 'plate-plinth',
-        todo: 'Product photo, plate on a stone plinth, studio, warm neutral ground',
-        alt: 'The blue and white review plate propped on a pale stone plinth in a studio, lit softly from the left',
-        aspect: 'wide',
-        src: '/product/plate-plinth.webp',
-      },
-      {
-        id: 'plate-phone-tap',
-        todo: 'Lifestyle photo, a phone held against the plate on a shop counter, mid-tap',
-        alt: 'A hand holding a phone against the plate on a wooden shop counter, the phone showing a contactless symbol and a confirmation tick',
-        aspect: 'portrait',
-        src: '/product/plate-phone-tap.webp',
-        focus: '50% 58%',
-      },
-      {
-        id: 'plate-boutique-counter',
-        todo: 'Lifestyle photo, plate on the front face of a boutique counter, till above',
-        alt: 'The plate on the front face of a pale boutique counter, with a till screen above it and clothing rails behind',
-        aspect: 'portrait',
-        src: '/product/plate-boutique-counter.webp',
-        focus: '50% 62%',
-      },
-      {
-        id: 'plate-counter-pos',
-        todo: 'Lifestyle photo, plate lying flat on a wooden counter beside a till',
-        alt: 'The plate lying flat on a wooden shop counter beside a till screen, with clothing rails out of focus behind',
-        aspect: 'portrait',
-        src: '/product/plate-counter-pos.webp',
-        focus: '50% 60%',
-      },
-    ],
+    kind: 'plate-tier',
+    id: 'plate-1',
+    name: '1 review plate',
+    qty: 1,
+    priceCents: 2500,
+    /** Priced down when offered as the checkout order bump — see orderBump. */
+    bumpPriceCents: 1900,
+    shortLine: 'One plate for the window or the counter.',
+    rationale: 'The cheapest way to cover the one spot a stand cannot reach.',
+    coverage: 'Front window or counter.',
     photo: {
-      id: 'addon-sticker',
-      todo: 'Product photo, blue and white square NFC plate applied to the inside of a shop window, shot from inside at an angle with street visible but blurred',
-      alt: 'The blue and white review plate stuck to the inside of a shopfront window, with the street and passers-by out of focus beyond the glass',
+      id: 'plate-tier-1',
+      todo: 'Product photo, one blue and white review plate, straight-on, off-white seamless',
+      alt: 'One NFC review plate',
       aspect: 'square',
       src: '/product/plate-storefront-window.webp',
     },
   },
+  {
+    kind: 'plate-tier',
+    id: 'plate-3',
+    name: '3 review plates',
+    qty: 3,
+    priceCents: 6500,
+    shortLine: 'Covers a single storefront.',
+    rationale:
+      'Window, door, and POS terminal, the three places people read something before they decide whether to walk in, pay, or leave a review on the way out.',
+    coverage: 'Front window, front door, POS terminal.',
+    photo: {
+      id: 'plate-tier-3',
+      todo: 'Product photo, three blue and white review plates in a loose row, off-white seamless',
+      alt: 'Three NFC review plates',
+      aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
+    },
+  },
+  {
+    kind: 'plate-tier',
+    id: 'plate-5',
+    name: '5 review plates',
+    qty: 5,
+    priceCents: 9900,
+    shortLine: 'Every plate placement, with a spare.',
+    rationale:
+      'Window, door, POS terminal, menu board, table edge, one of everything, with one left over for the plate that gets knocked loose.',
+    coverage: 'Every plate placement, with a spare.',
+    photo: {
+      id: 'plate-tier-5',
+      todo: 'Product photo, five blue and white review plates in two rows, off-white seamless, slight overhead angle',
+      alt: 'Five NFC review plates',
+      aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
+    },
+  },
+  {
+    kind: 'plate-tier',
+    id: 'plate-10',
+    name: '10 review plates',
+    qty: 10,
+    priceCents: 17900,
+    shortLine: 'Two locations, fully covered.',
+    rationale:
+      'Every plate placement at two locations, each programmed to its own location’s review page.',
+    coverage: 'Two full locations, per-location links.',
+    photo: {
+      id: 'plate-tier-10',
+      todo: 'Product photo, ten blue and white review plates in a grid, flat lay on off-white, overhead',
+      alt: 'Ten NFC review plates',
+      aspect: 'square',
+      src: '/product/plate-storefront-window.webp',
+    },
+  },
+];
+
+/** The tier selected on load for the plate page. 3 plates covers one whole
+ *  storefront under the plate placement list below, the same story
+ *  `DEFAULT_TIER_ID = 'stand-3'` tells for a single-location stand order. */
+export const DEFAULT_PLATE_TIER_ID: PlateTierId = 'plate-3';
+
+/* -------------------------------------------------------------------------- */
+/* Add-ons                                                                     */
+/* -------------------------------------------------------------------------- */
+
+export const addOns: readonly AddOn[] = [
   {
     kind: 'add-on',
     id: 'custom-print',
@@ -381,7 +502,7 @@ export const addOns: readonly AddOn[] = [
     slot: 'order-option',
     hasPage: false,
     perOrder: true,
-    shortLine: 'One-time setup, applies to every stand in this order.',
+    shortLine: 'One-time setup, applies to every unit in this order.',
     summary:
       'We print your logo on the face of every stand in the order. Send the file after checkout; we send a proof back before anything is printed.',
     details: [
@@ -580,14 +701,41 @@ export const placements: readonly Placement[] = [
 
 export const PLACEMENTS_PER_LOCATION = 5;
 
+/**
+ * Where each additional plate goes. A plate does not share the stand's
+ * placement sequence — it exists specifically for the spots a stand cannot
+ * occupy — so this is its own ordered list, same shape and same "10 entries,
+ * repeats past 5 with a second-location suffix" pattern as `placements`.
+ */
+export const platePlacements: readonly Placement[] = [
+  { n: 1, label: 'Inside the front window', note: 'The first surface anyone reads while deciding whether to walk in.', location: 1, x: 60, y: 60 },
+  { n: 2, label: 'Front door', note: 'Catches people on the way out, when the experience is freshest.', location: 1, x: 150, y: 40 },
+  { n: 3, label: 'POS terminal', note: 'The same moment a stand would catch them, for a counter with no room for one.', location: 1, x: 220, y: 90 },
+  { n: 4, label: 'Menu board', note: 'Read by everyone deciding what to order, whether or not they end up paying at a counter.', location: 1, x: 100, y: 160 },
+  { n: 5, label: 'Table edge', note: 'Within reach without anyone standing up.', location: 1, x: 200, y: 200 },
+  { n: 6, label: 'Second location window', note: 'Programmed to that location’s own review page.', location: 2, x: 60, y: 60 },
+  { n: 7, label: 'Second location door', note: 'Same on-the-way-out placement that works at the first shop.', location: 2, x: 150, y: 40 },
+  { n: 8, label: 'Second location POS', note: 'Counter coverage, second floor plan.', location: 2, x: 220, y: 90 },
+  { n: 9, label: 'Second location menu board', note: 'Covers the room where people decide what to order.', location: 2, x: 100, y: 160 },
+  { n: 10, label: 'Second location table', note: 'One in the drawer for the plate that comes unstuck.', location: 2, x: 200, y: 200 },
+];
+
+export const PLATE_PLACEMENTS_PER_LOCATION = 5;
+
 /* -------------------------------------------------------------------------- */
 /* Offers driven by the catalog                                                */
 /* -------------------------------------------------------------------------- */
 
-/** Checkout order bump. Priced from the add-on's own bumpPriceCents. */
+/** Checkout order bump. A generic SKU rather than an add-on id, since the
+ *  bump now discounts a plate-tier pack (one plate, `plate-1`), not an
+ *  add-on. Priced from that SKU's own bumpPriceCents. */
 export const orderBump = {
-  addOnId: 'sticker' as const,
-  copy: 'Add a window sticker so the ask reaches people before they are through the door, same link as your stands.',
+  sku: 'plate-1' as const,
+  /** Used in "Add a {bumpLabel}" — the SKU's own name ("1 review plate")
+   *  reads grammatically broken lowercased inline, so this is worded for
+   *  that sentence specifically rather than derived from it. */
+  bumpLabel: 'review plate',
+  copy: 'Add a review plate for your window or counter, same link as your stands, at a discount for adding it now.',
 } as const;
 
 /** Post-purchase upsell. The window is enforced server-side against the Stripe
@@ -603,7 +751,7 @@ export const postPurchaseUpsell = {
 /* Lookups                                                                     */
 /* -------------------------------------------------------------------------- */
 
-export const catalog: readonly CatalogItem[] = [...standTiers, ...addOns];
+export const catalog: readonly CatalogItem[] = [...standTiers, ...plateTiers, ...addOns];
 
 const bySku = new Map<Sku, CatalogItem>(catalog.map((item) => [item.id, item]));
 
@@ -614,6 +762,11 @@ export function getCatalogItem(id: string): CatalogItem | undefined {
 export function getStandTier(id: string): StandTier | undefined {
   const item = bySku.get(id as Sku);
   return item?.kind === 'stand-tier' ? item : undefined;
+}
+
+export function getPlateTier(id: string): PlateTier | undefined {
+  const item = bySku.get(id as Sku);
+  return item?.kind === 'plate-tier' ? item : undefined;
 }
 
 export function getAddOn(id: string): AddOn | undefined {
@@ -629,8 +782,10 @@ export const buyBoxAddOns = addOns.filter((a) => a.slot === 'picker');
 export const orderOptions = addOns.filter((a) => a.slot === 'order-option');
 export const addOnPages = addOns.filter((a) => a.hasPage);
 
-/** The single-unit price every saving on the site is measured against. */
+/** The single-unit price every stand-tier saving on the site is measured against. */
 export const UNIT_PRICE_CENTS = standTiers[0]!.priceCents;
+/** Same role as UNIT_PRICE_CENTS, for the plate ladder. */
+export const PLATE_UNIT_PRICE_CENTS = plateTiers[0]!.priceCents;
 
 export interface TierEconomics {
   readonly perUnitCents: number;
@@ -639,9 +794,14 @@ export interface TierEconomics {
   readonly savingsPercent: number;
 }
 
-/** Derived, never stored. If a tier price changes, every savings figure follows. */
-export function tierEconomics(tier: StandTier): TierEconomics {
-  const listCents = tier.qty * UNIT_PRICE_CENTS;
+/** Derived, never stored. If a tier price changes, every savings figure
+ *  follows. Shared by both ladders: pass `PLATE_UNIT_PRICE_CENTS` for a
+ *  plate tier, defaults to the stand's own unit price otherwise. */
+export function tierEconomics(
+  tier: StandTier | PlateTier,
+  unitPriceCents: number = UNIT_PRICE_CENTS,
+): TierEconomics {
+  const listCents = tier.qty * unitPriceCents;
   const savingsCents = listCents - tier.priceCents;
   return {
     perUnitCents: Math.round(tier.priceCents / tier.qty),
@@ -653,18 +813,28 @@ export function tierEconomics(tier: StandTier): TierEconomics {
 
 /**
  * Which numbered placements a tier actually fills, for the "01–10" badge next
- * to a tier row. Null past `placements.length`: that list only names ten real
+ * to a tier row. Null past `list.length`: `placements` only names ten real
  * positions across two locations, so a 25- or 50-stand tier has nothing
  * distinct left to number, and showing "01–10" on all three of the 10-, 25-
  * and 50-stand tiers would make the badge actively misleading rather than
- * merely uninformative. Those tiers rely on `tier.coverage` alone.
+ * merely uninformative. Those tiers rely on `tier.coverage` alone. Pass
+ * `platePlacements` for a plate tier — every plate tier tops out at 10, so
+ * this never returns null for the plate ladder.
  */
-export function coveredPositions(tier: StandTier): { from: number; to: number } | null {
-  if (tier.qty > placements.length) return null;
+export function coveredPositions(
+  tier: StandTier | PlateTier,
+  list: readonly Placement[] = placements,
+): { from: number; to: number } | null {
+  if (tier.qty > list.length) return null;
   return { from: 1, to: tier.qty };
 }
 
 export const priceRangeCents = {
   low: Math.min(...standTiers.map((t) => t.priceCents)),
   high: Math.max(...standTiers.map((t) => t.priceCents)),
+};
+
+export const platePriceRangeCents = {
+  low: Math.min(...plateTiers.map((t) => t.priceCents)),
+  high: Math.max(...plateTiers.map((t) => t.priceCents)),
 };

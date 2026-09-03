@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button, ButtonLink, Eyebrow, Grid, Price } from '@/components/ui';
+import { Button, ButtonLink, Eyebrow, Grid, PhotoBlock, Price } from '@/components/ui';
 import { formatMoney } from '@/lib/format';
 import {
   describeLine,
@@ -68,10 +68,9 @@ export function CartContents() {
             const perOrder = item.kind === 'add-on' && item.perOrder;
             return (
               <li key={key} className="flex gap-4 py-5 sm:gap-6">
-                <span
-                  aria-hidden="true"
-                  className="h-20 w-20 shrink-0 rounded-sm border border-warm-300 bg-warm-200 sm:h-24 sm:w-24"
-                />
+                <span className="h-20 w-20 shrink-0 overflow-hidden rounded-sm sm:h-24 sm:w-24">
+                  <PhotoBlock photo={item.photo} className="h-full w-full" />
+                </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">

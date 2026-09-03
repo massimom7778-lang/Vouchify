@@ -7,7 +7,8 @@ import { CartDrawer } from '@/components/CartDrawer';
 import { Wordmark } from '@/components/Wordmark';
 import { Container } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { standCount, useCart, useCartReady } from '@/lib/cart';
+import { itemCount, useCart, useCartReady } from '@/lib/cart';
+import { pluralize } from '@/lib/format';
 import { primaryNav, site } from '@/data/site';
 
 export function Header() {
@@ -16,8 +17,7 @@ export function Header() {
   const openDrawer = useCart((s) => s.openDrawer);
   const lines = useCart((s) => s.lines);
   const ready = useCartReady();
-  const stands = ready ? standCount(lines) : 0;
-  const count = ready ? lines.length : 0;
+  const count = ready ? itemCount(lines) : 0;
 
   useEffect(() => {
     setMenuOpen(false);
@@ -99,10 +99,10 @@ export function Header() {
                 count > 0 ? 'bg-gold text-ink' : 'bg-warm-200 text-warm-600',
               )}
             >
-              {stands > 0 ? stands : count}
+              {count}
             </span>
             <span className="sr-only">
-              {count === 0 ? 'Cart is empty' : `${stands} stands in cart`}
+              {count === 0 ? 'Cart is empty' : `${count} ${pluralize(count, 'item')} in cart`}
             </span>
           </button>
         </Container>

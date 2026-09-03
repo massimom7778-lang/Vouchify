@@ -4,6 +4,7 @@ import { getStripe, isStripeConfigured, siteOrigin } from '@/lib/stripe';
 import { priceOrder, type PricedOrder } from '@/lib/pricing';
 import { checkoutRequestSchema } from '@/lib/schemas';
 import { orderBump } from '@/data/products';
+import { describeCounts } from '@/lib/format';
 import { site } from '@/data/site';
 
 export const runtime = 'nodejs';
@@ -39,10 +40,16 @@ export async function POST(request: Request) {
 
   const parsed = checkoutRequestSchema.safeParse(payload);
   if (!parsed.success) {
-    return NextResponse.json(
-      { ok: false, error: 'That cart could not be read. Refresh and try again.' },
-      { status: 400 },
-    );
+    // Mirrors /api/quote's shape: every zod failure used to collapse into one
+    // generic "cart could not be read" message, so a typo'd email or a
+    // scheme-less review link — both real, fixable mistakes — read as if the
+    // whole cart were corrupt.
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path[0];
+      if (typeof key === 'string' && !fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return NextResponse.json({ ok: false, fieldErrors }, { status: 400 });
   }
 
   const order = priceOrder(parsed.data);
@@ -74,7 +81,7 @@ export async function POST(request: Request) {
       customer_creation: 'always',
       payment_intent_data: {
         setup_future_usage: 'off_session',
-        description: `${site.name} order — ${order.standCount} stands`,
+        description: `${site.name} order — ${describeCounts(order.standCount, order.plateCount)}`,
       },
       shipping_address_collection: { allowed_countries: ['CA', 'US'] },
       shipping_options: [
@@ -98,13 +105,16 @@ export async function POST(request: Request) {
       metadata: {
         reviewLink: parsed.data.reviewLink ?? '',
         standCount: String(order.standCount),
+        // Read by provisioning to give every plate its own trackable code,
+        // exactly like a stand — see plateCount in provision.ts.
+        plateCount: String(order.plateCount),
         // The largest pack in the order, carried through so the thank-you page
         // can attribute the purchase to a tier without re-expanding line items.
         tierId: primaryTierId(order),
         // Provisioning reads this to label and colour the stand records.
         color: order.lines.find((line) => line.color)?.color ?? 'black',
         linkPlan: order.needsPerUnitLinks ? 'per-unit' : 'shared',
-        orderBump: parsed.data.bump ? orderBump.addOnId : '',
+        orderBump: parsed.data.bump ? orderBump.sku : '',
       },
       success_url: `${origin}/thank-you?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/checkout?cancelled=1`,
