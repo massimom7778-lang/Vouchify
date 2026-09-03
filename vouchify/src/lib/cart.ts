@@ -119,8 +119,21 @@ export function useCartReady(): boolean {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const result = useCart.persist.rehydrate();
-    if (result instanceof Promise) void result.then(() => setReady(true));
-    else setReady(true);
+    const finish = () => {
+      // A line saved before a catalog change (a retired or renamed SKU) no
+      // longer resolves to anything: resolveLines() already drops it from
+      // every display (the drawer, /cart, checkout), but nothing removed it
+      // from storage, so it sat there invisibly forever, inflating the
+      // header's item count and getting sent to checkout, where the server
+      // correctly rejected the whole order over a line the customer could not
+      // even see. Pruned once, right after the real cart loads.
+      const current = useCart.getState().lines;
+      const pruned = current.filter((line) => getCatalogItem(line.sku));
+      if (pruned.length !== current.length) useCart.setState({ lines: pruned });
+      setReady(true);
+    };
+    if (result instanceof Promise) void result.then(finish);
+    else finish();
   }, []);
   return ready;
 }
