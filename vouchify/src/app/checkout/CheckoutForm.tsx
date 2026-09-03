@@ -114,7 +114,13 @@ export function CheckoutForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lines: lines.map((line) => ({
+          // From `resolved`, not the raw `lines` state: a cart saved before a
+          // catalog change (a retired or renamed SKU sitting in localStorage)
+          // resolves to nothing and is already invisible in the order list
+          // above, but the raw `lines` array still carried it to the server,
+          // which correctly rejected the whole request over one phantom line
+          // the customer could not even see, let alone remove.
+          lines: resolved.map(({ line }) => ({
             sku: line.sku,
             qty: line.qty,
             color: line.color,

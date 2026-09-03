@@ -11,7 +11,13 @@ const skuIds = [...standTierIds, ...plateTierIds, ...addOnIds] as [string, ...st
  * looked up server-side from the catalog before it reaches Stripe.
  */
 export const cartLineSchema = z.object({
-  sku: z.enum(skuIds),
+  // A bare enum mismatch (a retired or renamed SKU, most likely from a cart
+  // saved before a catalog change) otherwise surfaces Zod's default "Invalid
+  // input" verbatim to the customer — true, but useless to someone looking at
+  // a checkout button that just stopped working.
+  sku: z.enum(skuIds, {
+    message: 'One item in your cart is no longer available. Refresh the page and try again.',
+  }),
   qty: z.number().int().min(1).max(99),
   color: z.enum(['black', 'white']).optional(),
   linkMode: z.enum(['shared', 'per-unit']).optional(),
