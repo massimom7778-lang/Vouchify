@@ -19,8 +19,23 @@ export interface OutboundEmail {
   readonly replyTo?: string;
 }
 
+/**
+ * Who the mail is from.
+ *
+ * The `www.` is dropped deliberately. site.url is the canonical address people
+ * type at a browser, and it carries a `www.` for that reason — but a mail
+ * provider verifies a domain, and `www.vouchify.ca` is a different, unverified
+ * subdomain of the `vouchify.ca` that is actually verified. Deriving the
+ * sending identity from the browsing URL therefore built an address no provider
+ * would ever accept, which fails as an unverified-domain rejection well after
+ * the money has moved: the order is provisioned, and the customer silently does
+ * not get the dashboard link that is their only key to it.
+ *
+ * QUOTE_FROM_EMAIL still wins, for sending from a subdomain on purpose.
+ */
 function fromAddress(): string {
-  return process.env.QUOTE_FROM_EMAIL ?? `orders@${new URL(site.url).hostname}`;
+  const host = new URL(site.url).hostname.replace(/^www\./, '');
+  return process.env.QUOTE_FROM_EMAIL ?? `orders@${host}`;
 }
 
 /**
