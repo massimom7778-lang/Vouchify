@@ -1,5 +1,28 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { StandCutout } from '@/components/StandCutout';
 import { cn } from '@/lib/cn';
+
+/**
+ * The cut-out photograph of the product, or null when this build does not have
+ * one. It is resolved from disk here, on the server, rather than handed to the
+ * browser to discover: the cost of referencing a file that is not there is paid
+ * before anything client-side can catch it. A `priority` <Image> emits a
+ * <link rel="preload"> into <head>, so the browser chases a 404 ahead of every
+ * real asset on the page, and iOS Safari paints its broken-image glyph over the
+ * hero regardless of what the alt says.
+ *
+ * Self-hosted, and it stays that way. This used to be a Higgsfield CDN URL —
+ * user-content, unversioned, no SLA — and it had already gone unreachable once,
+ * which put the single most important image on the site one purge away from a
+ * broken hero.
+ *
+ * Drop a transparent-background cut-out at the path below and the hero picks it
+ * up on the next deploy. Until then the drawn stand is the hero, which is what
+ * it is built to be.
+ */
+const CUTOUT_SRC = '/product/stand-cutout.webp';
+const CUTOUT = existsSync(join(process.cwd(), 'public', CUTOUT_SRC)) ? CUTOUT_SRC : null;
 
 /**
  * The hero stage: the real product, doing the one thing it does.
@@ -26,10 +49,6 @@ export function TapStage({ className }: { className?: string }) {
   return (
     <div className={cn('tap-stage', className)}>
       {/* ---- the real product, hovering ---- */}
-      {/* The photograph (StandCutout) is self-hosted and decorative — see that
-          file for why alt="" is what actually keeps a failed load silent, not
-          which element type renders it. The drawn stand underneath is what
-          shows instead, so the hero is complete either way. */}
       <div
         className="tap-stage__product"
         role="img"
@@ -37,7 +56,7 @@ export function TapStage({ className }: { className?: string }) {
       >
         <div className="tap-stage__turn">
           <div className="tap-stage__float">
-            <StandCutout />
+            <StandCutout src={CUTOUT} />
           </div>
         </div>
         <span aria-hidden="true" className="tap-stage__shadow" />
