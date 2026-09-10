@@ -34,7 +34,7 @@ export const site = {
    *  Set to the qty of the largest purchasable stand tier, so that tier itself
    *  still checks out normally and only a cart totalling more than it nudges
    *  toward a quote. */
-  multiLocationMinUnits: 50,
+  multiLocationMinUnits: 10,
   /** Post-purchase upsell window, in minutes. Validated server-side against the
    *  Stripe session's created timestamp, never against a client clock. */
   upsellWindowMinutes: 15,

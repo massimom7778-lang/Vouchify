@@ -13,9 +13,7 @@ export type StandTierId =
   | 'stand-2'
   | 'stand-3'
   | 'stand-5'
-  | 'stand-10'
-  | 'stand-25'
-  | 'stand-50';
+  | 'stand-10';
 /** The review plate's own bundle ladder — a first-class catalog kind, not an
  *  add-on. A plate is a separate NFC chip in its own right, bought on its own
  *  in whatever count a shop needs, exactly like a stand pack. */
@@ -355,44 +353,6 @@ export const standTiers: readonly StandTier[] = [
       id: 'tier-10',
       todo: 'Product photo, ten black stands in a grid, flat lay on off-white, overhead',
       alt: 'Ten NFC review stands',
-      aspect: 'square',
-      src: '/product/stand-hero.webp',
-      focus: '50% 62%',
-    },
-  },
-  {
-    kind: 'stand-tier',
-    id: 'stand-25',
-    name: '25 stands',
-    qty: 25,
-    priceCents: 39900,
-    shortLine: 'Several locations, fully covered.',
-    rationale:
-      'Several locations, each covered the way one location would be on its own, counter, terminal and waiting area, with spares left over. We program every stand to its own location’s link and label the boxes so the right ones land at the right address without anyone on your end double-checking.',
-    coverage: 'Several locations, per-location links, labelled boxes, with spares.',
-    photo: {
-      id: 'tier-25',
-      todo: 'Product photo, twenty-five black stands arranged in a grid, flat lay on off-white, overhead',
-      alt: 'Twenty-five NFC review stands',
-      aspect: 'square',
-      src: '/product/stand-hero.webp',
-      focus: '50% 62%',
-    },
-  },
-  {
-    kind: 'stand-tier',
-    id: 'stand-50',
-    name: '50 stands',
-    qty: 50,
-    priceCents: 74900,
-    shortLine: 'A small chain, one rollout.',
-    rationale:
-      'A small chain, covered floor by floor rather than location by location. Every stand still gets its own location’s link and every box still arrives labelled, the difference at this size is that we plan the whole rollout as one order instead of coordinating several.',
-    coverage: 'A small chain, per-location links, labelled boxes, one rollout.',
-    photo: {
-      id: 'tier-50',
-      todo: 'Product photo, fifty black stands arranged in a grid, flat lay on off-white, overhead',
-      alt: 'Fifty NFC review stands',
       aspect: 'square',
       src: '/product/stand-hero.webp',
       focus: '50% 62%',
@@ -813,13 +773,13 @@ export function tierEconomics(
 
 /**
  * Which numbered placements a tier actually fills, for the "01–10" badge next
- * to a tier row. Null past `list.length`: `placements` only names ten real
- * positions across two locations, so a 25- or 50-stand tier has nothing
- * distinct left to number, and showing "01–10" on all three of the 10-, 25-
- * and 50-stand tiers would make the badge actively misleading rather than
- * merely uninformative. Those tiers rely on `tier.coverage` alone. Pass
- * `platePlacements` for a plate tier — every plate tier tops out at 10, so
- * this never returns null for the plate ladder.
+ * to a tier row. Null past `list.length`: `placements` names ten real positions
+ * across two locations, and a tier larger than that has nothing distinct left
+ * to number — showing the same "01–10" on every tier above ten would make the
+ * badge actively misleading rather than merely uninformative, so those fall
+ * back to `tier.coverage` alone. Both ladders currently top out at ten, so
+ * neither reaches that case; it stays because a larger tier is a data change,
+ * not a code change. Pass `platePlacements` for a plate tier.
  */
 export function coveredPositions(
   tier: StandTier | PlateTier,

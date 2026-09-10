@@ -25,7 +25,7 @@ export default function MultiLocationPage() {
               the buy box, not a conversation. What changes past{' '}
               {site.multiLocationMinUnits} stands is everything around the chips: which box goes to
               which address, who signs for it, what the whole group should cost, and what happens
-              when you open number seven.
+              when you open the next location.
             </p>
             <p className="mt-4 text-base text-warm-700">
               So above {site.multiLocationMinUnits} we quote instead of listing a price. You tell us
