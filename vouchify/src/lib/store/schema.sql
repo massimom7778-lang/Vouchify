@@ -90,6 +90,10 @@ CREATE TABLE IF NOT EXISTS quotes (
   locations           INTEGER NOT NULL,
   stands_per_location INTEGER NOT NULL,
   total_stands        INTEGER NOT NULL,
+  -- Nothing writes this any more: logo printing is not a service that is
+  -- offered, so the quote form stopped asking. The column stays because rows
+  -- predating that still carry a real answer, and its default covers the
+  -- insert that no longer names it. Drop it only once those rows are gone.
   logo_printing       BOOLEAN NOT NULL DEFAULT false,
   notes               TEXT,
   delivered           TEXT NOT NULL,

@@ -38,7 +38,6 @@ export default function MultiLocationPage() {
                 ['Per-location links', 'Each shop’s stands point at that shop’s review page. Included, not an upgrade.'],
                 ['Labelled boxes', 'One box per address, named, so staff put out the right ones.'],
                 ['Group pricing', 'Written down and valid for 30 days.'],
-                ['One setup charge', 'Logo printing covers the whole order, not each location.'],
                 ['Reorders', 'Kept on file, so a new location is one email.'],
               ].map(([label, value]) => (
                 <div key={label} className="py-4">

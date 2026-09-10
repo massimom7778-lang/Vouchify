@@ -32,7 +32,7 @@ export const legalPages: readonly LegalPage[] = [
         heading: 'Processing',
         body: [
           `Orders are programmed and packed in ${site.shipping.processing}. Every chip is encoded to your review link and tested on both an iPhone and an Android handset before it goes in the box.`,
-          'Logo printing adds one business day. Orders placed after 1pm ET start counting from the next business day.',
+          'Orders placed after 1pm ET start counting from the next business day.',
         ],
       },
       {

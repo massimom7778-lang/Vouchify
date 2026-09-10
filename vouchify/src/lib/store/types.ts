@@ -143,7 +143,6 @@ export interface QuoteInput {
   readonly phone: string | null;
   readonly locations: number;
   readonly standsPerLocation: number;
-  readonly logoPrinting: boolean;
   readonly notes: string | null;
   /** Whether the notification email actually went out. */
   readonly delivered: string;

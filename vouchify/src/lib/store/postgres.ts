@@ -331,12 +331,12 @@ export function createPostgresStore(): StandStore {
       await db()`
         INSERT INTO quotes (
           id, name, business, email, phone, locations,
-          stands_per_location, total_stands, logo_printing, notes, delivered
+          stands_per_location, total_stands, notes, delivered
         )
         VALUES (
           ${newQuoteId()}, ${input.name}, ${input.business}, ${input.email},
           ${input.phone}, ${input.locations}, ${input.standsPerLocation},
-          ${input.locations * input.standsPerLocation}, ${input.logoPrinting},
+          ${input.locations * input.standsPerLocation},
           ${input.notes}, ${input.delivered}
         )
       `;

@@ -56,7 +56,6 @@ export const quoteRequestSchema = z.object({
   phone: z.string().trim().max(40).optional().or(z.literal('')),
   locations: z.coerce.number().int().min(1, 'At least one location').max(2000),
   standsPerLocation: z.coerce.number().int().min(1, 'At least one stand').max(500),
-  logoPrinting: z.boolean().default(false),
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
 });
 
