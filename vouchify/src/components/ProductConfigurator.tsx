@@ -58,9 +58,9 @@ function TierRow({
       />
 
       {/* Line 1 is always [select] [quantity] ... [price]. The coverage badge
-          and reasoning sit on line 2 so a long combination, e.g. "50 stands
-          / A small chain, several floors covered with spares / $749", wraps
-          onto its own line instead of overflowing a 375px row. */}
+          and reasoning sit on line 2 so a long combination, e.g. "10 stands
+          / Two full locations, per-location links, labelled boxes / $179",
+          wraps onto its own line instead of overflowing a 375px row. */}
       <span className="flex items-center gap-3">
         <span
           aria-hidden="true"
