@@ -21,7 +21,6 @@ function formatQuote(quote: ReturnType<typeof quoteRequestSchema.parse>): string
     `Locations: ${quote.locations}`,
     `Stands per location: ${quote.standsPerLocation}`,
     `Total stands: ${total}`,
-    `Logo printing: ${quote.logoPrinting ? 'yes' : 'no'}`,
     quote.notes ? `Notes:\n${quote.notes}` : 'Notes: none',
   ].join('\n');
 }
@@ -83,7 +82,6 @@ export async function POST(request: Request) {
       phone: quote.phone ?? null,
       locations: quote.locations,
       standsPerLocation: quote.standsPerLocation,
-      logoPrinting: quote.logoPrinting,
       notes: quote.notes ?? null,
       delivered,
     });

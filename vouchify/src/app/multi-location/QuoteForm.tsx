@@ -57,7 +57,6 @@ export function QuoteForm() {
       phone: String(form.get('phone') ?? ''),
       locations: Number(form.get('locations') ?? 0),
       standsPerLocation: Number(form.get('standsPerLocation') ?? 0),
-      logoPrinting: form.get('logoPrinting') === 'on',
       notes: String(form.get('notes') ?? ''),
     };
 
@@ -152,16 +151,6 @@ export function QuoteForm() {
           {total}
         </span>
       </div>
-
-      <label className="mt-5 flex cursor-pointer items-start gap-3">
-        <input name="logoPrinting" type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#C9A961]" />
-        <span>
-          <span className="block text-sm font-semibold">Include logo printing</span>
-          <span className="block text-xs text-warm-600">
-            One setup charge across the whole order, not per location.
-          </span>
-        </span>
-      </label>
 
       <div className="mt-5">
         <Field label="Anything else" hint="Rollout dates, how the locations are named, who receives the boxes." error={errors.notes}>

@@ -18,7 +18,7 @@ export type StandTierId =
  *  add-on. A plate is a separate NFC chip in its own right, bought on its own
  *  in whatever count a shop needs, exactly like a stand pack. */
 export type PlateTierId = 'plate-1' | 'plate-3' | 'plate-5' | 'plate-10';
-export type AddOnId = 'custom-print' | 'rush';
+export type AddOnId = 'rush';
 export type Sku = StandTierId | PlateTierId | AddOnId;
 
 
@@ -453,35 +453,6 @@ export const DEFAULT_PLATE_TIER_ID: PlateTierId = 'plate-3';
 /* -------------------------------------------------------------------------- */
 
 export const addOns: readonly AddOn[] = [
-  {
-    kind: 'add-on',
-    id: 'custom-print',
-    slug: 'custom-print',
-    name: 'Your logo on the stand',
-    priceCents: 2900,
-    slot: 'order-option',
-    hasPage: false,
-    perOrder: true,
-    shortLine: 'One-time setup, applies to every unit in this order.',
-    summary:
-      'We print your logo on the face of every stand in the order. Send the file after checkout; we send a proof back before anything is printed.',
-    details: [
-      'One-time charge per order, however many stands are in it.',
-      'Send a PNG, SVG, or PDF after checkout. We reply with a proof.',
-      'Printing adds one business day to processing.',
-    ],
-    specs: [
-      { label: 'Charge', value: 'Once per order' },
-      { label: 'Files', value: 'PNG, SVG, or PDF' },
-      { label: 'Proof', value: 'Emailed before printing' },
-    ],
-    photo: {
-      id: 'addon-custom-print',
-      todo: 'Product photo, black stand with a generic wordmark printed on the face, macro on the print edge to show quality',
-      alt: 'A stand with a business logo printed on the face',
-      aspect: 'square',
-    },
-  },
   {
     kind: 'add-on',
     id: 'rush',

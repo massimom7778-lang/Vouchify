@@ -165,7 +165,7 @@ export default function BundlesPage() {
                 <li className="border-b border-warm-800 pb-3">
                   Group pricing, written down, valid for 30 days
                 </li>
-                <li>Logo printing across the whole order at one setup charge</li>
+                <li>Reorders kept on file, so a new location is one email</li>
               </ul>
               <ButtonLink href="/multi-location" size="lg" block className="mt-6">
                 Get a quote
